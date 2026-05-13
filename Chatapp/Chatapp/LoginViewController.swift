@@ -8,6 +8,7 @@
 import Foundation
 import UIKit
 import FirebaseAuth
+import FirebaseFirestore
 
 class LoginViewController: UIViewController {
 
@@ -76,6 +77,17 @@ class LoginViewController: UIViewController {
                 }
                 print("註冊成功：\(result?.user.email ?? "")")
                 guard let window = self.view.window else { return }
+                let db = Firestore.firestore()
+                db.collection("users").document(result!.user.uid).setData([
+                    "email": email,
+                    "displayName": email
+                ]) { error in
+                    if let error = error {
+                        print("UserProfile 寫入失敗：\(error)")
+                    } else {
+                        print("UserProfile 寫入成功")
+                    }
+                }
                 window.rootViewController = ConversationListViewController()
             }
         }
