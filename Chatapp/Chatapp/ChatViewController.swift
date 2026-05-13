@@ -18,6 +18,9 @@ class ChatViewController: UIViewController {
     
     // 暫時寫死，之後由 ConversationListVC 傳進來
     let conversationId = "test-conversation"
+    
+    var messages: [Message] = []
+    var listener: ListenerRegistration?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -43,6 +46,8 @@ class ChatViewController: UIViewController {
             stack.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             stack.widthAnchor.constraint(equalToConstant: 300)
         ])
+        
+        startListening()
     }
 
     @objc func sendTapped() {
@@ -53,11 +58,11 @@ class ChatViewController: UIViewController {
         }
 
         let message: [String: Any] = [
-            "conversationId": conversationId,
             "senderId": senderId,
             "content": content,
             "type": "text",
-            "timestamp": Timestamp(date: Date())
+            "timestamp": Timestamp(date: Date()),
+            "isRead": false
         ]
 
         db.collection("conversations").document(conversationId)
@@ -69,5 +74,24 @@ class ChatViewController: UIViewController {
                 self.messageField.text = ""
             }
         }
+    }
+    
+    func startListening() {
+        listener = db.collection("conversations").document(conversationId)
+            .collection("messages")
+            .order(by: "timestamp")
+            .addSnapshotListener { snapshot, error in
+                if let error = error {
+                    print("監聽失敗：\(error)")
+                    return
+                }
+                guard let docs = snapshot?.documents else { return }
+                self.messages = docs.compactMap { try? $0.data(as: Message.self) }
+                print("目前訊息數：\(self.messages.count)")
+            }
+    }
+    
+    deinit {
+        listener?.remove()
     }
 }

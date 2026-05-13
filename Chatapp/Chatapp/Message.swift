@@ -10,9 +10,10 @@ import FirebaseFirestore
 
 struct Message: Codable {
     @DocumentID var id: String?
-    let conversationId: String
     let senderId: String
     let content: String
     let type: String
+    var imageURL: String?
     let timestamp: Date
+    var isRead: Bool
 }
