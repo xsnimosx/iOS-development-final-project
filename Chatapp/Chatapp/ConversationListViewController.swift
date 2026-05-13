@@ -28,6 +28,17 @@ class ConversationListViewController: UIViewController {
             signOutButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             signOutButton.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
+        
+        let chatButton = UIButton(type: .system)
+        chatButton.setTitle("進入聊天室", for: .normal)
+        chatButton.addTarget(self, action: #selector(chatTapped), for: .touchUpInside)
+        chatButton.translatesAutoresizingMaskIntoConstraints = false
+
+        view.addSubview(chatButton)
+        NSLayoutConstraint.activate([
+            chatButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            chatButton.topAnchor.constraint(equalTo: signOutButton.bottomAnchor, constant: 20)
+        ])
     }
 
     @objc func signOutTapped() {
@@ -39,5 +50,10 @@ class ConversationListViewController: UIViewController {
         } catch {
             print("登出失敗：\(error.localizedDescription)")
         }
+    }
+    
+    @objc func chatTapped() {
+        let chatVC = ChatViewController()
+        present(chatVC, animated: true)
     }
 }
