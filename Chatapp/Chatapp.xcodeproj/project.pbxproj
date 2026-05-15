@@ -18,6 +18,11 @@
 		5188528A2FB206D2009B9ECA /* Base in Resources */ = {isa = PBXBuildFile; fileRef = 518852892FB206D2009B9ECA /* Base */; };
 		5188528C2FB206D4009B9ECA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5188528B2FB206D4009B9ECA /* Assets.xcassets */; };
 		5188528F2FB206D4009B9ECA /* Base in Resources */ = {isa = PBXBuildFile; fileRef = 5188528E2FB206D4009B9ECA /* Base */; };
+		51AC294A2FB314D500493A46 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51AC29492FB314D500493A46 /* LoginViewController.swift */; };
+		51AC294D2FB332FA00493A46 /* ConversationListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51AC294C2FB332FA00493A46 /* ConversationListViewController.swift */; };
+		51E3C7FF2FB4604D0047BC04 /* UserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E3C7FE2FB4604D0047BC04 /* UserProfile.swift */; };
+		51E3C8012FB468C80047BC04 /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E3C8002FB468C80047BC04 /* Message.swift */; };
+		51E3C8032FB469780047BC04 /* ChatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E3C8022FB469780047BC04 /* ChatViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -30,6 +35,11 @@
 		5188528B2FB206D4009B9ECA /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		5188528E2FB206D4009B9ECA /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		518852902FB206D4009B9ECA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		51AC29492FB314D500493A46 /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
+		51AC294C2FB332FA00493A46 /* ConversationListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationListViewController.swift; sourceTree = "<group>"; };
+		51E3C7FE2FB4604D0047BC04 /* UserProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfile.swift; sourceTree = "<group>"; };
+		51E3C8002FB468C80047BC04 /* Message.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = "<group>"; };
+		51E3C8022FB469780047BC04 /* ChatViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -52,6 +62,7 @@
 			children = (
 				518852812FB206D2009B9ECA /* Chatapp */,
 				518852802FB206D2009B9ECA /* Products */,
+				51AC294B2FB318A400493A46 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -74,8 +85,20 @@
 				5188528B2FB206D4009B9ECA /* Assets.xcassets */,
 				5188528D2FB206D4009B9ECA /* LaunchScreen.storyboard */,
 				518852902FB206D4009B9ECA /* Info.plist */,
+				51AC29492FB314D500493A46 /* LoginViewController.swift */,
+				51AC294C2FB332FA00493A46 /* ConversationListViewController.swift */,
+				51E3C7FE2FB4604D0047BC04 /* UserProfile.swift */,
+				51E3C8002FB468C80047BC04 /* Message.swift */,
+				51E3C8022FB469780047BC04 /* ChatViewController.swift */,
 			);
 			path = Chatapp;
+			sourceTree = "<group>";
+		};
+		51AC294B2FB318A400493A46 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -159,9 +182,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				51AC294A2FB314D500493A46 /* LoginViewController.swift in Sources */,
 				518852872FB206D2009B9ECA /* ViewController.swift in Sources */,
+				51E3C8032FB469780047BC04 /* ChatViewController.swift in Sources */,
+				51E3C7FF2FB4604D0047BC04 /* UserProfile.swift in Sources */,
+				51AC294D2FB332FA00493A46 /* ConversationListViewController.swift in Sources */,
 				518852832FB206D2009B9ECA /* AppDelegate.swift in Sources */,
 				518852852FB206D2009B9ECA /* SceneDelegate.swift in Sources */,
+				51E3C8012FB468C80047BC04 /* Message.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
