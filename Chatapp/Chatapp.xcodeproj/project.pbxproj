@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0C0D3F382FD8BDDB00E50D8A /* Chat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C0D3F372FD8BDDB00E50D8A /* Chat.swift */; };
 		514310182FB21F1900A3BBAB /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 514310172FB21F1900A3BBAB /* FirebaseAnalytics */; };
 		5143101A2FB21F1900A3BBAB /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 514310192FB21F1900A3BBAB /* FirebaseAuth */; };
 		5143101C2FB21F1900A3BBAB /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 5143101B2FB21F1900A3BBAB /* FirebaseFirestore */; };
@@ -26,6 +27,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0C0D3F372FD8BDDB00E50D8A /* Chat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Chat.swift; sourceTree = "<group>"; };
 		5143101F2FB2210000A3BBAB /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		5188527F2FB206D2009B9ECA /* Chatapp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Chatapp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		518852822FB206D2009B9ECA /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -90,6 +92,7 @@
 				51E3C7FE2FB4604D0047BC04 /* UserProfile.swift */,
 				51E3C8002FB468C80047BC04 /* Message.swift */,
 				51E3C8022FB469780047BC04 /* ChatViewController.swift */,
+				0C0D3F372FD8BDDB00E50D8A /* Chat.swift */,
 			);
 			path = Chatapp;
 			sourceTree = "<group>";
@@ -186,6 +189,7 @@
 				518852872FB206D2009B9ECA /* ViewController.swift in Sources */,
 				51E3C8032FB469780047BC04 /* ChatViewController.swift in Sources */,
 				51E3C7FF2FB4604D0047BC04 /* UserProfile.swift in Sources */,
+				0C0D3F382FD8BDDB00E50D8A /* Chat.swift in Sources */,
 				51AC294D2FB332FA00493A46 /* ConversationListViewController.swift in Sources */,
 				518852832FB206D2009B9ECA /* AppDelegate.swift in Sources */,
 				518852852FB206D2009B9ECA /* SceneDelegate.swift in Sources */,
