@@ -1,0 +1,105 @@
+//
+//  NewConversationViewController.swift
+//  Chatapp
+
+import UIKit
+import FirebaseAuth
+import FirebaseFirestore
+
+class NewConversationViewController: UIViewController {
+
+    // MARK: - IBOutlets
+    // ctrl-drag 從 Storyboard 連接：
+    @IBOutlet weak var searchBar: UISearchBar!
+    @IBOutlet weak var tableView: UITableView!
+
+    private var allUsers: [UserProfile] = []
+    private var filteredUsers: [UserProfile] = []
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        searchBar.delegate = self
+        tableView.dataSource = self
+        tableView.delegate = self
+        fetchUsers()
+    }
+
+    // MARK: - IBAction
+    // ctrl-drag 從 cancel 按鈕連接（或用 storyboard 的 barButtonItem）
+    @IBAction func cancelTapped(_ sender: Any) {
+        dismiss(animated: true)
+    }
+
+    private func fetchUsers() {
+        guard let currentUID = Auth.auth().currentUser?.uid else { return }
+        Firestore.firestore().collection("users").getDocuments { [weak self] snapshot, _ in
+            self?.allUsers = snapshot?.documents.compactMap { doc -> UserProfile? in
+                guard doc.documentID != currentUID else { return nil }
+                let data = doc.data()
+                return UserProfile(
+                    uid: doc.documentID,
+                    displayName: data["displayName"] as? String ?? "",
+                    email: data["email"] as? String ?? ""
+                )
+            } ?? []
+            self?.filteredUsers = self?.allUsers ?? []
+            DispatchQueue.main.async { self?.tableView.reloadData() }
+        }
+    }
+
+    private func startConversation(with user: UserProfile) {
+        guard let currentUID = Auth.auth().currentUser?.uid else { return }
+        let db = Firestore.firestore()
+        // 建立或取得已有的對話
+        let participants = [currentUID, user.uid].sorted()
+        let convId = participants.joined(separator: "_")
+        let ref = db.collection("conversations").document(convId)
+        ref.getDocument { [weak self] snapshot, _ in
+            if snapshot?.exists == false {
+                ref.setData([
+                    "participants": participants,
+                    "participantNames": [currentUID: Auth.auth().currentUser?.email ?? "", user.uid: user.displayName],
+                    "lastMessage": "",
+                    "lastUpdated": Timestamp(date: Date())
+                ])
+            }
+            DispatchQueue.main.async {
+                self?.dismiss(animated: true)
+            }
+        }
+    }
+}
+
+// MARK: - UISearchBarDelegate
+extension NewConversationViewController: UISearchBarDelegate {
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        filteredUsers = searchText.isEmpty ? allUsers : allUsers.filter {
+            $0.displayName.localizedCaseInsensitiveContains(searchText) ||
+            $0.email.localizedCaseInsensitiveContains(searchText)
+        }
+        tableView.reloadData()
+    }
+}
+
+// MARK: - UITableViewDataSource
+extension NewConversationViewController: UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int { filteredUsers.count }
+
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "UserCell", for: indexPath)
+        let user = filteredUsers[indexPath.row]
+        // 找到 storyboard cell 裡的 label（id: 1mx-UU-Ylo）
+        if let label = cell.contentView.subviews.compactMap({ $0 as? UILabel }).first {
+            label.text = user.displayName
+        }
+        return cell
+    }
+}
+
+// MARK: - UITableViewDelegate
+extension NewConversationViewController: UITableViewDelegate {
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        startConversation(with: filteredUsers[indexPath.row])
+    }
+}
