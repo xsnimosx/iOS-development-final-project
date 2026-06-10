@@ -22,6 +22,7 @@ class ChatViewController: UIViewController {
     private var messages: [Message] = []
     private var listener: ListenerRegistration?
     private var currentUserName: String = ""
+    private var inputBottomConstraint: NSLayoutConstraint?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -30,11 +31,14 @@ class ChatViewController: UIViewController {
         setupUI()
         fetchCurrentUserName()
         startListening()
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         listener?.remove()
+        NotificationCenter.default.removeObserver(self)
     }
 
     // MARK: - Setup
@@ -69,10 +73,13 @@ class ChatViewController: UIViewController {
         inputContainer.addSubview(messageField)
         inputContainer.addSubview(sendButton)
 
+        let bottomConstraint = inputContainer.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+        inputBottomConstraint = bottomConstraint
+
         NSLayoutConstraint.activate([
             inputContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             inputContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            inputContainer.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            bottomConstraint,
             inputContainer.heightAnchor.constraint(equalToConstant: 56),
 
             tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
@@ -120,6 +127,24 @@ class ChatViewController: UIViewController {
         guard !messages.isEmpty else { return }
         let indexPath = IndexPath(row: messages.count - 1, section: 0)
         tableView.scrollToRow(at: indexPath, at: .bottom, animated: true)
+    }
+
+    // MARK: - Keyboard
+
+    @objc private func keyboardWillShow(_ notification: Notification) {
+        guard let info = notification.userInfo,
+              let keyboardFrame = info[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
+              let duration = info[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double else { return }
+        let safeBottom = view.safeAreaInsets.bottom
+        inputBottomConstraint?.constant = -(keyboardFrame.height - safeBottom)
+        UIView.animate(withDuration: duration) { self.view.layoutIfNeeded() }
+        scrollToBottom()
+    }
+
+    @objc private func keyboardWillHide(_ notification: Notification) {
+        guard let duration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double else { return }
+        inputBottomConstraint?.constant = 0
+        UIView.animate(withDuration: duration) { self.view.layoutIfNeeded() }
     }
 
     // MARK: - Actions
