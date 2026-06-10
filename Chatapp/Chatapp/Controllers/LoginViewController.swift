@@ -16,6 +16,9 @@ class LoginViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        if Auth.auth().currentUser != nil {
+            navigateToMainApp()
+        }
     }
 
     // MARK: - IBAction
