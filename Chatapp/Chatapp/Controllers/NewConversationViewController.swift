@@ -35,12 +35,7 @@ class NewConversationViewController: UIViewController {
         Firestore.firestore().collection("users").getDocuments { [weak self] snapshot, _ in
             self?.allUsers = snapshot?.documents.compactMap { doc -> UserProfile? in
                 guard doc.documentID != currentUID else { return nil }
-                let data = doc.data()
-                return UserProfile(
-                    uid: doc.documentID,
-                    displayName: data["displayName"] as? String ?? "",
-                    email: data["email"] as? String ?? ""
-                )
+                return try? doc.data(as: UserProfile.self)
             } ?? []
             self?.filteredUsers = self?.allUsers ?? []
             DispatchQueue.main.async { self?.tableView.reloadData() }
@@ -48,17 +43,17 @@ class NewConversationViewController: UIViewController {
     }
 
     private func startConversation(with user: UserProfile) {
-        guard let currentUID = Auth.auth().currentUser?.uid else { return }
+        guard let currentUID = Auth.auth().currentUser?.uid,
+              let userID = user.id else { return }
         let db = Firestore.firestore()
-        // 建立或取得已有的對話
-        let participants = [currentUID, user.uid].sorted()
+        let participants = [currentUID, userID].sorted()
         let convId = participants.joined(separator: "_")
         let ref = db.collection("conversations").document(convId)
-        ref.getDocument { [weak self] snapshot, _ in
+        ref.getDocument { [weak self] (snapshot: DocumentSnapshot?, _: Error?) in
             if snapshot?.exists == false {
                 ref.setData([
                     "participants": participants,
-                    "participantNames": [currentUID: Auth.auth().currentUser?.email ?? "", user.uid: user.displayName],
+                    "participantNames": [currentUID: Auth.auth().currentUser?.email ?? "", userID: user.displayName],
                     "lastMessage": "",
                     "lastUpdated": Timestamp(date: Date())
                 ])
