@@ -9,16 +9,12 @@ import FirebaseFirestore
 class ChatViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
 
     // MARK: - IBOutlets
-    // 在 Xcode 中 ctrl-drag 從 Storyboard 連接到這裡：
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var messageTextField: UITextField!
-    // inputBottomConstraint：ctrl-drag 從 "inputContainer.bottom = safeArea.bottom" 的 constraint 連接
     @IBOutlet weak var inputBottomConstraint: NSLayoutConstraint!
 
     // MARK: - IBActions
-    // ctrl-drag 從 arrow.up.circle 按鈕連接
     @IBAction func sendButtonTapped(_ sender: UIButton) { sendTapped() }
-    // ctrl-drag 從 plus.circle 按鈕連接
     @IBAction func imageButtonTapped(_ sender: UIButton) { pickImageTapped() }
 
     // MARK: - Properties
