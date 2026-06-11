@@ -38,6 +38,9 @@ class ChatViewController: UIViewController, UIImagePickerControllerDelegate, UIN
         startListening()
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
+        let tap = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tap.cancelsTouchesInView = false
+        view.addGestureRecognizer(tap)
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -124,6 +127,8 @@ class ChatViewController: UIViewController, UIImagePickerControllerDelegate, UIN
     }
 
     // MARK: - Keyboard
+    @objc private func dismissKeyboard() { view.endEditing(true) }
+
     @objc private func keyboardWillShow(_ notification: Notification) {
         guard let info = notification.userInfo,
               let keyboardFrame = info[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
