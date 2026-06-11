@@ -27,6 +27,7 @@
 		515934732FD9B41400A0CA14 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 515934632FD9B41400A0CA14 /* SceneDelegate.swift */; };
 		AA000001000000000000AA02 /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000001000000000000AA01 /* SettingsViewController.swift */; };
 		AA000001000000000000AA04 /* NewConversationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000001000000000000AA03 /* NewConversationViewController.swift */; };
+		AA000001000000000000AA06 /* UIViewController+Keyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000001000000000000AA05 /* UIViewController+Keyboard.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -48,6 +49,7 @@
 		515934742FD9B47C00A0CA14 /* Chatapp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Chatapp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA000001000000000000AA01 /* SettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
 		AA000001000000000000AA03 /* NewConversationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewConversationViewController.swift; sourceTree = "<group>"; };
+		AA000001000000000000AA05 /* UIViewController+Keyboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+Keyboard.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -74,6 +76,7 @@
 				515934502FD9B41400A0CA14 /* MediaPreviewViewController.swift */,
 				AA000001000000000000AA01 /* SettingsViewController.swift */,
 				AA000001000000000000AA03 /* NewConversationViewController.swift */,
+				AA000001000000000000AA05 /* UIViewController+Keyboard.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -246,6 +249,7 @@
 				515934682FD9B41400A0CA14 /* MediaPreviewViewController.swift in Sources */,
 				AA000001000000000000AA02 /* SettingsViewController.swift in Sources */,
 				AA000001000000000000AA04 /* NewConversationViewController.swift in Sources */,
+				AA000001000000000000AA06 /* UIViewController+Keyboard.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
