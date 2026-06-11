@@ -55,13 +55,19 @@ class ConversationListViewController: UIViewController {
             }
     }
 
+    // MARK: - IBActions
+    @IBAction func addButtonTapped(_ sender: UIBarButtonItem) {
+        performSegue(withIdentifier: "showChat", sender: nil)
+    }
+
     // MARK: - Segue
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "showChat",
-           let chatVC = segue.destination as? ChatViewController,
-           let indexPath = tableView.indexPathForSelectedRow {
+        guard segue.identifier == "showChat",
+              let chatVC = segue.destination as? ChatViewController else { return }
+        if let indexPath = tableView.indexPathForSelectedRow {
             chatVC.conversationId = conversations[indexPath.row].id
         }
+        // sender == nil 代表從 + 按鈕進來，保留 default "test-conversation"
     }
 }
 
@@ -72,34 +78,9 @@ extension ConversationListViewController: UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "ConversationCell", for: indexPath)
-        let conv = conversations[indexPath.row]
-        // 找到 storyboard cell 裡的 label（用 tag 或 subview 結構）
-        // nameLabel: stackView → label[0], messageLabel: stackView → label[1], timeLabel
-        if let contentView = cell.contentView as? UIView {
-            let labels = allLabels(in: contentView)
-            if labels.count >= 3 {
-                labels[0].text = conv.otherUserName
-                labels[1].text = conv.lastMessage
-                labels[2].text = timeString(from: conv.timestamp)
-            }
-        }
+        let cell = tableView.dequeueReusableCell(withIdentifier: "ConversationCell", for: indexPath) as! ConversationCell
+        cell.configure(with: conversations[indexPath.row])
         return cell
-    }
-
-    private func allLabels(in view: UIView) -> [UILabel] {
-        var result = [UILabel]()
-        for sub in view.subviews {
-            if let label = sub as? UILabel { result.append(label) }
-            result += allLabels(in: sub)
-        }
-        return result
-    }
-
-    private func timeString(from date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = Calendar.current.isDateInToday(date) ? "HH:mm" : "MM/dd"
-        return formatter.string(from: date)
     }
 }
 

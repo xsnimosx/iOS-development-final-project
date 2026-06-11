@@ -196,7 +196,7 @@ class MessageCell: UITableViewCell {
     }
 
     required init?(coder: NSCoder) { fatalError() }
-
+	
     private func setupViews() {
         bubbleView.layer.cornerRadius = 12
         bubbleView.clipsToBounds = true
@@ -230,13 +230,13 @@ class MessageCell: UITableViewCell {
             msgImageView.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor),
             msgImageView.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor),
             msgImageView.bottomAnchor.constraint(equalTo: bubbleView.bottomAnchor),
-            msgImageView.heightAnchor.constraint(equalToConstant: 180),
             bubbleView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 4),
             bubbleView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -4),
             bubbleView.widthAnchor.constraint(lessThanOrEqualTo: contentView.widthAnchor, multiplier: 0.72)
         ])
     }
 
+    private var imageHeightConstraint: NSLayoutConstraint?
     private var bubbleLeading: NSLayoutConstraint?
     private var bubbleTrailing: NSLayoutConstraint?
 
@@ -248,6 +248,11 @@ class MessageCell: UITableViewCell {
         contentLabel.text = isImage ? nil : message.content
         msgImageView.isHidden = !isImage
         msgImageView.image = nil
+        imageHeightConstraint?.isActive = false
+        if isImage {
+            imageHeightConstraint = msgImageView.heightAnchor.constraint(equalToConstant: 180)
+            imageHeightConstraint?.isActive = true
+        }
         if isImage, let urlString = message.imageURL, let url = URL(string: urlString) {
             URLSession.shared.dataTask(with: url) { [weak self] data, _, _ in
                 guard let data = data, let img = UIImage(data: data) else { return }
