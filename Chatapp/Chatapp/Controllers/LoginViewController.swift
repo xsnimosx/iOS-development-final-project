@@ -19,7 +19,12 @@ class LoginViewController: UIViewController {
         if Auth.auth().currentUser != nil {
             navigateToMainApp()
         }
+        let tap = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tap.cancelsTouchesInView = false
+        view.addGestureRecognizer(tap)
     }
+
+    @objc private func dismissKeyboard() { view.endEditing(true) }
 
     // MARK: - IBAction
     // 在 Xcode 中 ctrl-drag 從 LOGIN 按鈕連接到這裡
