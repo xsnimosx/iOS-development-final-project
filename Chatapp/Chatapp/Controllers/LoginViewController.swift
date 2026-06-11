@@ -1,95 +1,73 @@
 //
 //  LoginViewController.swift
 //  Chatapp
-//
-//  Created by snimos on 2026/5/12.
-//
 
-import Foundation
 import UIKit
 import FirebaseAuth
 import FirebaseFirestore
 
 class LoginViewController: UIViewController {
 
-    let emailField = UITextField()
-    let passwordField = UITextField()
-    let segmentedControl = UISegmentedControl(items: ["登入", "註冊"])
-    let actionButton = UIButton(type: .system)
+    // MARK: - IBOutlets
+    // 在 Xcode 中 ctrl-drag 從 Storyboard 元素連接到這裡
+    @IBOutlet weak var emailField: UITextField!
+    @IBOutlet weak var passwordField: UITextField!
+    @IBOutlet weak var segmentedControl: UISegmentedControl!
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .black
-        setupUI()
+        if Auth.auth().currentUser != nil {
+            navigateToMainApp()
+        }
+        setupKeyboardDismissOnTap()
     }
 
-    func setupUI() {
-        emailField.placeholder = "Email"
-        emailField.borderStyle = .roundedRect
-        emailField.autocapitalizationType = .none
-
-        passwordField.placeholder = "密碼"
-        passwordField.borderStyle = .roundedRect
-        passwordField.isSecureTextEntry = true
-
-        segmentedControl.selectedSegmentIndex = 0
-
-        actionButton.setTitle("登入", for: .normal)
-        actionButton.addTarget(self, action: #selector(actionTapped), for: .touchUpInside)
-
-        let stack = UIStackView(arrangedSubviews: [segmentedControl, emailField, passwordField, actionButton])
-        stack.axis = .vertical
-        stack.spacing = 16
-        stack.translatesAutoresizingMaskIntoConstraints = false
-
-        view.addSubview(stack)
-        NSLayoutConstraint.activate([
-            stack.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            stack.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            stack.widthAnchor.constraint(equalToConstant: 300)
-        ])
-    }
-
-    @objc func actionTapped() {
+    // MARK: - IBAction
+    // 在 Xcode 中 ctrl-drag 從 LOGIN 按鈕連接到這裡
+    @IBAction func loginButtonTapped(_ sender: UIButton) {
         guard let email = emailField.text, !email.isEmpty,
               let password = passwordField.text, !password.isEmpty else {
-            print("請填寫 Email 和密碼")
+            showAlert("請填寫 Email 和密碼")
             return
         }
 
         if segmentedControl.selectedSegmentIndex == 0 {
-            // 登入
-            Auth.auth().signIn(withEmail: email, password: password) { result, error in
+            Auth.auth().signIn(withEmail: email, password: password) { [weak self] result, error in
                 if let error = error {
-                    print("登入失敗：\(error.localizedDescription)")
+                    self?.showAlert("登入失敗：\(error.localizedDescription)")
                     return
                 }
-                print("登入成功：\(result?.user.email ?? "")")
-                guard let window = self.view.window else { return }
-                window.rootViewController = ConversationListViewController()
+                self?.navigateToMainApp()
             }
         } else {
-            // 註冊
-            Auth.auth().createUser(withEmail: email, password: password) { result, error in
+            Auth.auth().createUser(withEmail: email, password: password) { [weak self] result, error in
                 if let error = error {
-                    print("註冊失敗：\(error.localizedDescription)")
+                    self?.showAlert("註冊失敗：\(error.localizedDescription)")
                     return
                 }
-                print("註冊成功：\(result?.user.email ?? "")")
-                guard let window = self.view.window else { return }
-                let db = Firestore.firestore()
-                db.collection("users").document(result!.user.uid).setData([
+                guard let uid = result?.user.uid else { return }
+                Firestore.firestore().collection("users").document(uid).setData([
                     "email": email,
                     "displayName": email
-                ]) { error in
-                    if let error = error {
-                        print("UserProfile 寫入失敗：\(error)")
-                    } else {
-                        print("UserProfile 寫入成功")
-                    }
-                }
-                window.rootViewController = ConversationListViewController()
+                ])
+                self?.navigateToMainApp()
             }
         }
-    }	
+    }
+
+    private func navigateToMainApp() {
+        DispatchQueue.main.async {
+            // 使用 storyboard 的 segue（名稱 "toMainApp"），
+            // 需要在 Xcode 把 ViewController → TabBarController 的 segue 命名為 "toMainApp"
+            self.performSegue(withIdentifier: "toMainApp", sender: nil)
+        }
+    }
+
+    private func showAlert(_ message: String) {
+        DispatchQueue.main.async {
+            let alert = UIAlertController(title: nil, message: message, preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "確定", style: .default))
+            self.present(alert, animated: true)
+        }
+    }
 }
