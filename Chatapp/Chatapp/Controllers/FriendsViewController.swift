@@ -147,6 +147,15 @@ class FriendsViewController: UIViewController {
         let convId = participants.joined(separator: "_")
         let ref = db.collection("conversations").document(convId)
         ref.getDocument { [weak self] snapshot, _ in
+            let navigate = {
+                DispatchQueue.main.async {
+                    let sb = UIStoryboard(name: "Main", bundle: nil)
+                    guard let chatVC = sb.instantiateViewController(withIdentifier: "ChatViewController")
+                            as? ChatViewController else { return }
+                    chatVC.conversationId = convId
+                    self?.navigationController?.pushViewController(chatVC, animated: true)
+                }
+            }
             if snapshot?.exists == false {
                 ref.setData([
                     "participants": participants,
@@ -154,14 +163,9 @@ class FriendsViewController: UIViewController {
                                          userID: user.displayName],
                     "lastMessage": "",
                     "lastUpdated": Timestamp(date: Date())
-                ])
-            }
-            DispatchQueue.main.async {
-                let sb = UIStoryboard(name: "Main", bundle: nil)
-                guard let chatVC = sb.instantiateViewController(withIdentifier: "ChatViewController")
-                        as? ChatViewController else { return }
-                chatVC.conversationId = convId
-                self?.navigationController?.pushViewController(chatVC, animated: true)
+                ]) { _ in navigate() }
+            } else {
+                navigate()
             }
         }
     }
