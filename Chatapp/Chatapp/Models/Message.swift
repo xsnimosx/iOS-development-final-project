@@ -11,6 +11,7 @@ import FirebaseFirestore
 struct Message: Codable {
     @DocumentID var id: String?
     let senderId: String
+    let senderName: String
     let content: String
     let type: String
     var imageURL: String?
