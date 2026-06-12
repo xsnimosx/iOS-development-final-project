@@ -54,24 +54,6 @@ class ChatListViewController: UIViewController {
             }
     }
 
-    // MARK: - IBActions
-    // TODO: Remove when friend feature is ready
-    @IBAction func addButtonTapped(_ sender: UIBarButtonItem) {
-        guard let uid = Auth.auth().currentUser?.uid else { return }
-        let convId = "test-conversation"
-        Firestore.firestore().collection("conversations").document(convId).setData([
-            "participants": [uid],
-            "participantNames": [uid: Auth.auth().currentUser?.email ?? "Me"],
-            "lastMessage": "",
-            "lastUpdated": Timestamp(date: Date())
-        ], merge: true) { [weak self] _ in
-            let testConv = Conversation(id: convId, otherUserName: "Test User", lastMessage: "", timestamp: Date())
-            DispatchQueue.main.async {
-                self?.performSegue(withIdentifier: "showChat", sender: testConv)
-            }
-        }
-    }
-
     // MARK: - Segue
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         guard segue.identifier == "showChat",

@@ -25,6 +25,9 @@
 		514169C32FDB2AB2007FE670 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 514169AB2FDB2AB2007FE670 /* Main.storyboard */; };
 		514169C42FDB2AB2007FE670 /* ConversationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 514169AD2FDB2AB2007FE670 /* ConversationCell.swift */; };
 		514169C52FDB2AB2007FE670 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 514169AF2FDB2AB2007FE670 /* AppDelegate.swift */; };
+		514169CC2FDB2AB2007FE670 /* FriendRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 514169CB2FDB2AB2007FE670 /* FriendRequest.swift */; };
+		514169CE2FDB2AB2007FE670 /* AddFriendViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 514169CD2FDB2AB2007FE670 /* AddFriendViewController.swift */; };
+		514169D02FDB2AB2007FE670 /* FriendsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 514169CF2FDB2AB2007FE670 /* FriendsViewController.swift */; };
 		514169C72FDB2AB2007FE670 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 514169B12FDB2AB2007FE670 /* SceneDelegate.swift */; };
 		514310182FB21F1900A3BBAB /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 514310172FB21F1900A3BBAB /* FirebaseAnalytics */; };
 		5143101A2FB21F1900A3BBAB /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 514310192FB21F1900A3BBAB /* FirebaseAuth */; };
@@ -45,6 +48,9 @@
 		5141699F2FDB2AB2007FE670 /* LocalCacheManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocalCacheManager.swift; sourceTree = "<group>"; };
 		514169A12FDB2AB2007FE670 /* Message.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = "<group>"; };
 		514169A22FDB2AB2007FE670 /* UserProfile.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserProfile.swift; sourceTree = "<group>"; };
+		514169CB2FDB2AB2007FE670 /* FriendRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FriendRequest.swift; sourceTree = "<group>"; };
+		514169CD2FDB2AB2007FE670 /* AddFriendViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddFriendViewController.swift; sourceTree = "<group>"; };
+		514169CF2FDB2AB2007FE670 /* FriendsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FriendsViewController.swift; sourceTree = "<group>"; };
 		514169A42FDB2AB2007FE670 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		514169A52FDB2AB2007FE670 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		514169A62FDB2AB2007FE670 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -82,6 +88,8 @@
 				5141699A2FDB2AB2007FE670 /* NewChatViewController.swift */,
 				5141699B2FDB2AB2007FE670 /* SettingsViewController.swift */,
 				5141699C2FDB2AB2007FE670 /* UIViewController+Keyboard.swift */,
+				514169CD2FDB2AB2007FE670 /* AddFriendViewController.swift */,
+				514169CF2FDB2AB2007FE670 /* FriendsViewController.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -100,6 +108,7 @@
 			children = (
 				514169A12FDB2AB2007FE670 /* Message.swift */,
 				514169A22FDB2AB2007FE670 /* UserProfile.swift */,
+				514169CB2FDB2AB2007FE670 /* FriendRequest.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -258,6 +267,9 @@
 				514169B72FDB2AB2007FE670 /* MediaPreviewViewController.swift in Sources */,
 				514169BB2FDB2AB2007FE670 /* ImageUploadManager.swift in Sources */,
 				514169B42FDB2AB2007FE670 /* ChatListViewController.swift in Sources */,
+				514169CC2FDB2AB2007FE670 /* FriendRequest.swift in Sources */,
+				514169CE2FDB2AB2007FE670 /* AddFriendViewController.swift in Sources */,
+				514169D02FDB2AB2007FE670 /* FriendsViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

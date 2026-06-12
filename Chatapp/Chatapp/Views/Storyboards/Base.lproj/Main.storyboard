@@ -253,14 +253,7 @@
                             <constraint firstItem="Aah-k4-qIQ" firstAttribute="trailing" secondItem="9kA-7h-yxs" secondAttribute="trailing" id="CL-tv-trail"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" title="Chats" id="SOF-9J-0Qa">
-                        <barButtonItem key="rightBarButtonItem" title="＋" id="XnX-Ns-K1o">
-                            <color key="tintColor" systemColor="systemBrownColor"/>
-                            <connections>
-                                <action selector="addButtonTapped:" destination="45p-yT-61P" id="Ugs-au-1NV"/>
-                            </connections>
-                        </barButtonItem>
-                    </navigationItem>
+                    <navigationItem key="navigationItem" title="Chats" id="SOF-9J-0Qa"/>
                     <connections>
                         <outlet property="tableView" destination="9kA-7h-yxs" id="AAB-C2-001"/>
                     </connections>
@@ -272,7 +265,7 @@
         <!--Chat View Controller-->
         <scene sceneID="tqQ-gW-jQD">
             <objects>
-                <viewController hidesBottomBarWhenPushed="YES" id="JbB-mY-1xm" customClass="ChatViewController" customModule="Chatapp" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController hidesBottomBarWhenPushed="YES" storyboardIdentifier="ChatViewController" id="JbB-mY-1xm" customClass="ChatViewController" customModule="Chatapp" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="V7R-JM-aVv">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -528,7 +521,7 @@
         <scene sceneID="PLU-sc-001">
             <objects>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="PLU-nc-001" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="Add Firends" image="plus.circle.fill" catalog="system" id="PLU-ti-001"/>
+                    <tabBarItem key="tabBarItem" title="Friends" image="person.2" catalog="system" selectedImage="person.2.fill" id="PLU-ti-001"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="PLU-nb-001">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="44"/>
@@ -543,20 +536,245 @@
             </objects>
             <point key="canvasLocation" x="864" y="-1577"/>
         </scene>
-        <!--View Controller-->
+        <!--Friends View Controller-->
         <scene sceneID="PLU-sc-002">
             <objects>
-                <viewController id="PLU-vc-001" sceneMemberID="viewController">
+                <viewController id="PLU-vc-001" customClass="FriendsViewController" customModule="Chatapp" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="PLU-v-001">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="FRV-sc-001">
+                                <rect key="frame" x="16" y="104" width="382" height="32"/>
+                                <segments>
+                                    <segment title="Friends"/>
+                                    <segment title="Requests"/>
+                                </segments>
+                                <connections>
+                                    <action selector="segmentChanged:" destination="PLU-vc-001" eventType="valueChanged" id="FRV-sc-act"/>
+                                </connections>
+                            </segmentedControl>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="FRV-tv-001">
+                                <rect key="frame" x="0.0" y="144" width="414" height="703"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <prototypes>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="none" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="FriendCell" rowHeight="60" id="FRV-fc-001" customClass="FriendCell" customModule="Chatapp" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="0.0" width="414" height="60"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="FRV-fc-001" id="FRV-fccv-001">
+                                            <rect key="frame" x="0.0" y="0.0" width="414" height="60"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Friend Name" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="FRV-nl-001">
+                                                    <rect key="frame" x="16" y="19" width="270" height="22"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="FRV-mb-001">
+                                                    <rect key="frame" x="314" y="15" width="84" height="30"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="width" constant="84" id="FRV-mb-w"/>
+                                                        <constraint firstAttribute="height" constant="30" id="FRV-mb-h"/>
+                                                    </constraints>
+                                                    <state key="normal" title="Message"/>
+                                                    <connections>
+                                                        <action selector="messageTapped:" destination="FRV-fc-001" eventType="touchUpInside" id="FRV-mb-act"/>
+                                                    </connections>
+                                                </button>
+                                            </subviews>
+                                            <constraints>
+                                                <constraint firstItem="FRV-nl-001" firstAttribute="leading" secondItem="FRV-fccv-001" secondAttribute="leading" constant="16" id="FRV-fc-c1"/>
+                                                <constraint firstItem="FRV-nl-001" firstAttribute="centerY" secondItem="FRV-fccv-001" secondAttribute="centerY" id="FRV-fc-c2"/>
+                                                <constraint firstItem="FRV-mb-001" firstAttribute="centerY" secondItem="FRV-fccv-001" secondAttribute="centerY" id="FRV-fc-c3"/>
+                                                <constraint firstAttribute="trailing" secondItem="FRV-mb-001" secondAttribute="trailing" constant="16" id="FRV-fc-c4"/>
+                                                <constraint firstItem="FRV-mb-001" firstAttribute="leading" secondItem="FRV-nl-001" secondAttribute="trailing" constant="8" id="FRV-fc-c5"/>
+                                            </constraints>
+                                        </tableViewCellContentView>
+                                        <connections>
+                                            <outlet property="nameLabel" destination="FRV-nl-001" id="FRV-fc-out1"/>
+                                        </connections>
+                                    </tableViewCell>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="none" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="RequestCell" rowHeight="60" id="FRV-rc-001" customClass="RequestCell" customModule="Chatapp" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="60" width="414" height="60"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="FRV-rc-001" id="FRV-rccv-001">
+                                            <rect key="frame" x="0.0" y="0.0" width="414" height="60"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Requester Name" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="FRV-rn-001">
+                                                    <rect key="frame" x="16" y="19" width="194" height="22"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="FRV-ab-001">
+                                                    <rect key="frame" x="226" y="15" width="70" height="30"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="width" constant="70" id="FRV-ab-w"/>
+                                                        <constraint firstAttribute="height" constant="30" id="FRV-ab-h"/>
+                                                    </constraints>
+                                                    <state key="normal" title="Accept"/>
+                                                    <connections>
+                                                        <action selector="acceptTapped:" destination="FRV-rc-001" eventType="touchUpInside" id="FRV-ab-act"/>
+                                                    </connections>
+                                                </button>
+                                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="FRV-db-001">
+                                                    <rect key="frame" x="312" y="15" width="70" height="30"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="width" constant="70" id="FRV-db-w"/>
+                                                        <constraint firstAttribute="height" constant="30" id="FRV-db-h"/>
+                                                    </constraints>
+                                                    <state key="normal" title="Decline"/>
+                                                    <connections>
+                                                        <action selector="declineTapped:" destination="FRV-rc-001" eventType="touchUpInside" id="FRV-db-act"/>
+                                                    </connections>
+                                                </button>
+                                            </subviews>
+                                            <constraints>
+                                                <constraint firstItem="FRV-rn-001" firstAttribute="leading" secondItem="FRV-rccv-001" secondAttribute="leading" constant="16" id="FRV-rc-c1"/>
+                                                <constraint firstItem="FRV-rn-001" firstAttribute="centerY" secondItem="FRV-rccv-001" secondAttribute="centerY" id="FRV-rc-c2"/>
+                                                <constraint firstItem="FRV-ab-001" firstAttribute="centerY" secondItem="FRV-rccv-001" secondAttribute="centerY" id="FRV-rc-c3"/>
+                                                <constraint firstItem="FRV-db-001" firstAttribute="centerY" secondItem="FRV-rccv-001" secondAttribute="centerY" id="FRV-rc-c4"/>
+                                                <constraint firstAttribute="trailing" secondItem="FRV-db-001" secondAttribute="trailing" constant="16" id="FRV-rc-c5"/>
+                                                <constraint firstItem="FRV-db-001" firstAttribute="leading" secondItem="FRV-ab-001" secondAttribute="trailing" constant="8" id="FRV-rc-c6"/>
+                                                <constraint firstItem="FRV-ab-001" firstAttribute="leading" secondItem="FRV-rn-001" secondAttribute="trailing" constant="8" id="FRV-rc-c7"/>
+                                            </constraints>
+                                        </tableViewCellContentView>
+                                        <connections>
+                                            <outlet property="nameLabel" destination="FRV-rn-001" id="FRV-rc-out1"/>
+                                        </connections>
+                                    </tableViewCell>
+                                </prototypes>
+                            </tableView>
+                        </subviews>
                         <viewLayoutGuide key="safeArea" id="kxG-gm-iSy"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="FRV-sc-001" firstAttribute="top" secondItem="kxG-gm-iSy" secondAttribute="top" constant="8" id="FRV-c1"/>
+                            <constraint firstItem="FRV-sc-001" firstAttribute="leading" secondItem="kxG-gm-iSy" secondAttribute="leading" constant="16" id="FRV-c2"/>
+                            <constraint firstItem="kxG-gm-iSy" firstAttribute="trailing" secondItem="FRV-sc-001" secondAttribute="trailing" constant="16" id="FRV-c3"/>
+                            <constraint firstItem="FRV-tv-001" firstAttribute="top" secondItem="FRV-sc-001" secondAttribute="bottom" constant="8" id="FRV-c4"/>
+                            <constraint firstItem="FRV-tv-001" firstAttribute="leading" secondItem="PLU-v-001" secondAttribute="leading" id="FRV-c5"/>
+                            <constraint firstItem="PLU-v-001" firstAttribute="trailing" secondItem="FRV-tv-001" secondAttribute="trailing" id="FRV-c6"/>
+                            <constraint firstItem="PLU-v-001" firstAttribute="bottom" secondItem="FRV-tv-001" secondAttribute="bottom" id="FRV-c7"/>
+                        </constraints>
                     </view>
+                    <connections>
+                        <outlet property="segmentedControl" destination="FRV-sc-001" id="FRV-out-sc"/>
+                        <outlet property="tableView" destination="FRV-tv-001" id="FRV-out-tv"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="PLU-fr-002" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1703" y="-1577"/>
+        </scene>
+        <!--Add Friend Navigation-->
+        <scene sceneID="AFN-sc-001">
+            <objects>
+                <navigationController storyboardIdentifier="AddFriendNav" automaticallyAdjustsScrollViewInsets="NO" id="AFN-nc-001" sceneMemberID="viewController">
+                    <toolbarItems/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="AFN-nb-001">
+                        <rect key="frame" x="0.0" y="44" width="414" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="AFV-vc-001" kind="relationship" relationship="rootViewController" id="AFN-sg-001"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="AFN-fr-001" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="2538" y="-1577"/>
+        </scene>
+        <!--Add Friend View Controller-->
+        <scene sceneID="AFV-sc-001">
+            <objects>
+                <viewController id="AFV-vc-001" customClass="AddFriendViewController" customModule="Chatapp" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="AFV-v-001">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <searchBar contentMode="redraw" placeholder="Search by name or email..." translatesAutoresizingMaskIntoConstraints="NO" id="AFV-sb-001">
+                                <rect key="frame" x="0.0" y="88" width="414" height="56"/>
+                                <textInputTraits key="textInputTraits"/>
+                                <connections>
+                                    <outlet property="delegate" destination="AFV-vc-001" id="AFV-sb-del"/>
+                                </connections>
+                            </searchBar>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="AFV-tv-001">
+                                <rect key="frame" x="0.0" y="144" width="414" height="718"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <prototypes>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="UserCell" rowHeight="81" id="AFV-uc-001">
+                                        <rect key="frame" x="0.0" y="50" width="414" height="81"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="AFV-uc-001" id="AFV-ucv-001">
+                                            <rect key="frame" x="0.0" y="0.0" width="414" height="81"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="person.crop.circle" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="AFV-img-001">
+                                                    <rect key="frame" x="16" y="17" width="48" height="46.666666666666671"/>
+                                                    <color key="tintColor" systemColor="systemBrownColor"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="height" constant="48" id="AFV-img-h"/>
+                                                        <constraint firstAttribute="width" constant="48" id="AFV-img-w"/>
+                                                    </constraints>
+                                                </imageView>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Username" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="AFV-lbl-001">
+                                                    <rect key="frame" x="76" y="29.666666666666671" width="322" height="22"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="18"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                            </subviews>
+                                            <color key="backgroundColor" systemColor="systemGray5Color"/>
+                                            <constraints>
+                                                <constraint firstAttribute="bottom" secondItem="AFV-img-001" secondAttribute="bottom" constant="17" id="AFV-c1"/>
+                                                <constraint firstItem="AFV-img-001" firstAttribute="leading" secondItem="AFV-ucv-001" secondAttribute="leading" constant="16" id="AFV-c2"/>
+                                                <constraint firstItem="AFV-img-001" firstAttribute="top" secondItem="AFV-ucv-001" secondAttribute="top" constant="16" id="AFV-c3"/>
+                                                <constraint firstItem="AFV-lbl-001" firstAttribute="centerY" secondItem="AFV-ucv-001" secondAttribute="centerY" id="AFV-c4"/>
+                                                <constraint firstItem="AFV-lbl-001" firstAttribute="leading" secondItem="AFV-img-001" secondAttribute="trailing" constant="12" id="AFV-c5"/>
+                                                <constraint firstAttribute="trailing" secondItem="AFV-lbl-001" secondAttribute="trailing" constant="16" id="AFV-c6"/>
+                                            </constraints>
+                                            <userDefinedRuntimeAttributes>
+                                                <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                                    <integer key="value" value="16"/>
+                                                </userDefinedRuntimeAttribute>
+                                                <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds" value="YES"/>
+                                            </userDefinedRuntimeAttributes>
+                                        </tableViewCellContentView>
+                                    </tableViewCell>
+                                </prototypes>
+                            </tableView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="AFV-sa-001"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="AFV-tv-001" firstAttribute="top" secondItem="AFV-sb-001" secondAttribute="bottom" id="AFV-c7"/>
+                            <constraint firstItem="AFV-sb-001" firstAttribute="leading" secondItem="AFV-sa-001" secondAttribute="leading" id="AFV-c8"/>
+                            <constraint firstItem="AFV-sb-001" firstAttribute="top" secondItem="AFV-sa-001" secondAttribute="top" id="AFV-c9"/>
+                            <constraint firstItem="AFV-sa-001" firstAttribute="trailing" secondItem="AFV-sb-001" secondAttribute="trailing" id="AFV-c10"/>
+                            <constraint firstItem="AFV-sa-001" firstAttribute="bottom" secondItem="AFV-tv-001" secondAttribute="bottom" id="AFV-c11"/>
+                            <constraint firstItem="AFV-sa-001" firstAttribute="trailing" secondItem="AFV-tv-001" secondAttribute="trailing" id="AFV-c12"/>
+                            <constraint firstItem="AFV-tv-001" firstAttribute="leading" secondItem="AFV-sa-001" secondAttribute="leading" id="AFV-c13"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" title="Add Friend" id="AFV-ni-001">
+                        <barButtonItem key="leftBarButtonItem" systemItem="cancel" id="AFV-bb-001">
+                            <connections>
+                                <action selector="cancelTapped:" destination="AFV-vc-001" id="AFV-ca-001"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
+                    <connections>
+                        <outlet property="searchBar" destination="AFV-sb-001" id="AFV-out-sb"/>
+                        <outlet property="tableView" destination="AFV-tv-001" id="AFV-out-tv"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="AFV-fr-001" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="3000" y="-1577"/>
         </scene>
     </scenes>
     <resources>
@@ -568,6 +786,8 @@
         <image name="person.circle.fill" catalog="system" width="128" height="123"/>
         <image name="person.crop.circle" catalog="system" width="128" height="123"/>
         <image name="photo" catalog="system" width="128" height="93"/>
+        <image name="person.2" catalog="system" width="128" height="87"/>
+        <image name="person.2.fill" catalog="system" width="128" height="87"/>
         <image name="plus.circle.fill" catalog="system" width="128" height="123"/>
         <systemColor name="groupTableViewBackgroundColor">
             <color red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
