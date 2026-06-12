@@ -1,5 +1,5 @@
 //
-//  ConversationListViewController.swift
+//  ChatListViewController.swift
 //  Chatapp
 
 import UIKit
@@ -13,10 +13,9 @@ struct Conversation {
     let timestamp: Date
 }
 
-class ConversationListViewController: UIViewController {
+class ChatListViewController: UIViewController {
 
     // MARK: - IBOutlets
-    // 在 Xcode 中 ctrl-drag 從 Storyboard 的 TableView 連接到這裡
     @IBOutlet weak var tableView: UITableView!
 
     private var conversations: [Conversation] = []
@@ -56,23 +55,40 @@ class ConversationListViewController: UIViewController {
     }
 
     // MARK: - IBActions
+    // TODO: Remove when friend feature is ready
     @IBAction func addButtonTapped(_ sender: UIBarButtonItem) {
-        performSegue(withIdentifier: "showChat", sender: nil)
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        let convId = "test-conversation"
+        Firestore.firestore().collection("conversations").document(convId).setData([
+            "participants": [uid],
+            "participantNames": [uid: Auth.auth().currentUser?.email ?? "Me"],
+            "lastMessage": "",
+            "lastUpdated": Timestamp(date: Date())
+        ], merge: true) { [weak self] _ in
+            let testConv = Conversation(id: convId, otherUserName: "Test User", lastMessage: "", timestamp: Date())
+            DispatchQueue.main.async {
+                self?.performSegue(withIdentifier: "showChat", sender: testConv)
+            }
+        }
     }
 
     // MARK: - Segue
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         guard segue.identifier == "showChat",
               let chatVC = segue.destination as? ChatViewController else { return }
-        if let indexPath = tableView.indexPathForSelectedRow {
+        if let conversation = sender as? Conversation {
+            // triggered programmatically (e.g. addButtonTapped)
+            chatVC.conversationId = conversation.id
+        } else if let cell = sender as? UITableViewCell,
+                  let indexPath = tableView.indexPath(for: cell) {
+            // triggered by cell tap via storyboard segue
             chatVC.conversationId = conversations[indexPath.row].id
         }
-        // sender == nil 代表從 + 按鈕進來，保留 default "test-conversation"
     }
 }
 
 // MARK: - UITableViewDataSource
-extension ConversationListViewController: UITableViewDataSource {
+extension ChatListViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         conversations.count
     }
@@ -85,15 +101,14 @@ extension ConversationListViewController: UITableViewDataSource {
 }
 
 // MARK: - UITableViewDelegate
-extension ConversationListViewController: UITableViewDelegate {
+extension ChatListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        performSegue(withIdentifier: "showChat", sender: nil)
     }
 }
 
 // MARK: - UISearchBarDelegate
-extension ConversationListViewController: UISearchBarDelegate {
+extension ChatListViewController: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         // TODO: 實作搜尋過濾
     }

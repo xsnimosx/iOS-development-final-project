@@ -1,15 +1,14 @@
 //
-//  NewConversationViewController.swift
+//  NewChatViewController.swift
 //  Chatapp
 
 import UIKit
 import FirebaseAuth
 import FirebaseFirestore
 
-class NewConversationViewController: UIViewController {
+class NewChatViewController: UIViewController {
 
     // MARK: - IBOutlets
-    // ctrl-drag 從 Storyboard 連接：
     @IBOutlet weak var searchBar: UISearchBar!
     @IBOutlet weak var tableView: UITableView!
 
@@ -25,7 +24,6 @@ class NewConversationViewController: UIViewController {
     }
 
     // MARK: - IBAction
-    // ctrl-drag 從 cancel 按鈕連接（或用 storyboard 的 barButtonItem）
     @IBAction func cancelTapped(_ sender: Any) {
         dismiss(animated: true)
     }
@@ -66,7 +64,7 @@ class NewConversationViewController: UIViewController {
 }
 
 // MARK: - UISearchBarDelegate
-extension NewConversationViewController: UISearchBarDelegate {
+extension NewChatViewController: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         filteredUsers = searchText.isEmpty ? allUsers : allUsers.filter {
             $0.displayName.localizedCaseInsensitiveContains(searchText) ||
@@ -77,13 +75,12 @@ extension NewConversationViewController: UISearchBarDelegate {
 }
 
 // MARK: - UITableViewDataSource
-extension NewConversationViewController: UITableViewDataSource {
+extension NewChatViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int { filteredUsers.count }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "UserCell", for: indexPath)
         let user = filteredUsers[indexPath.row]
-        // 找到 storyboard cell 裡的 label（id: 1mx-UU-Ylo）
         if let label = cell.contentView.subviews.compactMap({ $0 as? UILabel }).first {
             label.text = user.displayName
         }
@@ -92,7 +89,7 @@ extension NewConversationViewController: UITableViewDataSource {
 }
 
 // MARK: - UITableViewDelegate
-extension NewConversationViewController: UITableViewDelegate {
+extension NewChatViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         startConversation(with: filteredUsers[indexPath.row])

@@ -19,7 +19,7 @@ class ChatViewController: UIViewController, UIImagePickerControllerDelegate, UIN
 
     // MARK: - Properties
     private let db = Firestore.firestore()
-    var conversationId = "test-conversation"
+    var conversationId: String = ""
     private var messages: [Message] = []
     private var listener: ListenerRegistration?
     private var currentUserName: String = ""
@@ -197,6 +197,10 @@ class MessageCell: UITableViewCell {
 
     required init?(coder: NSCoder) { fatalError() }
 	
+    private var imageHeightConstraint: NSLayoutConstraint?
+    private var bubbleLeading: NSLayoutConstraint?
+    private var bubbleTrailing: NSLayoutConstraint?
+
     private func setupViews() {
         bubbleView.layer.cornerRadius = 12
         bubbleView.clipsToBounds = true
@@ -218,6 +222,9 @@ class MessageCell: UITableViewCell {
         bubbleView.addSubview(msgImageView)
         contentView.addSubview(bubbleView)
 
+        bubbleLeading = bubbleView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12)
+        bubbleTrailing = bubbleView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12)
+
         NSLayoutConstraint.activate([
             nameLabel.topAnchor.constraint(equalTo: bubbleView.topAnchor, constant: 6),
             nameLabel.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor, constant: 10),
@@ -232,13 +239,10 @@ class MessageCell: UITableViewCell {
             msgImageView.bottomAnchor.constraint(equalTo: bubbleView.bottomAnchor),
             bubbleView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 4),
             bubbleView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -4),
-            bubbleView.widthAnchor.constraint(lessThanOrEqualTo: contentView.widthAnchor, multiplier: 0.72)
+            bubbleView.widthAnchor.constraint(lessThanOrEqualTo: contentView.widthAnchor, multiplier: 0.72),
+            bubbleLeading!
         ])
     }
-
-    private var imageHeightConstraint: NSLayoutConstraint?
-    private var bubbleLeading: NSLayoutConstraint?
-    private var bubbleTrailing: NSLayoutConstraint?
 
     func configure(with message: Message, isOwn: Bool) {
         let isImage = message.type == "image"
@@ -262,14 +266,7 @@ class MessageCell: UITableViewCell {
         bubbleView.backgroundColor = isOwn ? .systemBlue : .secondarySystemFill
         contentLabel.textColor = isOwn ? .white : .label
         nameLabel.textColor = isOwn ? .white : .secondaryLabel
-        bubbleLeading?.isActive = false
-        bubbleTrailing?.isActive = false
-        if isOwn {
-            bubbleTrailing = bubbleView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12)
-            bubbleTrailing?.isActive = true
-        } else {
-            bubbleLeading = bubbleView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12)
-            bubbleLeading?.isActive = true
-        }
+        bubbleLeading?.isActive = !isOwn
+        bubbleTrailing?.isActive = isOwn
     }
 }
