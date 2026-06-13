@@ -87,9 +87,9 @@ class ChatViewController: UIViewController, UIImagePickerControllerDelegate, UIN
         ]
         db.collection("conversations").document(conversationId)
             .collection("messages").addDocument(data: data) { [weak self] error in
-                if error == nil {
-                    DispatchQueue.main.async { self?.messageTextField.text = "" }
-                }
+                guard let self = self, error == nil else { return }
+                DispatchQueue.main.async { self.messageTextField.text = "" }
+                self.updateConversationMeta(lastMessage: content)
             }
     }
 
@@ -116,7 +116,10 @@ class ChatViewController: UIViewController, UIImagePickerControllerDelegate, UIN
                 "isRead": false
             ]
             self.db.collection("conversations").document(self.conversationId)
-                .collection("messages").addDocument(data: data)
+                .collection("messages").addDocument(data: data) { [weak self] error in
+                    guard let self = self, error == nil else { return }
+                    self.updateConversationMeta(lastMessage: "[Image]")
+                }
         }
     }
 
@@ -135,6 +138,11 @@ class ChatViewController: UIViewController, UIImagePickerControllerDelegate, UIN
         guard let duration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double else { return }
         inputBottomConstraint?.constant = 0
         UIView.animate(withDuration: duration) { self.view.layoutIfNeeded() }
+    }
+
+    private func updateConversationMeta(lastMessage: String) {
+        db.collection("conversations").document(conversationId)
+            .updateData(["lastMessage": lastMessage, "lastUpdated": Timestamp(date: Date())])
     }
 
     private func deleteMessage(_ message: Message) {
