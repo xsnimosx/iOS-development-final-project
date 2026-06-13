@@ -329,6 +329,47 @@ class FriendsViewController: UIViewController {
         Firestore.firestore().collection("friendRequests").document(requestId)
             .updateData(["status": "declined"])
     }
+
+    // MARK: - Remove Friend
+
+    private func confirmAndRemoveFriend(at indexPath: IndexPath) {
+        let friend = friends[indexPath.row]
+        let alert = UIAlertController(
+            title: "移除好友",
+            message: "確定要將「\(friend.displayName)」從好友清單中移除嗎？",
+            preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "取消", style: .cancel))
+        alert.addAction(UIAlertAction(title: "移除", style: .destructive) { [weak self] _ in
+            self?.removeFriend(friend, at: indexPath)
+        })
+        present(alert, animated: true)
+    }
+
+    private func removeFriend(_ user: UserProfile, at indexPath: IndexPath) {
+        guard let currentUID = Auth.auth().currentUser?.uid,
+              let friendUID = user.id else { return }
+        let db = Firestore.firestore()
+        let group = DispatchGroup()
+
+        for (from, to) in [(currentUID, friendUID), (friendUID, currentUID)] {
+            group.enter()
+            db.collection("friendRequests")
+                .whereField("fromUID", isEqualTo: from)
+                .whereField("toUID", isEqualTo: to)
+                .whereField("status", isEqualTo: "accepted")
+                .getDocuments { snapshot, _ in
+                    let batch = db.batch()
+                    snapshot?.documents.forEach { batch.deleteDocument($0.reference) }
+                    batch.commit { _ in group.leave() }
+                }
+        }
+
+        group.notify(queue: .main) { [weak self] in
+            guard let self else { return }
+            self.friends.remove(at: indexPath.row)
+            self.tableView.deleteRows(at: [indexPath], with: .automatic)
+        }
+    }
 }
 
 // MARK: - UITableViewDataSource
@@ -393,5 +434,17 @@ extension FriendsViewController: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
+    }
+
+    func tableView(_ tableView: UITableView,
+                   trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath)
+    -> UISwipeActionsConfiguration? {
+        guard sections[indexPath.section] == .friends else { return nil }
+        let remove = UIContextualAction(style: .destructive, title: "移除") { [weak self] _, _, done in
+            self?.confirmAndRemoveFriend(at: indexPath)
+            done(true)
+        }
+        remove.image = UIImage(systemName: "person.fill.xmark")
+        return UISwipeActionsConfiguration(actions: [remove])
     }
 }
