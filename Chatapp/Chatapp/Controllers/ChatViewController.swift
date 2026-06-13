@@ -42,25 +42,32 @@ class ChatViewController: UIViewController, UIImagePickerControllerDelegate, UIN
     }
 
     // MARK: - Keyboard
-    // Uses keyboardLayoutGuide (iOS 15+) instead of notification observers.
-    // The guide's topAnchor equals safeArea.bottom when no keyboard is visible,
-    // and tracks the keyboard top (with matching animation) when it appears.
     private func setupKeyboardLayoutGuide() {
-        guard let inputContainer = inputBottomConstraint.firstItem as? UIView else { return }
-        inputBottomConstraint.isActive = false
-        inputContainer.bottomAnchor.constraint(
-            equalTo: view.keyboardLayoutGuide.topAnchor
-        ).isActive = true
+        if #available(iOS 15, *) {
+            guard let inputContainer = inputBottomConstraint.firstItem as? UIView else { return }
+            inputBottomConstraint.isActive = false
+            inputContainer.bottomAnchor.constraint(
+                equalTo: view.keyboardLayoutGuide.topAnchor
+            ).isActive = true
+        } else {
+            NotificationCenter.default.addObserver(
+                self, selector: #selector(keyboardWillChangeFrame(_:)),
+                name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
+        }
     }
 
-    private func setupKeyboardDismissOnTap() {
-        let tap = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
-        tap.cancelsTouchesInView = false
-        tableView.addGestureRecognizer(tap)
-    }
-
-    @objc private func dismissKeyboard() {
-        view.endEditing(true)
+    @objc private func keyboardWillChangeFrame(_ notification: Notification) {
+        guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
+              let duration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double,
+              let curveRaw = notification.userInfo?[UIResponder.keyboardAnimationCurveUserInfoKey] as? UInt
+        else { return }
+        let overlap = max(UIScreen.main.bounds.height - keyboardFrame.minY - view.safeAreaInsets.bottom, 0)
+        inputBottomConstraint.constant = -overlap
+        UIView.animate(withDuration: duration,
+                       delay: 0,
+                       options: UIView.AnimationOptions(rawValue: curveRaw << 16)) {
+            self.view.layoutIfNeeded()
+        }
     }
 
     // MARK: - Data
