@@ -11,41 +11,197 @@ import FirebaseFirestore
 
 class FriendCell: UITableViewCell {
     static let reuseId = "FriendCell"
-    @IBOutlet weak var nameLabel: UILabel!
+
+    private let avatarImageView = UIImageView()
+    private let nameLabel = UILabel()
+    private let messageButton = UIButton(type: .system)
     var onMessage: (() -> Void)?
 
-    @IBAction func messageTapped(_ sender: UIButton) { onMessage?() }
+    override func awakeFromNib() {
+        super.awakeFromNib()
+        setupUI()
+    }
+
+    private func setupUI() {
+        selectionStyle = .none
+        backgroundColor = .systemBackground
+
+        avatarImageView.image = UIImage(systemName: "person.crop.circle.fill")
+        avatarImageView.tintColor = .systemBrown
+        avatarImageView.contentMode = .scaleAspectFill
+        avatarImageView.layer.cornerRadius = 22
+        avatarImageView.clipsToBounds = true
+        avatarImageView.translatesAutoresizingMaskIntoConstraints = false
+
+        nameLabel.font = UIFont.preferredFont(forTextStyle: .headline)
+        nameLabel.translatesAutoresizingMaskIntoConstraints = false
+
+        var config = UIButton.Configuration.tinted()
+        config.image = UIImage(systemName: "message.fill")
+        config.baseForegroundColor = .systemBlue
+        config.baseBackgroundColor = .systemBlue
+        config.cornerStyle = .capsule
+        messageButton.configuration = config
+        messageButton.translatesAutoresizingMaskIntoConstraints = false
+        messageButton.addTarget(self, action: #selector(messageTapped), for: .touchUpInside)
+
+        contentView.addSubview(avatarImageView)
+        contentView.addSubview(nameLabel)
+        contentView.addSubview(messageButton)
+
+        NSLayoutConstraint.activate([
+            avatarImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            avatarImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 12),
+            avatarImageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -12),
+            avatarImageView.widthAnchor.constraint(equalToConstant: 44),
+            avatarImageView.heightAnchor.constraint(equalToConstant: 44),
+
+            messageButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            messageButton.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+            messageButton.widthAnchor.constraint(equalToConstant: 36),
+            messageButton.heightAnchor.constraint(equalToConstant: 36),
+
+            nameLabel.leadingAnchor.constraint(equalTo: avatarImageView.trailingAnchor, constant: 12),
+            nameLabel.trailingAnchor.constraint(lessThanOrEqualTo: messageButton.leadingAnchor, constant: -8),
+            nameLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+        ])
+    }
+
+    @objc private func messageTapped() { onMessage?() }
+
+    func configure(user: UserProfile, onMessage: @escaping () -> Void) {
+        nameLabel.text = user.displayName
+        self.onMessage = onMessage
+    }
 }
 
 // MARK: - RequestCell
 
 class RequestCell: UITableViewCell {
     static let reuseId = "RequestCell"
-    @IBOutlet weak var nameLabel: UILabel!
+
+    private let card = UIView()
+    private let avatarImageView = UIImageView()
+    private let nameLabel = UILabel()
+    private let acceptButton = UIButton(type: .system)
+    private let declineButton = UIButton(type: .system)
     var onAccept: (() -> Void)?
     var onDecline: (() -> Void)?
 
-    @IBAction func acceptTapped(_ sender: UIButton) { onAccept?() }
-    @IBAction func declineTapped(_ sender: UIButton) { onDecline?() }
+    override func awakeFromNib() {
+        super.awakeFromNib()
+        setupUI()
+    }
+
+    private func setupUI() {
+        selectionStyle = .none
+        backgroundColor = .clear
+
+        card.backgroundColor = .secondarySystemBackground
+        card.layer.cornerRadius = 12
+        card.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(card)
+
+        avatarImageView.image = UIImage(systemName: "person.crop.circle.fill")
+        avatarImageView.tintColor = .systemBrown
+        avatarImageView.contentMode = .scaleAspectFill
+        avatarImageView.layer.cornerRadius = 22
+        avatarImageView.clipsToBounds = true
+        avatarImageView.translatesAutoresizingMaskIntoConstraints = false
+
+        nameLabel.font = UIFont.preferredFont(forTextStyle: .headline)
+        nameLabel.translatesAutoresizingMaskIntoConstraints = false
+
+        var acceptCfg = UIButton.Configuration.filled()
+        acceptCfg.title = "Accept"
+        acceptCfg.baseBackgroundColor = .systemGreen
+        acceptCfg.baseForegroundColor = .white
+        acceptCfg.cornerStyle = .capsule
+        acceptCfg.buttonSize = .small
+        acceptButton.configuration = acceptCfg
+        acceptButton.translatesAutoresizingMaskIntoConstraints = false
+        acceptButton.addTarget(self, action: #selector(acceptTapped), for: .touchUpInside)
+
+        var declineCfg = UIButton.Configuration.gray()
+        declineCfg.title = "Ignore"
+        declineCfg.cornerStyle = .capsule
+        declineCfg.buttonSize = .small
+        declineButton.configuration = declineCfg
+        declineButton.translatesAutoresizingMaskIntoConstraints = false
+        declineButton.addTarget(self, action: #selector(declineTapped), for: .touchUpInside)
+
+        let buttonStack = UIStackView(arrangedSubviews: [declineButton, acceptButton])
+        buttonStack.axis = .horizontal
+        buttonStack.spacing = 8
+        buttonStack.translatesAutoresizingMaskIntoConstraints = false
+
+        card.addSubview(avatarImageView)
+        card.addSubview(nameLabel)
+        card.addSubview(buttonStack)
+
+        NSLayoutConstraint.activate([
+            card.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 4),
+            card.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            card.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            card.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -4),
+
+            avatarImageView.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 12),
+            avatarImageView.topAnchor.constraint(equalTo: card.topAnchor, constant: 12),
+            avatarImageView.bottomAnchor.constraint(equalTo: card.bottomAnchor, constant: -12),
+            avatarImageView.widthAnchor.constraint(equalToConstant: 44),
+            avatarImageView.heightAnchor.constraint(equalToConstant: 44),
+
+            nameLabel.leadingAnchor.constraint(equalTo: avatarImageView.trailingAnchor, constant: 12),
+            nameLabel.trailingAnchor.constraint(lessThanOrEqualTo: buttonStack.leadingAnchor, constant: -8),
+            nameLabel.centerYAnchor.constraint(equalTo: card.centerYAnchor),
+
+            buttonStack.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -12),
+            buttonStack.centerYAnchor.constraint(equalTo: card.centerYAnchor),
+        ])
+    }
+
+    @objc private func acceptTapped() { onAccept?() }
+    @objc private func declineTapped() { onDecline?() }
+
+    func configure(request: FriendRequest, onAccept: @escaping () -> Void, onDecline: @escaping () -> Void) {
+        nameLabel.text = request.fromName
+        self.onAccept = onAccept
+        self.onDecline = onDecline
+    }
 }
 
 // MARK: - FriendsViewController
 
 class FriendsViewController: UIViewController {
 
-    @IBOutlet weak var segmentedControl: UISegmentedControl!
     @IBOutlet weak var tableView: UITableView!
 
     private var friends: [UserProfile] = []
     private var pendingRequests: [FriendRequest] = []
     private var requestsListener: ListenerRegistration?
 
+    private enum Section { case pendingRequests, friends }
+    private var sections: [Section] {
+        var result: [Section] = []
+        if !pendingRequests.isEmpty { result.append(.pendingRequests) }
+        result.append(.friends)
+        return result
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
+        title = "Friends"
         tableView.dataSource = self
         tableView.delegate = self
+        tableView.backgroundColor = .systemGroupedBackground
+        tableView.separatorStyle = .none
+        tableView.rowHeight = UITableView.automaticDimension
+        tableView.estimatedRowHeight = 72
         navigationItem.rightBarButtonItem = UIBarButtonItem(
-            title: "Add Friend", style: .plain, target: self, action: #selector(addFriendTapped))
+            image: UIImage(systemName: "person.badge.plus"),
+            style: .plain,
+            target: self,
+            action: #selector(addFriendTapped))
         startRequestsListener()
     }
 
@@ -56,12 +212,6 @@ class FriendsViewController: UIViewController {
 
     deinit {
         requestsListener?.remove()
-    }
-
-    // MARK: - IBActions
-
-    @IBAction func segmentChanged(_ sender: UISegmentedControl) {
-        tableView.reloadData()
     }
 
     @objc private func addFriendTapped() {
@@ -111,10 +261,8 @@ class FriendsViewController: UIViewController {
                 }
             }
             profileGroup.notify(queue: .main) { [weak self] in
-                self?.friends = profiles
-                if self?.segmentedControl.selectedSegmentIndex == 0 {
-                    self?.tableView.reloadData()
-                }
+                self?.friends = profiles.sorted { $0.displayName < $1.displayName }
+                self?.tableView.reloadData()
             }
         }
     }
@@ -130,9 +278,7 @@ class FriendsViewController: UIViewController {
                     try? $0.data(as: FriendRequest.self)
                 } ?? []
                 DispatchQueue.main.async {
-                    if self?.segmentedControl.selectedSegmentIndex == 1 {
-                        self?.tableView.reloadData()
-                    }
+                    self?.tableView.reloadData()
                 }
             }
     }
@@ -190,23 +336,29 @@ class FriendsViewController: UIViewController {
 // MARK: - UITableViewDataSource
 
 extension FriendsViewController: UITableViewDataSource {
+    func numberOfSections(in tableView: UITableView) -> Int { sections.count }
+
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        segmentedControl.selectedSegmentIndex == 0 ? friends.count : pendingRequests.count
+        switch sections[section] {
+        case .pendingRequests: return pendingRequests.count
+        case .friends: return friends.count
+        }
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if segmentedControl.selectedSegmentIndex == 0 {
-            let cell = tableView.dequeueReusableCell(withIdentifier: FriendCell.reuseId, for: indexPath) as! FriendCell
-            let user = friends[indexPath.row]
-            cell.nameLabel.text = user.displayName
-            cell.onMessage = { [weak self] in self?.openChat(with: user) }
-            return cell
-        } else {
+        switch sections[indexPath.section] {
+        case .pendingRequests:
             let cell = tableView.dequeueReusableCell(withIdentifier: RequestCell.reuseId, for: indexPath) as! RequestCell
             let request = pendingRequests[indexPath.row]
-            cell.nameLabel.text = request.fromName
-            cell.onAccept  = { [weak self] in self?.acceptRequest(request) }
-            cell.onDecline = { [weak self] in self?.declineRequest(request) }
+            cell.configure(
+                request: request,
+                onAccept: { [weak self] in self?.acceptRequest(request) },
+                onDecline: { [weak self] in self?.declineRequest(request) })
+            return cell
+        case .friends:
+            let cell = tableView.dequeueReusableCell(withIdentifier: FriendCell.reuseId, for: indexPath) as! FriendCell
+            let user = friends[indexPath.row]
+            cell.configure(user: user, onMessage: { [weak self] in self?.openChat(with: user) })
             return cell
         }
     }
@@ -215,6 +367,32 @@ extension FriendsViewController: UITableViewDataSource {
 // MARK: - UITableViewDelegate
 
 extension FriendsViewController: UITableViewDelegate {
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        let container = UIView()
+        container.backgroundColor = .systemGroupedBackground
+
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 11, weight: .semibold)
+        label.textColor = .secondaryLabel
+        label.translatesAutoresizingMaskIntoConstraints = false
+
+        switch sections[section] {
+        case .pendingRequests:
+            label.text = "PENDING REQUESTS — \(pendingRequests.count)"
+        case .friends:
+            label.text = "FRIENDS — \(friends.count)"
+        }
+
+        container.addSubview(label)
+        NSLayoutConstraint.activate([
+            label.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 16),
+            label.centerYAnchor.constraint(equalTo: container.centerYAnchor),
+        ])
+        return container
+    }
+
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat { 32 }
+
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
     }
