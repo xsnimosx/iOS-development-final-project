@@ -35,6 +35,21 @@ class SettingsViewController: UITableViewController {
             }
     }
 
+    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        switch section {
+        case 0: return NSLocalizedString("settings.section.profile", comment: "")
+        case 1: return NSLocalizedString("settings.section.logout", comment: "")
+        default: return nil
+        }
+    }
+
+    override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        if indexPath.section == 1, indexPath.row == 0 {
+            cell.contentView.subviews.compactMap { $0 as? UILabel }.first?.text =
+                NSLocalizedString("settings.cell.logout", comment: "")
+        }
+    }
+
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
     }
