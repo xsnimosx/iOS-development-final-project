@@ -80,6 +80,8 @@
             </objects>
             <point key="canvasLocation" x="-832" y="-1577"/>
         </scene>
+
+
         <!--Chats-->
         <scene sceneID="cvx-EW-T4P">
             <objects>
@@ -99,12 +101,12 @@
                                             <rect key="frame" x="0.0" y="0.0" width="414" height="72"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="person.circle.fill" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="Afd-WL-gR1">
-                                                    <rect key="frame" x="16" y="13" width="48" height="46.666666666666671"/>
-                                                    <color key="tintColor" systemColor="systemGray3Color"/>
+                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="person.crop.circle.fill" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="Afd-WL-gR1">
+                                                    <rect key="frame" x="16" y="13" width="44" height="44"/>
+                                                    <color key="tintColor" systemColor="systemBrownColor"/>
                                                     <constraints>
-                                                        <constraint firstAttribute="height" constant="48" id="CL-av-h"/>
-                                                        <constraint firstAttribute="width" constant="48" id="CL-av-w"/>
+                                                        <constraint firstAttribute="height" constant="44" id="CL-av-h"/>
+                                                        <constraint firstAttribute="width" constant="44" id="CL-av-w"/>
                                                     </constraints>
                                                 </imageView>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Name" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5gd-h5-ksN">
@@ -294,12 +296,12 @@
                                             <rect key="frame" x="0.0" y="0.0" width="374" height="72"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="person.circle.fill" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="ecQ-Kj-anL">
-                                                    <rect key="frame" x="16" y="13" width="48" height="46.666666666666671"/>
-                                                    <color key="tintColor" systemColor="systemGray3Color"/>
+                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="person.crop.circle.fill" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="ecQ-Kj-anL">
+                                                    <rect key="frame" x="16" y="13" width="44" height="44"/>
+                                                    <color key="tintColor" systemColor="systemBrownColor"/>
                                                     <constraints>
-                                                        <constraint firstAttribute="height" constant="48" id="Set-av-h"/>
-                                                        <constraint firstAttribute="width" constant="48" id="Set-av-w"/>
+                                                        <constraint firstAttribute="height" constant="44" id="Set-av-h"/>
+                                                        <constraint firstAttribute="width" constant="44" id="Set-av-w"/>
                                                     </constraints>
                                                 </imageView>
                                                 <stackView opaque="NO" userInteractionEnabled="NO" contentMode="left" axis="vertical" spacing="2" translatesAutoresizingMaskIntoConstraints="NO" id="Set-stk-001">
@@ -609,6 +611,7 @@
         <image name="person.2.fill" catalog="system" width="128" height="86"/>
         <image name="person.circle.fill" catalog="system" width="128" height="123"/>
         <image name="person.crop.circle" catalog="system" width="128" height="123"/>
+        <image name="person.crop.circle.fill" catalog="system" width="128" height="123"/>
         <image name="photo" catalog="system" width="128" height="93"/>
         <systemColor name="groupTableViewBackgroundColor">
             <color red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>

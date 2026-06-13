@@ -26,6 +26,9 @@ class AddFriendViewController: UIViewController {
         searchBar.delegate = self
         tableView.dataSource = self
         tableView.delegate = self
+        tableView.register(AddFriendUserCell.self, forCellReuseIdentifier: AddFriendUserCell.reuseId)
+        tableView.rowHeight = UITableView.automaticDimension
+        tableView.estimatedRowHeight = 68
         fetchUsers()
     }
 
@@ -185,13 +188,10 @@ extension AddFriendViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int { filteredUsers.count }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "UserCell", for: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: AddFriendUserCell.reuseId, for: indexPath) as! AddFriendUserCell
         let user = filteredUsers[indexPath.row]
-        if let label = cell.contentView.subviews.compactMap({ $0 as? UILabel }).first {
-            label.text = user.displayName
-        }
-        let status = statusMap[user.id ?? ""] ?? .none
-        cell.accessoryView = makeStatusBadge(for: status)
+        cell.configure(name: user.displayName, detail: user.email)
+        cell.accessoryView = makeStatusBadge(for: statusMap[user.id ?? ""] ?? .none)
         return cell
     }
 }

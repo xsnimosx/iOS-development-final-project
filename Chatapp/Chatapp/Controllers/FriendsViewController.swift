@@ -9,66 +9,52 @@ import FirebaseFirestore
 
 // MARK: - FriendCell
 
-class FriendCell: UITableViewCell {
+class FriendCell: UserRowCell {
     static let reuseId = "FriendCell"
 
-    private let avatarImageView = UIImageView()
-    private let nameLabel = UILabel()
-    private let messageButton = UIButton(type: .system)
+    private let messageButton: UIButton = {
+        let btn = UIButton(type: .system)
+        btn.setImage(UIImage(systemName: "message.fill"), for: .normal)
+        btn.tintColor = .systemBlue
+        btn.backgroundColor = UIColor.systemBlue.withAlphaComponent(0.12)
+        btn.layer.cornerRadius = 18
+        btn.translatesAutoresizingMaskIntoConstraints = false
+        return btn
+    }()
+
     var onMessage: (() -> Void)?
 
-    override func awakeFromNib() {
-        super.awakeFromNib()
-        setupUI()
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        setupMessageButton()
     }
 
-    private func setupUI() {
-        selectionStyle = .none
-        backgroundColor = .systemBackground
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        setupMessageButton()
+    }
 
-        avatarImageView.image = UIImage(systemName: "person.crop.circle.fill")
-        avatarImageView.tintColor = .systemBrown
-        avatarImageView.contentMode = .scaleAspectFill
-        avatarImageView.layer.cornerRadius = 22
-        avatarImageView.clipsToBounds = true
-        avatarImageView.translatesAutoresizingMaskIntoConstraints = false
-
-        nameLabel.font = UIFont.preferredFont(forTextStyle: .headline)
-        nameLabel.translatesAutoresizingMaskIntoConstraints = false
-
-        messageButton.setImage(UIImage(systemName: "message.fill"), for: .normal)
-        messageButton.tintColor = .systemBlue
-        messageButton.backgroundColor = UIColor.systemBlue.withAlphaComponent(0.12)
-        messageButton.layer.cornerRadius = 18
-        messageButton.translatesAutoresizingMaskIntoConstraints = false
+    private func setupMessageButton() {
         messageButton.addTarget(self, action: #selector(messageTapped), for: .touchUpInside)
-
-        contentView.addSubview(avatarImageView)
-        contentView.addSubview(nameLabel)
         contentView.addSubview(messageButton)
 
-        NSLayoutConstraint.activate([
-            avatarImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            avatarImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 12),
-            avatarImageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -12),
-            avatarImageView.widthAnchor.constraint(equalToConstant: 44),
-            avatarImageView.heightAnchor.constraint(equalToConstant: 44),
+        labelStackTrailingConstraint.isActive = false
+        labelStackTrailingConstraint = labelStack.trailingAnchor.constraint(
+            lessThanOrEqualTo: messageButton.leadingAnchor, constant: -8)
 
-            messageButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+        NSLayoutConstraint.activate([
+            messageButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -AppCell.horizontalPadding),
             messageButton.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
             messageButton.widthAnchor.constraint(equalToConstant: 36),
             messageButton.heightAnchor.constraint(equalToConstant: 36),
-
-            nameLabel.leadingAnchor.constraint(equalTo: avatarImageView.trailingAnchor, constant: 12),
-            nameLabel.trailingAnchor.constraint(lessThanOrEqualTo: messageButton.leadingAnchor, constant: -8),
-            nameLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+            labelStackTrailingConstraint,
         ])
     }
 
     @objc private func messageTapped() { onMessage?() }
 
     func configure(user: UserProfile, onMessage: @escaping () -> Void) {
-        nameLabel.text = user.displayName
+        configure(name: user.displayName)
         self.onMessage = onMessage
     }
 }
@@ -86,9 +72,19 @@ class RequestCell: UITableViewCell {
     var onAccept: (() -> Void)?
     var onDecline: (() -> Void)?
 
-    override func awakeFromNib() {
-        super.awakeFromNib()
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupUI()
+    }
+
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        setupUI()
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        avatarImageView.layer.cornerRadius = avatarImageView.bounds.height / 2
     }
 
     private func setupUI() {
@@ -101,9 +97,8 @@ class RequestCell: UITableViewCell {
         contentView.addSubview(card)
 
         avatarImageView.image = UIImage(systemName: "person.crop.circle.fill")
-        avatarImageView.tintColor = .systemBrown
+        avatarImageView.tintColor = AppCell.avatarTint
         avatarImageView.contentMode = .scaleAspectFill
-        avatarImageView.layer.cornerRadius = 22
         avatarImageView.clipsToBounds = true
         avatarImageView.translatesAutoresizingMaskIntoConstraints = false
 
@@ -139,21 +134,21 @@ class RequestCell: UITableViewCell {
 
         NSLayoutConstraint.activate([
             card.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 4),
-            card.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            card.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            card.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: AppCell.horizontalPadding),
+            card.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -AppCell.horizontalPadding),
             card.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -4),
 
-            avatarImageView.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 12),
-            avatarImageView.topAnchor.constraint(equalTo: card.topAnchor, constant: 12),
-            avatarImageView.bottomAnchor.constraint(equalTo: card.bottomAnchor, constant: -12),
-            avatarImageView.widthAnchor.constraint(equalToConstant: 44),
-            avatarImageView.heightAnchor.constraint(equalToConstant: 44),
+            avatarImageView.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: AppCell.avatarLabelSpacing),
+            avatarImageView.topAnchor.constraint(equalTo: card.topAnchor, constant: AppCell.verticalPadding),
+            avatarImageView.bottomAnchor.constraint(equalTo: card.bottomAnchor, constant: -AppCell.verticalPadding),
+            avatarImageView.widthAnchor.constraint(equalToConstant: AppCell.avatarSize),
+            avatarImageView.heightAnchor.constraint(equalToConstant: AppCell.avatarSize),
 
-            nameLabel.leadingAnchor.constraint(equalTo: avatarImageView.trailingAnchor, constant: 12),
+            nameLabel.leadingAnchor.constraint(equalTo: avatarImageView.trailingAnchor, constant: AppCell.avatarLabelSpacing),
             nameLabel.trailingAnchor.constraint(lessThanOrEqualTo: buttonStack.leadingAnchor, constant: -8),
             nameLabel.centerYAnchor.constraint(equalTo: card.centerYAnchor),
 
-            buttonStack.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -12),
+            buttonStack.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -AppCell.avatarLabelSpacing),
             buttonStack.centerYAnchor.constraint(equalTo: card.centerYAnchor),
         ])
     }

@@ -9,8 +9,13 @@ class UserAvatarCell: UITableViewCell {
 
     override func awakeFromNib() {
         super.awakeFromNib()
-        avatarImageView.layer.cornerRadius = 24
+        avatarImageView.tintColor = AppCell.avatarTint
         avatarImageView.clipsToBounds = true
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        avatarImageView.layer.cornerRadius = avatarImageView.bounds.height / 2
     }
 
     func configure(name: String, detail: String? = nil) {
