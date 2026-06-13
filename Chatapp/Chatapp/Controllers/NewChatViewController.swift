@@ -30,13 +30,47 @@ class NewChatViewController: UIViewController {
 
     private func fetchUsers() {
         guard let currentUID = Auth.auth().currentUser?.uid else { return }
-        Firestore.firestore().collection("users").getDocuments { [weak self] snapshot, _ in
-            self?.allUsers = snapshot?.documents.compactMap { doc -> UserProfile? in
-                guard doc.documentID != currentUID else { return nil }
-                return try? doc.data(as: UserProfile.self)
-            } ?? []
-            self?.filteredUsers = self?.allUsers ?? []
-            DispatchQueue.main.async { self?.tableView.reloadData() }
+        let db = Firestore.firestore()
+        let group = DispatchGroup()
+        var friendUIDs = Set<String>()
+
+        group.enter()
+        db.collection("friendRequests")
+            .whereField("fromUID", isEqualTo: currentUID)
+            .whereField("status", isEqualTo: "accepted")
+            .getDocuments { snapshot, _ in
+                snapshot?.documents.forEach {
+                    if let uid = $0["toUID"] as? String { friendUIDs.insert(uid) }
+                }
+                group.leave()
+            }
+
+        group.enter()
+        db.collection("friendRequests")
+            .whereField("toUID", isEqualTo: currentUID)
+            .whereField("status", isEqualTo: "accepted")
+            .getDocuments { snapshot, _ in
+                snapshot?.documents.forEach {
+                    if let uid = $0["fromUID"] as? String { friendUIDs.insert(uid) }
+                }
+                group.leave()
+            }
+
+        group.notify(queue: .global()) { [weak self] in
+            let profileGroup = DispatchGroup()
+            var profiles = [UserProfile]()
+            for uid in friendUIDs {
+                profileGroup.enter()
+                db.collection("users").document(uid).getDocument { snap, _ in
+                    if let p = try? snap?.data(as: UserProfile.self) { profiles.append(p) }
+                    profileGroup.leave()
+                }
+            }
+            profileGroup.notify(queue: .main) { [weak self] in
+                self?.allUsers = profiles
+                self?.filteredUsers = profiles
+                self?.tableView.reloadData()
+            }
         }
     }
 
