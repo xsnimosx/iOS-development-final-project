@@ -36,12 +36,10 @@ class FriendCell: UITableViewCell {
         nameLabel.font = UIFont.preferredFont(forTextStyle: .headline)
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
 
-        var config = UIButton.Configuration.tinted()
-        config.image = UIImage(systemName: "message.fill")
-        config.baseForegroundColor = .systemBlue
-        config.baseBackgroundColor = .systemBlue
-        config.cornerStyle = .capsule
-        messageButton.configuration = config
+        messageButton.setImage(UIImage(systemName: "message.fill"), for: .normal)
+        messageButton.tintColor = .systemBlue
+        messageButton.backgroundColor = UIColor.systemBlue.withAlphaComponent(0.12)
+        messageButton.layer.cornerRadius = 18
         messageButton.translatesAutoresizingMaskIntoConstraints = false
         messageButton.addTarget(self, action: #selector(messageTapped), for: .touchUpInside)
 
@@ -112,21 +110,21 @@ class RequestCell: UITableViewCell {
         nameLabel.font = UIFont.preferredFont(forTextStyle: .headline)
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
 
-        var acceptCfg = UIButton.Configuration.filled()
-        acceptCfg.title = "Accept"
-        acceptCfg.baseBackgroundColor = .systemGreen
-        acceptCfg.baseForegroundColor = .white
-        acceptCfg.cornerStyle = .capsule
-        acceptCfg.buttonSize = .small
-        acceptButton.configuration = acceptCfg
+        acceptButton.setTitle("Accept", for: .normal)
+        acceptButton.setTitleColor(.white, for: .normal)
+        acceptButton.titleLabel?.font = .systemFont(ofSize: 13, weight: .semibold)
+        acceptButton.backgroundColor = .systemGreen
+        acceptButton.layer.cornerRadius = 14
+        acceptButton.contentEdgeInsets = UIEdgeInsets(top: 6, left: 14, bottom: 6, right: 14)
         acceptButton.translatesAutoresizingMaskIntoConstraints = false
         acceptButton.addTarget(self, action: #selector(acceptTapped), for: .touchUpInside)
 
-        var declineCfg = UIButton.Configuration.gray()
-        declineCfg.title = "Ignore"
-        declineCfg.cornerStyle = .capsule
-        declineCfg.buttonSize = .small
-        declineButton.configuration = declineCfg
+        declineButton.setTitle("Ignore", for: .normal)
+        declineButton.setTitleColor(.secondaryLabel, for: .normal)
+        declineButton.titleLabel?.font = .systemFont(ofSize: 13, weight: .semibold)
+        declineButton.backgroundColor = .systemGray5
+        declineButton.layer.cornerRadius = 14
+        declineButton.contentEdgeInsets = UIEdgeInsets(top: 6, left: 14, bottom: 6, right: 14)
         declineButton.translatesAutoresizingMaskIntoConstraints = false
         declineButton.addTarget(self, action: #selector(declineTapped), for: .touchUpInside)
 
