@@ -50,5 +50,8 @@
 "chatlist.unknownUser" = "未知";
 
 /* SettingsViewController */
+"settings.section.profile" = "個人資料";
+"settings.section.logout" = "登出";
+"settings.cell.logout" = "登出";
 "settings.error.signOutFailed" = "登出失敗：%@";
 "settings.alert.ok" = "確定";
