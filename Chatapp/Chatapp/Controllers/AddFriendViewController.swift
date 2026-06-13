@@ -21,6 +21,10 @@ class AddFriendViewController: UIViewController {
     private var filteredUsers: [UserProfile] = []
     private var statusMap: [String: RelationshipStatus] = [:]
 
+    private var nonFriendUsers: [UserProfile] {
+        allUsers.filter { statusMap[$0.id ?? ""] != .friends }
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
         searchBar.delegate = self
@@ -47,8 +51,10 @@ class AddFriendViewController: UIViewController {
                 guard doc.documentID != currentUID else { return nil }
                 return try? doc.data(as: UserProfile.self)
             } ?? []
-            self.filteredUsers = self.allUsers
-            self.loadRelationships { self.tableView.reloadData() }
+            self.loadRelationships {
+                self.filteredUsers = self.nonFriendUsers
+                self.tableView.reloadData()
+            }
         }
     }
 
@@ -115,6 +121,7 @@ class AddFriendViewController: UIViewController {
                         guard let self = self else { return }
                         if error == nil {
                             self.statusMap[toUID] = .friends
+                            self.filteredUsers = self.nonFriendUsers
                             self.tableView.reloadData()
                             self.showAlert("You are now friends!")
                         } else {
@@ -155,7 +162,7 @@ class AddFriendViewController: UIViewController {
         case .none: return nil
         case .sentPending:  text = "Pending"; color = .systemOrange
         case .receivedPending: text = "Accept"; color = .systemGreen
-        case .friends: text = "Friends"; color = .systemBlue
+        case .friends: return nil
         }
         let label = UILabel()
         label.text = text
@@ -175,7 +182,8 @@ class AddFriendViewController: UIViewController {
 // MARK: - UISearchBarDelegate
 extension AddFriendViewController: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        filteredUsers = searchText.isEmpty ? allUsers : allUsers.filter {
+        let base = nonFriendUsers
+        filteredUsers = searchText.isEmpty ? base : base.filter {
             $0.displayName.localizedCaseInsensitiveContains(searchText) ||
             $0.email.localizedCaseInsensitiveContains(searchText)
         }
