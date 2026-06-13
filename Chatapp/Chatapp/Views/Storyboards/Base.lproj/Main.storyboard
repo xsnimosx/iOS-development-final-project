@@ -71,6 +71,7 @@
                     </view>
                     <connections>
                         <outlet property="emailField" destination="Etj-O4-JWw" id="AAB-C1-001"/>
+                        <outlet property="loginButton" destination="pSv-3A-a3p" id="AAB-C1-006"/>
                         <outlet property="passwordField" destination="HB7-YS-gpY" id="AAB-C1-002"/>
                         <outlet property="segmentedControl" destination="LST-Qn-Ubx" id="AAB-C1-003"/>
                         <segue destination="L1w-dd-cnv" kind="presentation" identifier="toMainApp" modalPresentationStyle="fullScreen" id="AAB-C1-004"/>
