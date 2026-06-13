@@ -9,13 +9,17 @@ import FirebaseFirestore
 class LoginViewController: UIViewController {
 
     // MARK: - IBOutlets
-    // 在 Xcode 中 ctrl-drag 從 Storyboard 元素連接到這裡
     @IBOutlet weak var emailField: UITextField!
     @IBOutlet weak var passwordField: UITextField!
     @IBOutlet weak var segmentedControl: UISegmentedControl!
+    @IBOutlet weak var loginButton: UIButton!
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        segmentedControl.setTitle(NSLocalizedString("login.segment.signIn", comment: ""), forSegmentAt: 0)
+        segmentedControl.setTitle(NSLocalizedString("login.segment.signUp", comment: ""), forSegmentAt: 1)
+        passwordField.placeholder = NSLocalizedString("login.field.password", comment: "")
+        loginButton.configuration?.title = NSLocalizedString("login.button.title", comment: "")
         if Auth.auth().currentUser != nil {
             navigateToMainApp()
         }
