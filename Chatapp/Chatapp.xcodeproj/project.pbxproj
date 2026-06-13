@@ -20,7 +20,6 @@
 		514169BD2FDB2AB2007FE670 /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = 514169A12FDB2AB2007FE670 /* Message.swift */; };
 		514169BE2FDB2AB2007FE670 /* UserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 514169A22FDB2AB2007FE670 /* UserProfile.swift */; };
 		514169BF2FDB2AB2007FE670 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 514169A42FDB2AB2007FE670 /* Assets.xcassets */; };
-		514169C02FDB2AB2007FE670 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 514169A52FDB2AB2007FE670 /* GoogleService-Info.plist */; };
 		514169C22FDB2AB2007FE670 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 514169A92FDB2AB2007FE670 /* LaunchScreen.storyboard */; };
 		514169C32FDB2AB2007FE670 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 514169AB2FDB2AB2007FE670 /* Main.storyboard */; };
 		514169C42FDB2AB2007FE670 /* ConversationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 514169AD2FDB2AB2007FE670 /* ConversationCell.swift */; };
@@ -31,6 +30,8 @@
 		5143101A2FB21F1900A3BBAB /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 514310192FB21F1900A3BBAB /* FirebaseAuth */; };
 		5143101C2FB21F1900A3BBAB /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 5143101B2FB21F1900A3BBAB /* FirebaseFirestore */; };
 		5143101E2FB21F1900A3BBAB /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 5143101D2FB21F1900A3BBAB /* FirebaseStorage */; };
+		51565C9C2FDDB0C70096FB15 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 51565C9B2FDDB0B20096FB15 /* GoogleService-Info.plist */; };
+		51565C9E2FDDB1800096FB15 /* UserRowCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51565C9D2FDDB1800096FB15 /* UserRowCell.swift */; };
 		51917A5B2FDC4CED002959E9 /* FriendsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51917A5A2FDC4CED002959E9 /* FriendsViewController.swift */; };
 		51917A5D2FDC4CF8002959E9 /* AddFriendViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51917A5C2FDC4CF7002959E9 /* AddFriendViewController.swift */; };
 		51917A5F2FDC4EC0002959E9 /* FriendRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51917A5E2FDC4EC0002959E9 /* FriendRequest.swift */; };
@@ -50,7 +51,6 @@
 		514169A12FDB2AB2007FE670 /* Message.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = "<group>"; };
 		514169A22FDB2AB2007FE670 /* UserProfile.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserProfile.swift; sourceTree = "<group>"; };
 		514169A42FDB2AB2007FE670 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		514169A52FDB2AB2007FE670 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		514169A62FDB2AB2007FE670 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		514169A82FDB2AB2007FE670 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		514169AA2FDB2AB2007FE670 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -58,6 +58,8 @@
 		514169AF2FDB2AB2007FE670 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		514169B12FDB2AB2007FE670 /* SceneDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		514169D12FDB2AB2007FE670 /* UserAvatarCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserAvatarCell.swift; sourceTree = "<group>"; };
+		51565C9B2FDDB0B20096FB15 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		51565C9D2FDDB1800096FB15 /* UserRowCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserRowCell.swift; sourceTree = "<group>"; };
 		515934742FD9B47C00A0CA14 /* Chatapp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Chatapp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		51917A5A2FDC4CED002959E9 /* FriendsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FriendsViewController.swift; sourceTree = "<group>"; };
 		51917A5C2FDC4CF7002959E9 /* AddFriendViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddFriendViewController.swift; sourceTree = "<group>"; };
@@ -119,7 +121,7 @@
 			isa = PBXGroup;
 			children = (
 				514169A42FDB2AB2007FE670 /* Assets.xcassets */,
-				514169A52FDB2AB2007FE670 /* GoogleService-Info.plist */,
+				51565C9B2FDDB0B20096FB15 /* GoogleService-Info.plist */,
 				514169A62FDB2AB2007FE670 /* Info.plist */,
 			);
 			path = Resources;
@@ -137,6 +139,7 @@
 		514169AE2FDB2AB2007FE670 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				51565C9D2FDDB1800096FB15 /* UserRowCell.swift */,
 				514169AC2FDB2AB2007FE670 /* Storyboards */,
 				514169AD2FDB2AB2007FE670 /* ConversationCell.swift */,
 				514169D12FDB2AB2007FE670 /* UserAvatarCell.swift */,
@@ -241,10 +244,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				51565C9C2FDDB0C70096FB15 /* GoogleService-Info.plist in Resources */,
 				514169BF2FDB2AB2007FE670 /* Assets.xcassets in Resources */,
 				514169C32FDB2AB2007FE670 /* Main.storyboard in Resources */,
 				514169C22FDB2AB2007FE670 /* LaunchScreen.storyboard in Resources */,
-				514169C02FDB2AB2007FE670 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -262,6 +265,7 @@
 				514169B92FDB2AB2007FE670 /* SettingsViewController.swift in Sources */,
 				51917A5B2FDC4CED002959E9 /* FriendsViewController.swift in Sources */,
 				514169C52FDB2AB2007FE670 /* AppDelegate.swift in Sources */,
+				51565C9E2FDDB1800096FB15 /* UserRowCell.swift in Sources */,
 				514169BA2FDB2AB2007FE670 /* UIViewController+Keyboard.swift in Sources */,
 				514169B32FDB2AB2007FE670 /* ChatViewController.swift in Sources */,
 				514169C72FDB2AB2007FE670 /* SceneDelegate.swift in Sources */,
