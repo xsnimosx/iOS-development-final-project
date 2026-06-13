@@ -43,7 +43,7 @@ class SettingsViewController: UITableViewController {
             do {
                 try Auth.auth().signOut()
             } catch {
-                showAlert("登出失敗：\(error.localizedDescription)")
+                showAlert(String(format: NSLocalizedString("settings.error.signOutFailed", comment: ""), error.localizedDescription))
                 return false
             }
         }
@@ -52,7 +52,7 @@ class SettingsViewController: UITableViewController {
 
     private func showAlert(_ message: String) {
         let alert = UIAlertController(title: nil, message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "確定", style: .default))
+        alert.addAction(UIAlertAction(title: NSLocalizedString("settings.alert.ok", comment: ""), style: .default))
         present(alert, animated: true)
     }
 }

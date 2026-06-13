@@ -188,7 +188,7 @@ extension ChatViewController: UITableViewDelegate {
         let message = messages[indexPath.row]
         guard message.senderId == Auth.auth().currentUser?.uid else { return nil }
         return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ in
-            let delete = UIAction(title: "刪除", image: UIImage(systemName: "trash"), attributes: .destructive) { [weak self] _ in
+            let delete = UIAction(title: NSLocalizedString("chat.action.delete", comment: ""), image: UIImage(systemName: "trash"), attributes: .destructive) { [weak self] _ in
                 self?.deleteMessage(message)
             }
             return UIMenu(title: "", children: [delete])
