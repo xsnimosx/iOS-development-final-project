@@ -27,6 +27,7 @@ class AddFriendViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        title = NSLocalizedString("addfriend.nav.title", comment: "")
         searchBar.delegate = self
         tableView.dataSource = self
         tableView.delegate = self

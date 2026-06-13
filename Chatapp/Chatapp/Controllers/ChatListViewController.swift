@@ -23,6 +23,7 @@ class ChatListViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        title = NSLocalizedString("chats.nav.title", comment: "")
         tableView.dataSource = self
         tableView.delegate = self
         startListening()
