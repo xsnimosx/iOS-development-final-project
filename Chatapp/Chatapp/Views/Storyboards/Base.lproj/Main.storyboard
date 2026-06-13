@@ -80,103 +80,8 @@
             </objects>
             <point key="canvasLocation" x="-832" y="-1577"/>
         </scene>
-        <!--New Conversation-->
-        <scene sceneID="eWA-y9-ZQn">
-            <objects>
-                <viewController id="osb-BB-a5n" customClass="NewChatViewController" customModule="Chatapp" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" id="OR8-Oq-jbR">
-                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <searchBar contentMode="redraw" placeholder="Search by name or email..." translatesAutoresizingMaskIntoConstraints="NO" id="bwX-cO-Oko">
-                                <rect key="frame" x="0.0" y="88" width="414" height="56"/>
-                                <textInputTraits key="textInputTraits"/>
-                                <connections>
-                                    <outlet property="delegate" destination="osb-BB-a5n" id="1Ae-4y-wiO"/>
-                                </connections>
-                            </searchBar>
-                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="XKG-lb-pw6">
-                                <rect key="frame" x="0.0" y="144" width="414" height="718"/>
-                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                                <prototypes>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="default" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="UserCell" rowHeight="72" id="yuF-we-suo" customClass="UserAvatarCell" customModule="Chatapp" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="50" width="414" height="72"/>
-                                        <autoresizingMask key="autoresizingMask"/>
-                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="yuF-we-suo" id="ucL-mb-cLO">
-                                            <rect key="frame" x="0.0" y="0.0" width="414" height="72"/>
-                                            <autoresizingMask key="autoresizingMask"/>
-                                            <subviews>
-                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="person.crop.circle" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="Ewy-LZ-FgS">
-                                                    <rect key="frame" x="16" y="13" width="48" height="46.666666666666671"/>
-                                                    <color key="tintColor" systemColor="systemGray3Color"/>
-                                                    <constraints>
-                                                        <constraint firstAttribute="height" constant="48" id="NC-av-h"/>
-                                                        <constraint firstAttribute="width" constant="48" id="NC-av-w"/>
-                                                    </constraints>
-                                                </imageView>
-                                                <stackView opaque="NO" userInteractionEnabled="NO" contentMode="left" axis="vertical" spacing="2" translatesAutoresizingMaskIntoConstraints="NO" id="NC-stk-001">
-                                                    <rect key="frame" x="76" y="26" width="322" height="20.333333333333329"/>
-                                                    <subviews>
-                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Username" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1mx-UU-Ylo">
-                                                            <rect key="frame" x="0.0" y="0.0" width="322" height="20.333333333333332"/>
-                                                            <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
-                                                            <nil key="textColor"/>
-                                                            <nil key="highlightedColor"/>
-                                                        </label>
-                                                        <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="email@example.com" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="NC-dt-001">
-                                                            <rect key="frame" x="0.0" y="0.0" width="322" height="0.0"/>
-                                                            <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                                                            <color key="textColor" systemColor="secondaryLabelColor"/>
-                                                            <nil key="highlightedColor"/>
-                                                        </label>
-                                                    </subviews>
-                                                </stackView>
-                                            </subviews>
-                                            <constraints>
-                                                <constraint firstItem="Ewy-LZ-FgS" firstAttribute="centerY" secondItem="ucL-mb-cLO" secondAttribute="centerY" id="NC-av-cy"/>
-                                                <constraint firstItem="Ewy-LZ-FgS" firstAttribute="leading" secondItem="ucL-mb-cLO" secondAttribute="leading" constant="16" id="NC-av-lead"/>
-                                                <constraint firstItem="NC-stk-001" firstAttribute="centerY" secondItem="ucL-mb-cLO" secondAttribute="centerY" id="NC-stk-cy"/>
-                                                <constraint firstItem="NC-stk-001" firstAttribute="leading" secondItem="Ewy-LZ-FgS" secondAttribute="trailing" constant="12" id="NC-stk-lead"/>
-                                                <constraint firstAttribute="trailing" secondItem="NC-stk-001" secondAttribute="trailing" constant="16" id="NC-stk-trail"/>
-                                            </constraints>
-                                        </tableViewCellContentView>
-                                        <connections>
-                                            <outlet property="avatarImageView" destination="Ewy-LZ-FgS" id="NC-out-av"/>
-                                            <outlet property="detailLabel" destination="NC-dt-001" id="NC-out-dt"/>
-                                            <outlet property="nameLabel" destination="1mx-UU-Ylo" id="NC-out-nm"/>
-                                        </connections>
-                                    </tableViewCell>
-                                </prototypes>
-                            </tableView>
-                        </subviews>
-                        <viewLayoutGuide key="safeArea" id="gy6-Tv-VXQ"/>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                        <constraints>
-                            <constraint firstItem="XKG-lb-pw6" firstAttribute="top" secondItem="bwX-cO-Oko" secondAttribute="bottom" id="07U-4D-br1"/>
-                            <constraint firstItem="bwX-cO-Oko" firstAttribute="leading" secondItem="gy6-Tv-VXQ" secondAttribute="leading" id="Vfq-i4-Zi5"/>
-                            <constraint firstItem="bwX-cO-Oko" firstAttribute="top" secondItem="gy6-Tv-VXQ" secondAttribute="top" id="m2E-Cf-c3e"/>
-                            <constraint firstItem="gy6-Tv-VXQ" firstAttribute="trailing" secondItem="bwX-cO-Oko" secondAttribute="trailing" id="oez-nA-Am1"/>
-                            <constraint firstItem="gy6-Tv-VXQ" firstAttribute="bottom" secondItem="XKG-lb-pw6" secondAttribute="bottom" id="q2g-gA-eLp"/>
-                            <constraint firstItem="gy6-Tv-VXQ" firstAttribute="trailing" secondItem="XKG-lb-pw6" secondAttribute="trailing" id="sXL-9S-rPd"/>
-                            <constraint firstItem="XKG-lb-pw6" firstAttribute="leading" secondItem="gy6-Tv-VXQ" secondAttribute="leading" id="vRV-Kg-tE3"/>
-                        </constraints>
-                    </view>
-                    <navigationItem key="navigationItem" title="New Conversation" id="GrE-Ks-jXV">
-                        <barButtonItem key="leftBarButtonItem" systemItem="cancel" id="lOB-0b-cQ2">
-                            <connections>
-                                <action selector="cancelTapped:" destination="osb-BB-a5n" id="AAB-C4-003"/>
-                            </connections>
-                        </barButtonItem>
-                    </navigationItem>
-                    <connections>
-                        <outlet property="searchBar" destination="bwX-cO-Oko" id="AAB-C4-001"/>
-                        <outlet property="tableView" destination="XKG-lb-pw6" id="AAB-C4-002"/>
-                    </connections>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="tLc-Mn-wnn" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="3342" y="-1577"/>
-        </scene>
+
+
         <!--Chats-->
         <scene sceneID="cvx-EW-T4P">
             <objects>
@@ -196,12 +101,12 @@
                                             <rect key="frame" x="0.0" y="0.0" width="414" height="72"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="person.circle.fill" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="Afd-WL-gR1">
-                                                    <rect key="frame" x="16" y="13" width="48" height="46.666666666666671"/>
-                                                    <color key="tintColor" systemColor="systemGray3Color"/>
+                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="person.crop.circle.fill" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="Afd-WL-gR1">
+                                                    <rect key="frame" x="16" y="13" width="44" height="44"/>
+                                                    <color key="tintColor" systemColor="systemBrownColor"/>
                                                     <constraints>
-                                                        <constraint firstAttribute="height" constant="48" id="CL-av-h"/>
-                                                        <constraint firstAttribute="width" constant="48" id="CL-av-w"/>
+                                                        <constraint firstAttribute="height" constant="44" id="CL-av-h"/>
+                                                        <constraint firstAttribute="width" constant="44" id="CL-av-w"/>
                                                     </constraints>
                                                 </imageView>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Name" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5gd-h5-ksN">
@@ -391,12 +296,12 @@
                                             <rect key="frame" x="0.0" y="0.0" width="374" height="72"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="person.circle.fill" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="ecQ-Kj-anL">
-                                                    <rect key="frame" x="16" y="13" width="48" height="46.666666666666671"/>
-                                                    <color key="tintColor" systemColor="systemGray3Color"/>
+                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="person.crop.circle.fill" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="ecQ-Kj-anL">
+                                                    <rect key="frame" x="16" y="13" width="44" height="44"/>
+                                                    <color key="tintColor" systemColor="systemBrownColor"/>
                                                     <constraints>
-                                                        <constraint firstAttribute="height" constant="48" id="Set-av-h"/>
-                                                        <constraint firstAttribute="width" constant="48" id="Set-av-w"/>
+                                                        <constraint firstAttribute="height" constant="44" id="Set-av-h"/>
+                                                        <constraint firstAttribute="width" constant="44" id="Set-av-w"/>
                                                     </constraints>
                                                 </imageView>
                                                 <stackView opaque="NO" userInteractionEnabled="NO" contentMode="left" axis="vertical" spacing="2" translatesAutoresizingMaskIntoConstraints="NO" id="Set-stk-001">
@@ -521,9 +426,6 @@
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <nil name="viewControllers"/>
-                    <connections>
-                        <segue destination="osb-BB-a5n" kind="relationship" relationship="rootViewController" id="Btb-zk-8qH"/>
-                    </connections>
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="uhv-mb-1On" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
@@ -548,7 +450,7 @@
             </objects>
             <point key="canvasLocation" x="864" y="-1577"/>
         </scene>
-        <!--Friends View Controller-->
+        <!--Friends-->
         <scene sceneID="PLU-sc-002">
             <objects>
                 <viewController id="PLU-vc-001" customClass="FriendsViewController" customModule="Chatapp" customModuleProvider="target" sceneMemberID="viewController">
@@ -556,124 +458,40 @@
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="FRV-sc-001">
-                                <rect key="frame" x="16" y="104" width="382" height="32"/>
-                                <segments>
-                                    <segment title="Friends"/>
-                                    <segment title="Requests"/>
-                                </segments>
-                                <connections>
-                                    <action selector="segmentChanged:" destination="PLU-vc-001" eventType="valueChanged" id="FRV-sc-act"/>
-                                </connections>
-                            </segmentedControl>
-                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="FRV-tv-001">
-                                <rect key="frame" x="0.0" y="144" width="414" height="703"/>
-                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="-1" estimatedRowHeight="72" sectionHeaderHeight="32" estimatedSectionHeaderHeight="32" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="FRV-tv-001">
+                                <rect key="frame" x="0.0" y="44" width="414" height="852"/>
+                                <color key="backgroundColor" systemColor="systemGroupedBackgroundColor"/>
                                 <prototypes>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="none" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="FriendCell" rowHeight="60" id="FRV-fc-001" customClass="FriendCell" customModule="Chatapp" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="0.0" width="414" height="60"/>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="none" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="FriendCell" rowHeight="-1" id="FRV-fc-001" customClass="FriendCell" customModule="Chatapp" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="50" width="414" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="FRV-fc-001" id="FRV-fccv-001">
-                                            <rect key="frame" x="0.0" y="0.0" width="414" height="60"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="414" height="44"/>
                                             <autoresizingMask key="autoresizingMask"/>
-                                            <subviews>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Friend Name" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="FRV-nl-001">
-                                                    <rect key="frame" x="16" y="19" width="270" height="22"/>
-                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                                    <nil key="textColor"/>
-                                                    <nil key="highlightedColor"/>
-                                                </label>
-                                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="FRV-mb-001">
-                                                    <rect key="frame" x="314" y="15" width="84" height="30"/>
-                                                    <constraints>
-                                                        <constraint firstAttribute="width" constant="84" id="FRV-mb-w"/>
-                                                        <constraint firstAttribute="height" constant="30" id="FRV-mb-h"/>
-                                                    </constraints>
-                                                    <state key="normal" title="Message"/>
-                                                    <connections>
-                                                        <action selector="messageTapped:" destination="FRV-fc-001" eventType="touchUpInside" id="FRV-mb-act"/>
-                                                    </connections>
-                                                </button>
-                                            </subviews>
-                                            <constraints>
-                                                <constraint firstItem="FRV-nl-001" firstAttribute="leading" secondItem="FRV-fccv-001" secondAttribute="leading" constant="16" id="FRV-fc-c1"/>
-                                                <constraint firstItem="FRV-nl-001" firstAttribute="centerY" secondItem="FRV-fccv-001" secondAttribute="centerY" id="FRV-fc-c2"/>
-                                                <constraint firstItem="FRV-mb-001" firstAttribute="centerY" secondItem="FRV-fccv-001" secondAttribute="centerY" id="FRV-fc-c3"/>
-                                                <constraint firstAttribute="trailing" secondItem="FRV-mb-001" secondAttribute="trailing" constant="16" id="FRV-fc-c4"/>
-                                                <constraint firstItem="FRV-mb-001" firstAttribute="leading" secondItem="FRV-nl-001" secondAttribute="trailing" constant="8" id="FRV-fc-c5"/>
-                                            </constraints>
                                         </tableViewCellContentView>
-                                        <connections>
-                                            <outlet property="nameLabel" destination="FRV-nl-001" id="FRV-fc-out1"/>
-                                        </connections>
                                     </tableViewCell>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="none" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="RequestCell" rowHeight="60" id="FRV-rc-001" customClass="RequestCell" customModule="Chatapp" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="60" width="414" height="60"/>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="none" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="RequestCell" rowHeight="-1" id="FRV-rc-001" customClass="RequestCell" customModule="Chatapp" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="94" width="414" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="FRV-rc-001" id="FRV-rccv-001">
-                                            <rect key="frame" x="0.0" y="0.0" width="414" height="60"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="414" height="44"/>
                                             <autoresizingMask key="autoresizingMask"/>
-                                            <subviews>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Requester Name" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="FRV-rn-001">
-                                                    <rect key="frame" x="16" y="19" width="194" height="22"/>
-                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                                    <nil key="textColor"/>
-                                                    <nil key="highlightedColor"/>
-                                                </label>
-                                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="FRV-ab-001">
-                                                    <rect key="frame" x="226" y="15" width="70" height="30"/>
-                                                    <constraints>
-                                                        <constraint firstAttribute="width" constant="70" id="FRV-ab-w"/>
-                                                        <constraint firstAttribute="height" constant="30" id="FRV-ab-h"/>
-                                                    </constraints>
-                                                    <state key="normal" title="Accept"/>
-                                                    <connections>
-                                                        <action selector="acceptTapped:" destination="FRV-rc-001" eventType="touchUpInside" id="FRV-ab-act"/>
-                                                    </connections>
-                                                </button>
-                                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="FRV-db-001">
-                                                    <rect key="frame" x="312" y="15" width="70" height="30"/>
-                                                    <constraints>
-                                                        <constraint firstAttribute="width" constant="70" id="FRV-db-w"/>
-                                                        <constraint firstAttribute="height" constant="30" id="FRV-db-h"/>
-                                                    </constraints>
-                                                    <state key="normal" title="Decline"/>
-                                                    <connections>
-                                                        <action selector="declineTapped:" destination="FRV-rc-001" eventType="touchUpInside" id="FRV-db-act"/>
-                                                    </connections>
-                                                </button>
-                                            </subviews>
-                                            <constraints>
-                                                <constraint firstItem="FRV-rn-001" firstAttribute="leading" secondItem="FRV-rccv-001" secondAttribute="leading" constant="16" id="FRV-rc-c1"/>
-                                                <constraint firstItem="FRV-rn-001" firstAttribute="centerY" secondItem="FRV-rccv-001" secondAttribute="centerY" id="FRV-rc-c2"/>
-                                                <constraint firstItem="FRV-ab-001" firstAttribute="centerY" secondItem="FRV-rccv-001" secondAttribute="centerY" id="FRV-rc-c3"/>
-                                                <constraint firstItem="FRV-db-001" firstAttribute="centerY" secondItem="FRV-rccv-001" secondAttribute="centerY" id="FRV-rc-c4"/>
-                                                <constraint firstAttribute="trailing" secondItem="FRV-db-001" secondAttribute="trailing" constant="16" id="FRV-rc-c5"/>
-                                                <constraint firstItem="FRV-db-001" firstAttribute="leading" secondItem="FRV-ab-001" secondAttribute="trailing" constant="8" id="FRV-rc-c6"/>
-                                                <constraint firstItem="FRV-ab-001" firstAttribute="leading" secondItem="FRV-rn-001" secondAttribute="trailing" constant="8" id="FRV-rc-c7"/>
-                                            </constraints>
                                         </tableViewCellContentView>
-                                        <connections>
-                                            <outlet property="nameLabel" destination="FRV-rn-001" id="FRV-rc-out1"/>
-                                        </connections>
                                     </tableViewCell>
                                 </prototypes>
                             </tableView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="kxG-gm-iSy"/>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <color key="backgroundColor" systemColor="systemGroupedBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="FRV-sc-001" firstAttribute="top" secondItem="kxG-gm-iSy" secondAttribute="top" constant="8" id="FRV-c1"/>
-                            <constraint firstItem="FRV-sc-001" firstAttribute="leading" secondItem="kxG-gm-iSy" secondAttribute="leading" constant="16" id="FRV-c2"/>
-                            <constraint firstItem="kxG-gm-iSy" firstAttribute="trailing" secondItem="FRV-sc-001" secondAttribute="trailing" constant="16" id="FRV-c3"/>
-                            <constraint firstItem="FRV-tv-001" firstAttribute="top" secondItem="FRV-sc-001" secondAttribute="bottom" constant="8" id="FRV-c4"/>
+                            <constraint firstItem="FRV-tv-001" firstAttribute="top" secondItem="kxG-gm-iSy" secondAttribute="top" id="FRV-c4"/>
                             <constraint firstItem="FRV-tv-001" firstAttribute="leading" secondItem="PLU-v-001" secondAttribute="leading" id="FRV-c5"/>
-                            <constraint firstItem="PLU-v-001" firstAttribute="trailing" secondItem="FRV-tv-001" secondAttribute="trailing" id="FRV-c6"/>
-                            <constraint firstItem="PLU-v-001" firstAttribute="bottom" secondItem="FRV-tv-001" secondAttribute="bottom" id="FRV-c7"/>
+                            <constraint firstAttribute="trailing" secondItem="FRV-tv-001" secondAttribute="trailing" id="FRV-c6"/>
+                            <constraint firstAttribute="bottom" secondItem="FRV-tv-001" secondAttribute="bottom" id="FRV-c7"/>
                         </constraints>
                     </view>
+                    <navigationItem key="navigationItem" title="Friends" id="FRV-ni-001"/>
                     <connections>
-                        <outlet property="segmentedControl" destination="FRV-sc-001" id="FRV-out-sc"/>
                         <outlet property="tableView" destination="FRV-tv-001" id="FRV-out-tv"/>
                     </connections>
                 </viewController>
@@ -681,7 +499,7 @@
             </objects>
             <point key="canvasLocation" x="1703" y="-1577"/>
         </scene>
-        <!--Add Friend Navigation-->
+        <!--Navigation Controller-->
         <scene sceneID="AFN-sc-001">
             <objects>
                 <navigationController storyboardIdentifier="AddFriendNav" automaticallyAdjustsScrollViewInsets="NO" id="AFN-nc-001" sceneMemberID="viewController">
@@ -699,7 +517,7 @@
             </objects>
             <point key="canvasLocation" x="2538" y="-1577"/>
         </scene>
-        <!--Add Friend View Controller-->
+        <!--Add Friend-->
         <scene sceneID="AFV-sc-001">
             <objects>
                 <viewController id="AFV-vc-001" customClass="AddFriendViewController" customModule="Chatapp" customModuleProvider="target" sceneMemberID="viewController">
@@ -757,13 +575,13 @@
                         <viewLayoutGuide key="safeArea" id="AFV-sa-001"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="AFV-tv-001" firstAttribute="top" secondItem="AFV-sb-001" secondAttribute="bottom" id="AFV-c7"/>
-                            <constraint firstItem="AFV-sb-001" firstAttribute="leading" secondItem="AFV-sa-001" secondAttribute="leading" id="AFV-c8"/>
-                            <constraint firstItem="AFV-sb-001" firstAttribute="top" secondItem="AFV-sa-001" secondAttribute="top" id="AFV-c9"/>
                             <constraint firstItem="AFV-sa-001" firstAttribute="trailing" secondItem="AFV-sb-001" secondAttribute="trailing" id="AFV-c10"/>
                             <constraint firstItem="AFV-sa-001" firstAttribute="bottom" secondItem="AFV-tv-001" secondAttribute="bottom" id="AFV-c11"/>
                             <constraint firstItem="AFV-sa-001" firstAttribute="trailing" secondItem="AFV-tv-001" secondAttribute="trailing" id="AFV-c12"/>
                             <constraint firstItem="AFV-tv-001" firstAttribute="leading" secondItem="AFV-sa-001" secondAttribute="leading" id="AFV-c13"/>
+                            <constraint firstItem="AFV-tv-001" firstAttribute="top" secondItem="AFV-sb-001" secondAttribute="bottom" id="AFV-c7"/>
+                            <constraint firstItem="AFV-sb-001" firstAttribute="leading" secondItem="AFV-sa-001" secondAttribute="leading" id="AFV-c8"/>
+                            <constraint firstItem="AFV-sb-001" firstAttribute="top" secondItem="AFV-sa-001" secondAttribute="top" id="AFV-c9"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Add Friend" id="AFV-ni-001">
@@ -780,7 +598,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="AFV-fr-001" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="3000" y="-1577"/>
+            <point key="canvasLocation" x="3342" y="-1577"/>
         </scene>
     </scenes>
     <resources>
@@ -789,12 +607,12 @@
         <image name="message" catalog="system" width="128" height="116"/>
         <image name="message.fill" catalog="system" width="128" height="114"/>
         <image name="paperplane.fill" catalog="system" width="128" height="119"/>
-        <image name="person.2" catalog="system" width="128" height="90"/>
-        <image name="person.2.fill" catalog="system" width="128" height="90"/>
+        <image name="person.2" catalog="system" width="128" height="87"/>
+        <image name="person.2.fill" catalog="system" width="128" height="86"/>
         <image name="person.circle.fill" catalog="system" width="128" height="123"/>
         <image name="person.crop.circle" catalog="system" width="128" height="123"/>
+        <image name="person.crop.circle.fill" catalog="system" width="128" height="123"/>
         <image name="photo" catalog="system" width="128" height="93"/>
-        <image name="plus.circle.fill" catalog="system" width="128" height="123"/>
         <systemColor name="groupTableViewBackgroundColor">
             <color red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
@@ -809,6 +627,12 @@
         </systemColor>
         <systemColor name="systemGray3Color">
             <color red="0.7803921568627451" green="0.7803921568627451" blue="0.80000000000000004" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
+        <systemColor name="systemGray5Color">
+            <color red="0.89803921568627454" green="0.89803921568627454" blue="0.91764705882352937" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
+        <systemColor name="systemGroupedBackgroundColor">
+            <color red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="underPageBackgroundColor">
             <color red="0.70980392156862748" green="0.71764705882352942" blue="0.74117647058823533" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
