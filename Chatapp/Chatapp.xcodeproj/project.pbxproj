@@ -12,7 +12,6 @@
 		514169B52FDB2AB2007FE670 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 514169972FDB2AB2007FE670 /* LoginViewController.swift */; };
 		514169B62FDB2AB2007FE670 /* MainTabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 514169982FDB2AB2007FE670 /* MainTabBarController.swift */; };
 		514169B72FDB2AB2007FE670 /* MediaPreviewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 514169992FDB2AB2007FE670 /* MediaPreviewViewController.swift */; };
-		514169B82FDB2AB2007FE670 /* NewChatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5141699A2FDB2AB2007FE670 /* NewChatViewController.swift */; };
 		514169B92FDB2AB2007FE670 /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5141699B2FDB2AB2007FE670 /* SettingsViewController.swift */; };
 		514169BA2FDB2AB2007FE670 /* UIViewController+Keyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5141699C2FDB2AB2007FE670 /* UIViewController+Keyboard.swift */; };
 		514169BB2FDB2AB2007FE670 /* ImageUploadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5141699E2FDB2AB2007FE670 /* ImageUploadManager.swift */; };
@@ -42,7 +41,6 @@
 		514169972FDB2AB2007FE670 /* LoginViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 		514169982FDB2AB2007FE670 /* MainTabBarController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainTabBarController.swift; sourceTree = "<group>"; };
 		514169992FDB2AB2007FE670 /* MediaPreviewViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MediaPreviewViewController.swift; sourceTree = "<group>"; };
-		5141699A2FDB2AB2007FE670 /* NewChatViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NewChatViewController.swift; sourceTree = "<group>"; };
 		5141699B2FDB2AB2007FE670 /* SettingsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
 		5141699C2FDB2AB2007FE670 /* UIViewController+Keyboard.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIViewController+Keyboard.swift"; sourceTree = "<group>"; };
 		5141699E2FDB2AB2007FE670 /* ImageUploadManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageUploadManager.swift; sourceTree = "<group>"; };
@@ -89,7 +87,6 @@
 				51917A5C2FDC4CF7002959E9 /* AddFriendViewController.swift */,
 				51917A5A2FDC4CED002959E9 /* FriendsViewController.swift */,
 				514169992FDB2AB2007FE670 /* MediaPreviewViewController.swift */,
-				5141699A2FDB2AB2007FE670 /* NewChatViewController.swift */,
 				5141699B2FDB2AB2007FE670 /* SettingsViewController.swift */,
 				5141699C2FDB2AB2007FE670 /* UIViewController+Keyboard.swift */,
 			);
@@ -256,7 +253,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				514169BC2FDB2AB2007FE670 /* LocalCacheManager.swift in Sources */,
-				514169B82FDB2AB2007FE670 /* NewChatViewController.swift in Sources */,
 				514169B52FDB2AB2007FE670 /* LoginViewController.swift in Sources */,
 				51917A5F2FDC4EC0002959E9 /* FriendRequest.swift in Sources */,
 				514169B92FDB2AB2007FE670 /* SettingsViewController.swift in Sources */,
