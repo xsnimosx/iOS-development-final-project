@@ -107,10 +107,10 @@ class AddFriendViewController: UIViewController {
 
         switch statusMap[toUID] ?? .none {
         case .friends:
-            showAlert("You are already friends.")
+            showAlert(NSLocalizedString("addfriend.status.alreadyFriends", comment: ""))
 
         case .sentPending:
-            showAlert("Friend request already sent.")
+            showAlert(NSLocalizedString("addfriend.status.requestSent", comment: ""))
 
         case .receivedPending:
             // Discord-style: they already sent us a request — just accept it
@@ -123,7 +123,7 @@ class AddFriendViewController: UIViewController {
                             self.statusMap[toUID] = .friends
                             self.filteredUsers = self.nonFriendUsers
                             self.tableView.reloadData()
-                            self.showAlert("You are now friends!")
+                            self.showAlert(NSLocalizedString("addfriend.status.nowFriends", comment: ""))
                         } else {
                             // Request may have been withdrawn; reload status
                             self.loadRelationships { self.tableView.reloadData() }
@@ -147,7 +147,7 @@ class AddFriendViewController: UIViewController {
                         guard let self = self, error == nil else { return }
                         self.statusMap[toUID] = .sentPending
                         self.tableView.reloadData()
-                        self.showAlert("Friend request sent!")
+                        self.showAlert(NSLocalizedString("addfriend.status.requestSentSuccess", comment: ""))
                     }
                 }
         }
@@ -160,8 +160,8 @@ class AddFriendViewController: UIViewController {
         let color: UIColor
         switch status {
         case .none: return nil
-        case .sentPending:  text = "Pending"; color = .systemOrange
-        case .receivedPending: text = "Accept"; color = .systemGreen
+        case .sentPending:  text = NSLocalizedString("addfriend.badge.pending", comment: ""); color = .systemOrange
+        case .receivedPending: text = NSLocalizedString("addfriend.badge.accept", comment: ""); color = .systemGreen
         case .friends: return nil
         }
         let label = UILabel()
@@ -174,7 +174,7 @@ class AddFriendViewController: UIViewController {
 
     private func showAlert(_ message: String) {
         let alert = UIAlertController(title: nil, message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        alert.addAction(UIAlertAction(title: NSLocalizedString("addfriend.alert.ok", comment: ""), style: .default))
         present(alert, animated: true)
     }
 }

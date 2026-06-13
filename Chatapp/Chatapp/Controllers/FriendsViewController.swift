@@ -63,7 +63,7 @@ class RequestCell: UITableViewCell {
         nameLabel.font = UIFont.preferredFont(forTextStyle: .headline)
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
 
-        acceptButton.setTitle("Accept", for: .normal)
+        acceptButton.setTitle(NSLocalizedString("friends.request.accept", comment: ""), for: .normal)
         acceptButton.setTitleColor(.white, for: .normal)
         acceptButton.titleLabel?.font = .systemFont(ofSize: 13, weight: .semibold)
         acceptButton.backgroundColor = .systemGreen
@@ -72,7 +72,7 @@ class RequestCell: UITableViewCell {
         acceptButton.translatesAutoresizingMaskIntoConstraints = false
         acceptButton.addTarget(self, action: #selector(acceptTapped), for: .touchUpInside)
 
-        declineButton.setTitle("Ignore", for: .normal)
+        declineButton.setTitle(NSLocalizedString("friends.request.ignore", comment: ""), for: .normal)
         declineButton.setTitleColor(.secondaryLabel, for: .normal)
         declineButton.titleLabel?.font = .systemFont(ofSize: 13, weight: .semibold)
         declineButton.backgroundColor = .systemGray5
@@ -141,7 +141,7 @@ class FriendsViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "Friends"
+        title = NSLocalizedString("friends.nav.title", comment: "")
         tableView.dataSource = self
         tableView.delegate = self
         tableView.backgroundColor = .systemGroupedBackground
@@ -288,11 +288,11 @@ class FriendsViewController: UIViewController {
     private func confirmAndRemoveFriend(at indexPath: IndexPath) {
         let friend = friends[indexPath.row]
         let alert = UIAlertController(
-            title: "移除好友",
-            message: "確定要將「\(friend.displayName)」從好友清單中移除嗎？",
+            title: NSLocalizedString("friends.remove.title", comment: ""),
+            message: String(format: NSLocalizedString("friends.remove.message", comment: ""), friend.displayName),
             preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "取消", style: .cancel))
-        alert.addAction(UIAlertAction(title: "移除", style: .destructive) { [weak self] _ in
+        alert.addAction(UIAlertAction(title: NSLocalizedString("friends.remove.cancel", comment: ""), style: .cancel))
+        alert.addAction(UIAlertAction(title: NSLocalizedString("friends.remove.confirm", comment: ""), style: .destructive) { [weak self] _ in
             self?.removeFriend(friend, at: indexPath)
         })
         present(alert, animated: true)
@@ -369,9 +369,9 @@ extension FriendsViewController: UITableViewDelegate {
 
         switch sections[section] {
         case .pendingRequests:
-            label.text = "PENDING REQUESTS — \(pendingRequests.count)"
+            label.text = String(format: NSLocalizedString("friends.section.pending", comment: ""), pendingRequests.count)
         case .friends:
-            label.text = "FRIENDS — \(friends.count)"
+            label.text = String(format: NSLocalizedString("friends.section.friends", comment: ""), friends.count)
         }
 
         container.addSubview(label)
@@ -394,7 +394,7 @@ extension FriendsViewController: UITableViewDelegate {
                    trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath)
     -> UISwipeActionsConfiguration? {
         guard sections[indexPath.section] == .friends else { return nil }
-        let remove = UIContextualAction(style: .destructive, title: "移除") { [weak self] _, _, done in
+        let remove = UIContextualAction(style: .destructive, title: NSLocalizedString("friends.swipe.remove", comment: "")) { [weak self] _, _, done in
             self?.confirmAndRemoveFriend(at: indexPath)
             done(true)
         }

@@ -47,7 +47,7 @@ class ChatListViewController: UIViewController {
                     guard let names = data["participantNames"] as? [String: String],
                           let last = data["lastMessage"] as? String,
                           let ts = (data["lastUpdated"] as? Timestamp)?.dateValue() else { return nil }
-                    let otherName = names.first(where: { $0.key != uid })?.value ?? "未知"
+                    let otherName = names.first(where: { $0.key != uid })?.value ?? NSLocalizedString("chatlist.unknownUser", comment: "")
                     return Conversation(id: doc.documentID, otherUserName: otherName, lastMessage: last, timestamp: ts)
                 }
                 DispatchQueue.main.async { self?.tableView.reloadData() }

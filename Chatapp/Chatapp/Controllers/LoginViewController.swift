@@ -27,14 +27,14 @@ class LoginViewController: UIViewController {
     @IBAction func loginButtonTapped(_ sender: UIButton) {
         guard let email = emailField.text, !email.isEmpty,
               let password = passwordField.text, !password.isEmpty else {
-            showAlert("請填寫 Email 和密碼")
+            showAlert(NSLocalizedString("login.error.emptyFields", comment: ""))
             return
         }
 
         if segmentedControl.selectedSegmentIndex == 0 {
             Auth.auth().signIn(withEmail: email, password: password) { [weak self] result, error in
                 if let error = error {
-                    self?.showAlert("登入失敗：\(error.localizedDescription)")
+                    self?.showAlert(String(format: NSLocalizedString("login.error.signInFailed", comment: ""), error.localizedDescription))
                     return
                 }
                 self?.navigateToMainApp()
@@ -42,7 +42,7 @@ class LoginViewController: UIViewController {
         } else {
             Auth.auth().createUser(withEmail: email, password: password) { [weak self] result, error in
                 if let error = error {
-                    self?.showAlert("註冊失敗：\(error.localizedDescription)")
+                    self?.showAlert(String(format: NSLocalizedString("login.error.registerFailed", comment: ""), error.localizedDescription))
                     return
                 }
                 guard let uid = result?.user.uid else { return }
@@ -66,7 +66,7 @@ class LoginViewController: UIViewController {
     private func showAlert(_ message: String) {
         DispatchQueue.main.async {
             let alert = UIAlertController(title: nil, message: message, preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "確定", style: .default))
+            alert.addAction(UIAlertAction(title: NSLocalizedString("login.alert.ok", comment: ""), style: .default))
             self.present(alert, animated: true)
         }
     }
