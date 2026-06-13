@@ -12,50 +12,8 @@ import FirebaseFirestore
 class FriendCell: UserRowCell {
     static let reuseId = "FriendCell"
 
-    private let messageButton: UIButton = {
-        let btn = UIButton(type: .system)
-        btn.setImage(UIImage(systemName: "message.fill"), for: .normal)
-        btn.tintColor = .systemBlue
-        btn.backgroundColor = UIColor.systemBlue.withAlphaComponent(0.12)
-        btn.layer.cornerRadius = 18
-        btn.translatesAutoresizingMaskIntoConstraints = false
-        return btn
-    }()
-
-    var onMessage: (() -> Void)?
-
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
-        setupMessageButton()
-    }
-
-    required init?(coder: NSCoder) {
-        super.init(coder: coder)
-        setupMessageButton()
-    }
-
-    private func setupMessageButton() {
-        messageButton.addTarget(self, action: #selector(messageTapped), for: .touchUpInside)
-        contentView.addSubview(messageButton)
-
-        labelStackTrailingConstraint.isActive = false
-        labelStackTrailingConstraint = labelStack.trailingAnchor.constraint(
-            lessThanOrEqualTo: messageButton.leadingAnchor, constant: -8)
-
-        NSLayoutConstraint.activate([
-            messageButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -AppCell.horizontalPadding),
-            messageButton.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
-            messageButton.widthAnchor.constraint(equalToConstant: 36),
-            messageButton.heightAnchor.constraint(equalToConstant: 36),
-            labelStackTrailingConstraint,
-        ])
-    }
-
-    @objc private func messageTapped() { onMessage?() }
-
-    func configure(user: UserProfile, onMessage: @escaping () -> Void) {
+    func configure(user: UserProfile) {
         configure(name: user.displayName)
-        self.onMessage = onMessage
     }
 }
 
@@ -391,8 +349,7 @@ extension FriendsViewController: UITableViewDataSource {
             return cell
         case .friends:
             let cell = tableView.dequeueReusableCell(withIdentifier: FriendCell.reuseId, for: indexPath) as! FriendCell
-            let user = friends[indexPath.row]
-            cell.configure(user: user, onMessage: { [weak self] in self?.openChat(with: user) })
+            cell.configure(user: friends[indexPath.row])
             return cell
         }
     }
@@ -429,6 +386,8 @@ extension FriendsViewController: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
+        guard sections[indexPath.section] == .friends else { return }
+        openChat(with: friends[indexPath.row])
     }
 
     func tableView(_ tableView: UITableView,
