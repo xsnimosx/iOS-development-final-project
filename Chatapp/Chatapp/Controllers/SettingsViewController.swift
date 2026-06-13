@@ -10,6 +10,7 @@ class SettingsViewController: UITableViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        title = NSLocalizedString("settings.nav.title", comment: "")
     }
 
     override func viewWillAppear(_ animated: Bool) {
