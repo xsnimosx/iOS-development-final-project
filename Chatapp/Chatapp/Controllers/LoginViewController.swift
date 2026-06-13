@@ -16,10 +16,24 @@ class LoginViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        applyBrandStyling()
         if Auth.auth().currentUser != nil {
             navigateToMainApp()
         }
         setupKeyboardDismissOnTap()
+    }
+
+    private func applyBrandStyling() {
+        view.backgroundColor = UIColor(named: "AccentColor")
+        for field in [emailField, passwordField] {
+            guard let field else { continue }
+            field.backgroundColor = UIColor.systemBackground.withAlphaComponent(0.85)
+            field.layer.cornerRadius = 10
+            field.layer.masksToBounds = true
+            field.borderStyle = .none
+            field.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 12, height: 0))
+            field.leftViewMode = .always
+        }
     }
 
     // MARK: - IBAction
