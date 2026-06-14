@@ -20,6 +20,7 @@ class ChatViewController: UIViewController, UIImagePickerControllerDelegate, UIN
     // MARK: - Properties
     private let db = Firestore.firestore()
     var conversationId: String = ""
+    var otherUID: String = ""
     private var messages: [Message] = []
     private var listener: ListenerRegistration?
     private var currentUserName: String = ""
@@ -35,6 +36,13 @@ class ChatViewController: UIViewController, UIImagePickerControllerDelegate, UIN
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
         setupKeyboardDismissOnTap()
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        guard let uid = Auth.auth().currentUser?.uid, !conversationId.isEmpty else { return }
+        db.collection("conversations").document(conversationId)
+            .updateData(["unreadCounts.\(uid)": 0])
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -87,10 +95,16 @@ class ChatViewController: UIViewController, UIImagePickerControllerDelegate, UIN
         ]
         db.collection("conversations").document(conversationId)
             .collection("messages").addDocument(data: data) { [weak self] error in
-                if error == nil {
-                    DispatchQueue.main.async { self?.messageTextField.text = "" }
-                }
+                guard let self = self, error == nil else { return }
+                DispatchQueue.main.async { self.messageTextField.text = "" }
+                self.incrementUnreadCount()
             }
+    }
+
+    private func incrementUnreadCount() {
+        guard !otherUID.isEmpty else { return }
+        db.collection("conversations").document(conversationId)
+            .updateData(["unreadCounts.\(otherUID)": FieldValue.increment(Int64(1))])
     }
 
     private func pickImageTapped() {
@@ -116,7 +130,9 @@ class ChatViewController: UIViewController, UIImagePickerControllerDelegate, UIN
                 "isRead": false
             ]
             self.db.collection("conversations").document(self.conversationId)
-                .collection("messages").addDocument(data: data)
+                .collection("messages").addDocument(data: data) { [weak self] error in
+                    if error == nil { self?.incrementUnreadCount() }
+                }
         }
     }
 

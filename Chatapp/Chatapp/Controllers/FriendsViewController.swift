@@ -250,6 +250,8 @@ class FriendsViewController: UIViewController {
                 group.notify(queue: .main) { [weak self] in
                     self?.requestSenderNames = names
                     self?.tableView.reloadData()
+                    let count = self?.pendingRequests.count ?? 0
+                    self?.tabBarItem.badgeValue = count > 0 ? "\(count)" : nil
                 }
             }
     }
@@ -274,6 +276,7 @@ class FriendsViewController: UIViewController {
                     guard let chatVC = sb.instantiateViewController(withIdentifier: "ChatViewController")
                             as? ChatViewController else { return }
                     chatVC.conversationId = convId
+                    chatVC.otherUID = userID
                     self?.navigationController?.pushViewController(chatVC, animated: true)
                 }
             }

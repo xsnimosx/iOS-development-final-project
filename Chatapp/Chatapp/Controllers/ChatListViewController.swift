@@ -8,9 +8,11 @@ import FirebaseFirestore
 
 struct Conversation {
     let id: String
+    let otherUserID: String
     let otherUserName: String
     let lastMessage: String
     let timestamp: Date
+    let unreadCount: Int
 }
 
 class ChatListViewController: UIViewController {
@@ -71,6 +73,8 @@ class ChatListViewController: UIViewController {
                           let last = data["lastMessage"] as? String,
                           let ts = (data["lastUpdated"] as? Timestamp)?.dateValue() else { continue }
                     let otherUID = participants.first(where: { $0 != uid }) ?? ""
+                    let unreadCounts = data["unreadCounts"] as? [String: Int] ?? [:]
+                    let unreadCount = unreadCounts[uid] ?? 0
 
                     group.enter()
                     db.collection("users").document(otherUID).getDocument { snap, _ in
@@ -82,7 +86,7 @@ class ChatListViewController: UIViewController {
                             name = NSLocalizedString("chatlist.unknownUser", comment: "")
                         }
                         lock.lock()
-                        indexed.append((i, Conversation(id: doc.documentID, otherUserName: name, lastMessage: last, timestamp: ts)))
+                        indexed.append((i, Conversation(id: doc.documentID, otherUserID: otherUID, otherUserName: name, lastMessage: last, timestamp: ts, unreadCount: unreadCount)))
                         lock.unlock()
                     }
                 }
@@ -90,6 +94,8 @@ class ChatListViewController: UIViewController {
                 group.notify(queue: .main) { [weak self] in
                     self?.conversations = indexed.sorted { $0.0 < $1.0 }.map { $0.1 }
                     self?.tableView.reloadData()
+                    let totalUnread = self?.conversations.filter { $0.unreadCount > 0 }.count ?? 0
+                    self?.tabBarItem.badgeValue = totalUnread > 0 ? "\(totalUnread)" : nil
                 }
             }
     }
@@ -99,12 +105,12 @@ class ChatListViewController: UIViewController {
         guard segue.identifier == "showChat",
               let chatVC = segue.destination as? ChatViewController else { return }
         if let conversation = sender as? Conversation {
-            // triggered programmatically (e.g. addButtonTapped)
             chatVC.conversationId = conversation.id
+            chatVC.otherUID = conversation.otherUserID
         } else if let cell = sender as? UITableViewCell,
                   let indexPath = tableView.indexPath(for: cell) {
-            // triggered by cell tap via storyboard segue
             chatVC.conversationId = conversations[indexPath.row].id
+            chatVC.otherUID = conversations[indexPath.row].otherUserID
         }
     }
 }
