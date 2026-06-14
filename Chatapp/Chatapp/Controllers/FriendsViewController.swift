@@ -243,7 +243,11 @@ class FriendsViewController: UIViewController {
         let participants = [currentUID, userID].sorted()
         let convId = participants.joined(separator: "_")
         let ref = db.collection("conversations").document(convId)
-        ref.getDocument { [weak self] snapshot, _ in
+
+        db.collection("users").document(currentUID).getDocument { [weak self] profileSnap, _ in
+            let currentUsername = (try? profileSnap?.data(as: UserProfile.self))?.username
+                ?? Auth.auth().currentUser?.email ?? ""
+            let names: [String: String] = [currentUID: currentUsername, userID: user.username]
             let navigate = {
                 DispatchQueue.main.async {
                     let sb = UIStoryboard(name: "Main", bundle: nil)
@@ -253,16 +257,17 @@ class FriendsViewController: UIViewController {
                     self?.navigationController?.pushViewController(chatVC, animated: true)
                 }
             }
-            if snapshot?.exists == false {
-                ref.setData([
-                    "participants": participants,
-                    "participantNames": [currentUID: Auth.auth().currentUser?.email ?? "",
-                                         userID: user.username],
-                    "lastMessage": "",
-                    "lastUpdated": Timestamp(date: Date())
-                ]) { _ in navigate() }
-            } else {
-                navigate()
+            ref.getDocument { snapshot, _ in
+                if snapshot?.exists == false {
+                    ref.setData([
+                        "participants": participants,
+                        "participantNames": names,
+                        "lastMessage": "",
+                        "lastUpdated": Timestamp(date: Date())
+                    ]) { _ in navigate() }
+                } else {
+                    ref.updateData(["participantNames": names]) { _ in navigate() }
+                }
             }
         }
     }
