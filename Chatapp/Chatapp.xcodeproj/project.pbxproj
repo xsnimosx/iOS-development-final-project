@@ -31,7 +31,6 @@
 		5143101E2FB21F1900A3BBAB /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 5143101D2FB21F1900A3BBAB /* FirebaseStorage */; };
 		51565C9C2FDDB0C70096FB15 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 51565C9B2FDDB0B20096FB15 /* GoogleService-Info.plist */; };
 		51565C9E2FDDB1800096FB15 /* UserRowCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51565C9D2FDDB1800096FB15 /* UserRowCell.swift */; };
-		51565CA52FDDE9720096FB15 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 51565CA32FDDE9710096FB15 /* Localizable.strings */; };
 		51565CAA2FDE93020096FB15 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 51565CA82FDE93020096FB15 /* Localizable.strings */; };
 		51565CAD2FDEA7770096FB15 /* MessageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51565CAC2FDEA7770096FB15 /* MessageCell.swift */; };
 		51917A5B2FDC4CED002959E9 /* FriendsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51917A5A2FDC4CED002959E9 /* FriendsViewController.swift */; };
@@ -268,7 +267,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				51565CA52FDDE9720096FB15 /* Localizable.strings in Resources */,
 				51565CAA2FDE93020096FB15 /* Localizable.strings in Resources */,
 				51565C9C2FDDB0C70096FB15 /* GoogleService-Info.plist in Resources */,
 				514169BF2FDB2AB2007FE670 /* Assets.xcassets in Resources */,

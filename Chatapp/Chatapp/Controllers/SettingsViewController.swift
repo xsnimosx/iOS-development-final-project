@@ -12,12 +12,12 @@ class SettingsViewController: UITableViewController {
         super.viewDidLoad()
         title = NSLocalizedString("settings.nav.title", comment: "")
 
-        let tap = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        let tap = UITapGestureRecognizer(target: self, action: #selector(handleTapToDismissKeyboard))
         tap.cancelsTouchesInView = false
         tableView.addGestureRecognizer(tap)
     }
 
-    @objc private func dismissKeyboard() {
+    @objc private func handleTapToDismissKeyboard() {
         tableView.endEditing(true)
     }
 

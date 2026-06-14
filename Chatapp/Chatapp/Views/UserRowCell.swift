@@ -29,14 +29,14 @@ class UserRowCell: UITableViewCell {
 
     let nameLabel: UILabel = {
         let l = UILabel()
-        l.font = UIFont.preferredFont(forTextStyle: .headline)
+        l.font = UIFont.boldSystemFont(ofSize: 17)
         l.translatesAutoresizingMaskIntoConstraints = false
         return l
     }()
 
     let detailLabel: UILabel = {
         let l = UILabel()
-        l.font = UIFont.preferredFont(forTextStyle: .subheadline)
+        l.font = UIFont.systemFont(ofSize: 13)
         l.textColor = .secondaryLabel
         l.translatesAutoresizingMaskIntoConstraints = false
         return l
