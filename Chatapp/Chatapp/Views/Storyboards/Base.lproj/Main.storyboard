@@ -16,79 +16,10 @@
                     <view key="view" contentMode="scaleToFill" id="58D-EY-zE7">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <stackView opaque="NO" contentMode="scaleAspectFit" axis="vertical" spacing="30" translatesAutoresizingMaskIntoConstraints="NO" id="KjL-2S-9Jj">
-                                <rect key="frame" x="40" y="264" width="334" height="368"/>
-                                <subviews>
-                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Logo" translatesAutoresizingMaskIntoConstraints="NO" id="lSN-ZQ-IbY">
-                                        <rect key="frame" x="0.0" y="0.0" width="334" height="120"/>
-                                        <constraints>
-                                            <constraint firstAttribute="height" constant="120" id="Y9P-uN-J32"/>
-                                        </constraints>
-                                    </imageView>
-                                    <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="LST-Qn-Ubx">
-                                        <rect key="frame" x="0.0" y="150" width="334" height="33"/>
-                                        <constraints>
-                                            <constraint firstAttribute="height" constant="32" id="XUF-zh-O3Y"/>
-                                        </constraints>
-                                        <segments>
-                                            <segment title="Sign In"/>
-                                            <segment title="Sign Up"/>
-                                        </segments>
-                                        <color key="selectedSegmentTintColor" systemColor="systemBrownColor"/>
-                                    </segmentedControl>
-                                    <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Email" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="Etj-O4-JWw">
-                                        <rect key="frame" x="0.0" y="212" width="334" height="32"/>
-                                        <constraints>
-                                            <constraint firstAttribute="height" constant="32" id="EML-h-044"/>
-                                        </constraints>
-                                        <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                                        <textInputTraits key="textInputTraits"/>
-                                    </textField>
-                                    <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Password" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="HB7-YS-gpY">
-                                        <rect key="frame" x="0.0" y="274" width="334" height="32"/>
-                                        <constraints>
-                                            <constraint firstAttribute="height" constant="32" id="PWD-h-044"/>
-                                        </constraints>
-                                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                        <textInputTraits key="textInputTraits" secureTextEntry="YES"/>
-                                    </textField>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="pSv-3A-a3p">
-                                        <rect key="frame" x="0.0" y="336" width="334" height="32"/>
-                                        <color key="backgroundColor" systemColor="systemBrownColor"/>
-                                        <constraints>
-                                            <constraint firstAttribute="height" constant="32" id="BTN-h-044"/>
-                                        </constraints>
-                                        <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
-                                        <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
-                                        <state key="normal" title="LOGIN">
-                                            <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                        </state>
-                                        <userDefinedRuntimeAttributes>
-                                            <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
-                                                <integer key="value" value="10"/>
-                                            </userDefinedRuntimeAttribute>
-                                        </userDefinedRuntimeAttributes>
-                                        <connections>
-                                            <action selector="loginButtonTapped:" destination="zGu-Wh-MrJ" eventType="touchUpInside" id="AAB-C1-005"/>
-                                        </connections>
-                                    </button>
-                                </subviews>
-                            </stackView>
-                        </subviews>
                         <viewLayoutGuide key="safeArea" id="j6f-Gs-wRK"/>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                        <constraints>
-                            <constraint firstItem="KjL-2S-9Jj" firstAttribute="leading" secondItem="j6f-Gs-wRK" secondAttribute="leading" constant="40" id="QhB-tl-71t"/>
-                            <constraint firstItem="j6f-Gs-wRK" firstAttribute="trailing" secondItem="KjL-2S-9Jj" secondAttribute="trailing" constant="40" id="VtL-XE-8e2"/>
-                            <constraint firstItem="KjL-2S-9Jj" firstAttribute="centerY" secondItem="58D-EY-zE7" secondAttribute="centerY" id="hSZ-Rl-7hj"/>
-                        </constraints>
+                        <color key="backgroundColor" name="AccentColor"/>
                     </view>
                     <connections>
-                        <outlet property="emailField" destination="Etj-O4-JWw" id="AAB-C1-001"/>
-                        <outlet property="loginButton" destination="pSv-3A-a3p" id="AAB-C1-006"/>
-                        <outlet property="passwordField" destination="HB7-YS-gpY" id="AAB-C1-002"/>
-                        <outlet property="segmentedControl" destination="LST-Qn-Ubx" id="AAB-C1-003"/>
                         <segue destination="L1w-dd-cnv" kind="presentation" identifier="toMainApp" modalPresentationStyle="fullScreen" id="AAB-C1-004"/>
                     </connections>
                 </viewController>

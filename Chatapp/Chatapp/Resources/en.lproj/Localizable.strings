@@ -17,6 +17,7 @@
 /* AddFriendViewController — Status Messages */
 "addfriend.status.alreadyFriends" = "You are already friends.";
 "addfriend.status.requestSent" = "Friend request sent.";
+"addfriend.status.nowFriends" = "You are now friends!";
 "addfriend.status.requestSentSuccess" = "Friend request sent!";
 
 /* AddFriendViewController — Status Badge */
@@ -27,13 +28,16 @@
 "addfriend.alert.ok" = "OK";
 
 /* LoginViewController */
-"login.segment.signIn" = "Login";
-"login.segment.signUp" = "Register";
+"login.segment.signIn" = "Sign In";
+"login.segment.signUp" = "Sign Up";
+"login.field.username" = "Username (optional)";
 "login.field.email" = "Email";
 "login.field.password" = "Password";
+"login.field.confirmPassword" = "Confirm Password";
 "login.button.signIn" = "Sign In";
 "login.button.signUp" = "Sign Up";
 "login.error.emptyFields" = "Please enter your email and password";
+"login.error.passwordMismatch" = "Passwords do not match";
 "login.error.signInFailed" = "Sign in failed: %@";
 "login.error.registerFailed" = "Registration failed: %@";
 "login.alert.ok" = "OK";
