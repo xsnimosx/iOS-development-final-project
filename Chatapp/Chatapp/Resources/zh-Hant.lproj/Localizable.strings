@@ -43,6 +43,10 @@
 
 /* ChatViewController */
 "chat.action.delete" = "刪除";
+"chat.message.placeholder" = "輸入訊息...";
+
+/* AddFriendViewController — Search Placeholder */
+"addfriend.search.placeholder" = "以姓名或電子郵件搜尋...";
 
 /* Tab Bar */
 "tab.chats" = "聊天";
