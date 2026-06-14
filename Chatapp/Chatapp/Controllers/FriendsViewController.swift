@@ -358,31 +358,14 @@ extension FriendsViewController: UITableViewDataSource {
 // MARK: - UITableViewDelegate
 
 extension FriendsViewController: UITableViewDelegate {
-    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        let container = UIView()
-        container.backgroundColor = .systemGroupedBackground
-
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 11, weight: .semibold)
-        label.textColor = .secondaryLabel
-        label.translatesAutoresizingMaskIntoConstraints = false
-
+    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         switch sections[section] {
         case .pendingRequests:
-            label.text = String(format: NSLocalizedString("friends.section.pending", comment: ""), pendingRequests.count)
+            return String(format: NSLocalizedString("friends.section.pending", comment: ""), pendingRequests.count)
         case .friends:
-            label.text = String(format: NSLocalizedString("friends.section.friends", comment: ""), friends.count)
+            return String(format: NSLocalizedString("friends.section.friends", comment: ""), friends.count)
         }
-
-        container.addSubview(label)
-        NSLayoutConstraint.activate([
-            label.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 16),
-            label.centerYAnchor.constraint(equalTo: container.centerYAnchor),
-        ])
-        return container
     }
-
-    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat { 32 }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
