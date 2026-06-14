@@ -134,6 +134,9 @@ class AddFriendViewController: UIViewController {
                             self.statusMap[toUID] = .friends
                             self.filteredUsers = self.nonFriendUsers
                             self.tableView.reloadData()
+                            NotificationCenter.default.post(name: .friendRequestAccepted,
+                                                           object: nil,
+                                                           userInfo: ["friend": user])
                         } else {
                             // Request may have been withdrawn; reload status
                             self.loadRelationships { self.tableView.reloadData() }

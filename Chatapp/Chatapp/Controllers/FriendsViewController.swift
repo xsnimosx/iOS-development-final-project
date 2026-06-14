@@ -155,6 +155,8 @@ class FriendsViewController: UIViewController {
             target: self,
             action: #selector(addFriendTapped))
         startRequestsListener()
+        NotificationCenter.default.addObserver(self, selector: #selector(handleFriendAccepted(_:)),
+                                               name: .friendRequestAccepted, object: nil)
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -164,12 +166,26 @@ class FriendsViewController: UIViewController {
 
     deinit {
         requestsListener?.remove()
+        NotificationCenter.default.removeObserver(self)
     }
 
     @objc private func addFriendTapped() {
         let sb = UIStoryboard(name: "Main", bundle: nil)
         let navVC = sb.instantiateViewController(withIdentifier: "AddFriendNav")
         present(navVC, animated: true)
+    }
+
+    @objc private func handleFriendAccepted(_ notification: Notification) {
+        guard let friend = notification.userInfo?["friend"] as? UserProfile else { return }
+        guard !friends.contains(where: { $0.id == friend.id }) else { return }
+        let insertIdx = friends.firstIndex(where: { $0.username > friend.username }) ?? friends.count
+        friends.insert(friend, at: insertIdx)
+        let section = sections.firstIndex(of: .friends)!
+        tableView.performBatchUpdates({
+            tableView.insertRows(at: [IndexPath(row: insertIdx, section: section)], with: .automatic)
+        }, completion: { _ in
+            self.tableView.reloadSections(IndexSet(integer: section), with: .none)
+        })
     }
 
     // MARK: - Data
@@ -231,7 +247,6 @@ class FriendsViewController: UIViewController {
                 let requests = snapshot?.documents.compactMap {
                     try? $0.data(as: FriendRequest.self)
                 } ?? []
-                let previousPendingCount = self.pendingRequests.count
                 self.pendingRequests = requests
 
                 let group = DispatchGroup()
@@ -254,9 +269,6 @@ class FriendsViewController: UIViewController {
                     self.tableView.reloadData()
                     let count = self.pendingRequests.count
                     self.tabBarItem.badgeValue = count > 0 ? "\(count)" : nil
-                    if count < previousPendingCount {
-                        self.fetchFriends()
-                    }
                 }
             }
     }
@@ -490,4 +502,8 @@ extension FriendsViewController: UITableViewDelegate {
         remove.image = UIImage(systemName: "person.fill.xmark")
         return UISwipeActionsConfiguration(actions: [remove])
     }
+}
+
+extension Notification.Name {
+    static let friendRequestAccepted = Notification.Name("friendRequestAccepted")
 }
