@@ -30,6 +30,7 @@
 /* LoginViewController */
 "login.segment.signIn" = "登入";
 "login.segment.signUp" = "註冊";
+"login.field.email" = "電子郵件";
 "login.field.password" = "密碼";
 "login.button.title" = "登入";
 "login.error.emptyFields" = "請填寫 Email 和密碼";
