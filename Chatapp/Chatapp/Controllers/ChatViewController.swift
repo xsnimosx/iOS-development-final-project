@@ -98,14 +98,18 @@ class ChatViewController: UIViewController, UIImagePickerControllerDelegate, UIN
             .collection("messages").addDocument(data: data) { [weak self] error in
                 guard let self = self, error == nil else { return }
                 DispatchQueue.main.async { self.messageTextField.text = "" }
-                self.incrementUnreadCount()
+                self.updateConversationMetadata(lastMessage: content)
             }
     }
 
-    private func incrementUnreadCount() {
+    private func updateConversationMetadata(lastMessage: String) {
         guard !otherUID.isEmpty else { return }
         db.collection("conversations").document(conversationId)
-            .updateData(["unreadCounts.\(otherUID)": FieldValue.increment(Int64(1))])
+            .updateData([
+                "unreadCounts.\(otherUID)": FieldValue.increment(Int64(1)),
+                "lastMessage": lastMessage,
+                "lastUpdated": Timestamp(date: Date())
+            ])
     }
 
     private func pickImageTapped() {
@@ -132,7 +136,7 @@ class ChatViewController: UIViewController, UIImagePickerControllerDelegate, UIN
             ]
             self.db.collection("conversations").document(self.conversationId)
                 .collection("messages").addDocument(data: data) { [weak self] error in
-                    if error == nil { self?.incrementUnreadCount() }
+                    if error == nil { self?.updateConversationMetadata(lastMessage: "[圖片]") }
                 }
         }
     }
