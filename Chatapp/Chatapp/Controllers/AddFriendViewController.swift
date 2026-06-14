@@ -143,23 +143,27 @@ class AddFriendViewController: UIViewController {
                 }
 
         case .none:
-            guard let displayName = Auth.auth().currentUser?.displayName
-                                    ?? Auth.auth().currentUser?.email else { return }
             let requestId = "\(currentUID)_\(toUID)"
-            Firestore.firestore().collection("friendRequests").document(requestId)
-                .setData([
-                    "fromUID": currentUID,
-                    "toUID": toUID,
-                    "fromName": displayName,
-                    "status": "pending",
-                    "createdAt": Timestamp(date: Date())
-                ]) { [weak self] error in
-                    DispatchQueue.main.async {
-                        guard let self = self, error == nil else { return }
-                        self.statusMap[toUID] = .sentPending
-                        self.tableView.reloadData()
+            let db = Firestore.firestore()
+            db.collection("users").document(currentUID).getDocument { [weak self] snap, _ in
+                guard let self = self else { return }
+                let fromName = (try? snap?.data(as: UserProfile.self))?.username
+                    ?? Auth.auth().currentUser?.email ?? ""
+                db.collection("friendRequests").document(requestId)
+                    .setData([
+                        "fromUID": currentUID,
+                        "toUID": toUID,
+                        "fromName": fromName,
+                        "status": "pending",
+                        "createdAt": Timestamp(date: Date())
+                    ]) { [weak self] error in
+                        DispatchQueue.main.async {
+                            guard let self = self, error == nil else { return }
+                            self.statusMap[toUID] = .sentPending
+                            self.tableView.reloadData()
+                        }
                     }
-                }
+            }
         }
     }
 
@@ -171,7 +175,7 @@ class AddFriendViewController: UIViewController {
             .delete { [weak self] _ in
                 DispatchQueue.main.async {
                     guard let self = self else { return }
-                    self.statusMap[toUID] = .none
+                    self.statusMap[toUID] = RelationshipStatus.none
                     self.filteredUsers = self.nonFriendUsers
                     self.tableView.reloadData()
                 }

@@ -114,8 +114,8 @@ class RequestCell: UITableViewCell {
     @objc private func acceptTapped() { onAccept?() }
     @objc private func declineTapped() { onDecline?() }
 
-    func configure(request: FriendRequest, onAccept: @escaping () -> Void, onDecline: @escaping () -> Void) {
-        nameLabel.text = request.fromName
+    func configure(name: String, onAccept: @escaping () -> Void, onDecline: @escaping () -> Void) {
+        nameLabel.text = name
         self.onAccept = onAccept
         self.onDecline = onDecline
     }
@@ -129,6 +129,7 @@ class FriendsViewController: UIViewController {
 
     private var friends: [UserProfile] = []
     private var pendingRequests: [FriendRequest] = []
+    private var requestSenderNames: [String: String] = [:]
     private var requestsListener: ListenerRegistration?
 
     private enum Section { case pendingRequests, friends }
@@ -220,15 +221,34 @@ class FriendsViewController: UIViewController {
 
     private func startRequestsListener() {
         guard let uid = Auth.auth().currentUser?.uid else { return }
-        requestsListener = Firestore.firestore()
+        let db = Firestore.firestore()
+        requestsListener = db
             .collection("friendRequests")
             .whereField("toUID", isEqualTo: uid)
             .whereField("status", isEqualTo: "pending")
             .addSnapshotListener { [weak self] snapshot, _ in
-                self?.pendingRequests = snapshot?.documents.compactMap {
+                guard let self = self else { return }
+                let requests = snapshot?.documents.compactMap {
                     try? $0.data(as: FriendRequest.self)
                 } ?? []
-                DispatchQueue.main.async {
+                self.pendingRequests = requests
+
+                let group = DispatchGroup()
+                var names: [String: String] = [:]
+                let lock = NSLock()
+                for request in requests {
+                    group.enter()
+                    db.collection("users").document(request.fromUID).getDocument { snap, _ in
+                        defer { group.leave() }
+                        if let profile = try? snap?.data(as: UserProfile.self) {
+                            lock.lock()
+                            names[request.fromUID] = profile.username
+                            lock.unlock()
+                        }
+                    }
+                }
+                group.notify(queue: .main) { [weak self] in
+                    self?.requestSenderNames = names
                     self?.tableView.reloadData()
                 }
             }
@@ -347,8 +367,9 @@ extension FriendsViewController: UITableViewDataSource {
         case .pendingRequests:
             let cell = tableView.dequeueReusableCell(withIdentifier: RequestCell.reuseId, for: indexPath) as! RequestCell
             let request = pendingRequests[indexPath.row]
+            let senderName = requestSenderNames[request.fromUID] ?? request.fromName
             cell.configure(
-                request: request,
+                name: senderName,
                 onAccept: { [weak self] in self?.acceptRequest(request) },
                 onDecline: { [weak self] in self?.declineRequest(request) })
             return cell
