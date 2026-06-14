@@ -19,6 +19,7 @@ class LoginViewController: UIViewController {
         applyBrandStyling()
         segmentedControl.setTitle(NSLocalizedString("login.segment.signIn", comment: ""), forSegmentAt: 0)
         segmentedControl.setTitle(NSLocalizedString("login.segment.signUp", comment: ""), forSegmentAt: 1)
+        emailField.placeholder = NSLocalizedString("login.field.email", comment: "")
         passwordField.placeholder = NSLocalizedString("login.field.password", comment: "")
         loginButton.setTitle(NSLocalizedString("login.button.title", comment: ""), for: .normal)
         if Auth.auth().currentUser != nil {
