@@ -151,6 +151,8 @@ class LoginViewController: UIViewController {
 
         // passwordField: textContentType and returnKeyType are set dynamically by updateModeUI
         passwordField.isSecureTextEntry = true
+        passwordField.autocapitalizationType = .none
+        passwordField.autocorrectionType = .no
 
         confirmPasswordField.isSecureTextEntry = true
         confirmPasswordField.textContentType = .newPassword
@@ -185,8 +187,10 @@ class LoginViewController: UIViewController {
     }
 
     private func updateButtonTitle() {
-        let key = segmentedControl.selectedSegmentIndex == 0 ? "login.button.signIn" : "login.button.signUp"
+        let isSignIn = segmentedControl.selectedSegmentIndex == 0
+        let key = isSignIn ? "login.button.signIn" : "login.button.signUp"
         loginButton.setTitle(NSLocalizedString(key, comment: ""), for: .normal)
+        passwordField.textContentType = isSignIn ? .password : .newPassword
     }
 
     private func updatePasswordFieldContentType() {

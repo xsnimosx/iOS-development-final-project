@@ -39,6 +39,9 @@ class AddFriendViewController: UIViewController {
         super.viewDidLoad()
         title = NSLocalizedString("addfriend.nav.title", comment: "")
         searchBar.delegate = self
+        searchBar.autocapitalizationType = .none
+        searchBar.autocorrectionType = .no
+        searchBar.searchTextField.textContentType = .none
         tableView.dataSource = self
         tableView.delegate = self
         tableView.register(AddFriendUserCell.self, forCellReuseIdentifier: AddFriendUserCell.reuseId)
