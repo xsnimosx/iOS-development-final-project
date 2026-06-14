@@ -231,6 +231,7 @@ class FriendsViewController: UIViewController {
                 let requests = snapshot?.documents.compactMap {
                     try? $0.data(as: FriendRequest.self)
                 } ?? []
+                let previousPendingCount = self.pendingRequests.count
                 self.pendingRequests = requests
 
                 let group = DispatchGroup()
@@ -248,10 +249,14 @@ class FriendsViewController: UIViewController {
                     }
                 }
                 group.notify(queue: .main) { [weak self] in
-                    self?.requestSenderNames = names
-                    self?.tableView.reloadData()
-                    let count = self?.pendingRequests.count ?? 0
-                    self?.tabBarItem.badgeValue = count > 0 ? "\(count)" : nil
+                    guard let self else { return }
+                    self.requestSenderNames = names
+                    self.tableView.reloadData()
+                    let count = self.pendingRequests.count
+                    self.tabBarItem.badgeValue = count > 0 ? "\(count)" : nil
+                    if count < previousPendingCount {
+                        self.fetchFriends()
+                    }
                 }
             }
     }
