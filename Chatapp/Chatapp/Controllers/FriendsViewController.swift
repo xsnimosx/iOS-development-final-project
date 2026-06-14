@@ -308,42 +308,52 @@ class FriendsViewController: UIViewController {
                         guard let self = self else { return }
                         let newFriend = try? snap?.data(as: UserProfile.self)
                         DispatchQueue.main.async {
-                            // Re-find index on main thread: the snapshot listener may have already
-                            // updated pendingRequests between the Firestore write and this callback.
-                            guard let currentIdx = self.pendingRequests.firstIndex(where: { $0.id == requestId }),
-                                  let pendingSectionIdx = self.sections.firstIndex(of: .pendingRequests) else { return }
-
-                            let willRemovePendingSection = self.pendingRequests.count == 1
-
-                            // Compute sorted insertion index BEFORE mutating friends
                             let friendInsertIdx: Int? = newFriend.map { friend in
                                 self.friends.firstIndex(where: { $0.username > friend.username }) ?? self.friends.count
                             }
 
-                            // Mutate both arrays atomically before any UI update
-                            self.pendingRequests.remove(at: currentIdx)
-                            if let friend = newFriend, let idx = friendInsertIdx {
-                                self.friends.insert(friend, at: idx)
+                            let currentIdx = self.pendingRequests.firstIndex(where: { $0.id == requestId })
+
+                            if currentIdx == nil {
+                                // Path A: snapshot listener already cleared pendingRequests and called
+                                // reloadData(). Table's pending state is correct — just insert the friend.
+                                guard let friend = newFriend, let insertIdx = friendInsertIdx else { return }
+                                self.friends.insert(friend, at: insertIdx)
+                                let friendsSectionIdx = self.sections.firstIndex(of: .friends)!
+                                self.tableView.performBatchUpdates({
+                                    self.tableView.insertRows(at: [IndexPath(row: insertIdx, section: friendsSectionIdx)], with: .automatic)
+                                }, completion: { _ in
+                                    self.tableView.reloadSections(IndexSet(integer: friendsSectionIdx), with: .none)
+                                })
+                            } else {
+                                // Path B: handle both pending removal and friend insertion atomically.
+                                guard let currentIdx = currentIdx,
+                                      let pendingSectionIdx = self.sections.firstIndex(of: .pendingRequests) else { return }
+
+                                let willRemovePendingSection = self.pendingRequests.count == 1
+
+                                self.pendingRequests.remove(at: currentIdx)
+                                if let friend = newFriend, let idx = friendInsertIdx {
+                                    self.friends.insert(friend, at: idx)
+                                }
+
+                                let friendsSectionIdxNew = self.sections.firstIndex(of: .friends)!
+
+                                self.tableView.performBatchUpdates({
+                                    if willRemovePendingSection {
+                                        self.tableView.deleteSections(IndexSet(integer: pendingSectionIdx), with: .automatic)
+                                    } else {
+                                        self.tableView.deleteRows(at: [IndexPath(row: currentIdx, section: pendingSectionIdx)], with: .automatic)
+                                    }
+                                    if let idx = friendInsertIdx {
+                                        self.tableView.insertRows(at: [IndexPath(row: idx, section: friendsSectionIdxNew)], with: .automatic)
+                                    }
+                                }, completion: { _ in
+                                    var toReload = IndexSet(integer: friendsSectionIdxNew)
+                                    if !willRemovePendingSection { toReload.insert(pendingSectionIdx) }
+                                    self.tableView.reloadSections(toReload, with: .none)
+                                })
                             }
-
-                            // Section index for friends AFTER mutation — insertions use new index paths
-                            let friendsSectionIdxNew = self.sections.firstIndex(of: .friends)!
-
-                            self.tableView.performBatchUpdates({
-                                if willRemovePendingSection {
-                                    self.tableView.deleteSections(IndexSet(integer: pendingSectionIdx), with: .automatic)
-                                } else {
-                                    self.tableView.deleteRows(at: [IndexPath(row: currentIdx, section: pendingSectionIdx)], with: .automatic)
-                                }
-                                if let idx = friendInsertIdx {
-                                    self.tableView.insertRows(at: [IndexPath(row: idx, section: friendsSectionIdxNew)], with: .automatic)
-                                }
-                            }, completion: { _ in
-                                // Refresh section headers to show updated counts
-                                var toReload = IndexSet(integer: friendsSectionIdxNew)
-                                if !willRemovePendingSection { toReload.insert(pendingSectionIdx) }
-                                self.tableView.reloadSections(toReload, with: .none)
-                            })
                         }
                     })
             }
