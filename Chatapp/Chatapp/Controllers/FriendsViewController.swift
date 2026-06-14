@@ -304,7 +304,7 @@ class FriendsViewController: UIViewController {
             .updateData(["status": "accepted"]) { [weak self] error in
                 guard error == nil, let self = self else { return }
                 Firestore.firestore().collection("users").document(request.fromUID)
-                    .getDocument { [weak self] snap, _ in
+                    .getDocument(completion: { [weak self] snap, _ in
                         guard let self = self else { return }
                         let newFriend = try? snap?.data(as: UserProfile.self)
                         DispatchQueue.main.async {
@@ -317,7 +317,7 @@ class FriendsViewController: UIViewController {
 
                             // Compute sorted insertion index BEFORE mutating friends
                             let friendInsertIdx: Int? = newFriend.map { friend in
-                                self.friends.firstIndex(where: { $0.displayName > friend.displayName }) ?? self.friends.count
+                                self.friends.firstIndex(where: { $0.username > friend.username }) ?? self.friends.count
                             }
 
                             // Mutate both arrays atomically before any UI update
@@ -345,7 +345,7 @@ class FriendsViewController: UIViewController {
                                 self.tableView.reloadSections(toReload, with: .none)
                             })
                         }
-                    }
+                    })
             }
     }
 
