@@ -24,6 +24,7 @@ class ChatViewController: UIViewController, UIImagePickerControllerDelegate, UIN
     private var messages: [Message] = []
     private var listener: ListenerRegistration?
     private var currentUserName: String = ""
+    private var visibleTimestampRow: Int? = nil
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -167,7 +168,7 @@ extension ChatViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: MessageCell.reuseId, for: indexPath) as! MessageCell
         let message = messages[indexPath.row]
-        cell.configure(with: message, isOwn: message.senderId == Auth.auth().currentUser?.uid)
+        cell.configure(with: message, isOwn: message.senderId == Auth.auth().currentUser?.uid, showTimestamp: indexPath.row == visibleTimestampRow)
         return cell
     }
 }
@@ -177,21 +178,31 @@ extension ChatViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: false)
         let message = messages[indexPath.row]
-        guard message.type == "image", message.imageURL != nil else { return }
+        guard message.type == "image", message.imageURL != nil else {
+            let prev = visibleTimestampRow
+            visibleTimestampRow = (prev == indexPath.row) ? nil : indexPath.row
+            var toReload = [indexPath]
+            if let p = prev, p != indexPath.row {
+                toReload.append(IndexPath(row: p, section: 0))
+            }
+            tableView.reloadRows(at: toReload, with: .automatic)
+            return
+        }
         let preview = MediaPreviewViewController()
         preview.imageURL = message.imageURL
         preview.modalPresentationStyle = .fullScreen
         present(preview, animated: true)
     }
 
-    func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let message = messages[indexPath.row]
         guard message.senderId == Auth.auth().currentUser?.uid else { return nil }
-        return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ in
-            let delete = UIAction(title: "刪除", image: UIImage(systemName: "trash"), attributes: .destructive) { [weak self] _ in
-                self?.deleteMessage(message)
-            }
-            return UIMenu(title: "", children: [delete])
+        let title = NSLocalizedString("chat.action.delete", comment: "")
+        let action = UIContextualAction(style: .destructive, title: title) { [weak self] _, _, done in
+            self?.deleteMessage(message)
+            done(true)
         }
+        action.image = UIImage(systemName: "trash")
+        return UISwipeActionsConfiguration(actions: [action])
     }
 }
