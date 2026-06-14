@@ -28,11 +28,12 @@
 "addfriend.alert.ok" = "OK";
 
 /* LoginViewController */
-"login.segment.signIn" = "Sign In";
-"login.segment.signUp" = "Sign Up";
+"login.segment.signIn" = "Login";
+"login.segment.signUp" = "Register";
 "login.field.email" = "Email";
 "login.field.password" = "Password";
-"login.button.title" = "Sign In";
+"login.button.signIn" = "Sign In";
+"login.button.signUp" = "Sign Up";
 "login.error.emptyFields" = "Please enter your email and password";
 "login.error.signInFailed" = "Sign in failed: %@";
 "login.error.registerFailed" = "Registration failed: %@";

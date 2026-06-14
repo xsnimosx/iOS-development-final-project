@@ -11,5 +11,11 @@ import FirebaseFirestore
 struct UserProfile: Codable {
     @DocumentID var id: String?
     let email: String
-    let displayName: String
+    let username: String
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case email
+        case username = "displayName"
+    }
 }

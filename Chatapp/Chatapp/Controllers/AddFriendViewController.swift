@@ -217,7 +217,7 @@ extension AddFriendViewController: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         let base = nonFriendUsers
         filteredUsers = searchText.isEmpty ? base : base.filter {
-            $0.displayName.localizedCaseInsensitiveContains(searchText) ||
+            $0.username.localizedCaseInsensitiveContains(searchText) ||
             $0.email.localizedCaseInsensitiveContains(searchText)
         }
         tableView.reloadData()
@@ -231,7 +231,7 @@ extension AddFriendViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: AddFriendUserCell.reuseId, for: indexPath) as! AddFriendUserCell
         let user = filteredUsers[indexPath.row]
-        cell.configure(name: user.displayName, detail: user.email)
+        cell.configure(name: user.username, detail: user.email)
         let status = statusMap[user.id ?? ""] ?? .none
         let cancelAction: (() -> Void)? = status == .sentPending ? { [weak self] in self?.cancelFriendRequest(to: user) } : nil
         cell.accessoryView = makeStatusBadge(for: status, onCancel: cancelAction)

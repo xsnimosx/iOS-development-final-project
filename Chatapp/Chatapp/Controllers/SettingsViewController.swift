@@ -24,13 +24,28 @@ class SettingsViewController: UITableViewController {
         guard let cell = tableView.cellForRow(at: indexPath) as? UserAvatarCell else { return }
 
         Firestore.firestore().collection("users").document(user.uid)
-            .getDocument { [weak cell] snap, _ in
+            .getDocument { [weak cell, weak self] snap, _ in
                 let profile = try? snap?.data(as: UserProfile.self)
                 DispatchQueue.main.async {
                     cell?.configure(
-                        name: profile?.displayName ?? user.displayName ?? "",
+                        name: profile?.username ?? user.displayName ?? "",
                         detail: user.email
                     )
+                    cell?.onUsernameConfirmed = { [weak self] newName in
+                        self?.saveUsername(newName)
+                    }
+                }
+            }
+    }
+
+    private func saveUsername(_ name: String) {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        Firestore.firestore().collection("users").document(uid)
+            .updateData(["displayName": name]) { [weak self] error in
+                if let error = error {
+                    DispatchQueue.main.async {
+                        self?.showAlert(String(format: NSLocalizedString("settings.error.signOutFailed", comment: ""), error.localizedDescription))
+                    }
                 }
             }
     }
@@ -40,9 +55,9 @@ class SettingsViewController: UITableViewController {
         case 0: return NSLocalizedString("settings.section.profile", comment: "")
         case 1: return NSLocalizedString("settings.section.logout", comment: "")
         default: return nil
-        }	
+        }
     }
-    
+
     override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         guard let title = self.tableView(tableView, titleForHeaderInSection: section) else { return nil }
 
