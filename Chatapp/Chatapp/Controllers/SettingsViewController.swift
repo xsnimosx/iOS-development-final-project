@@ -21,18 +21,37 @@ class SettingsViewController: UITableViewController {
     private func updateProfileCell() {
         guard let user = Auth.auth().currentUser else { return }
         let indexPath = IndexPath(row: 0, section: 0)
-        guard let cell = tableView.cellForRow(at: indexPath) as? UserAvatarCell else { return }
+
+        if let cell = tableView.cellForRow(at: indexPath) as? UserAvatarCell {
+            cell.onUsernameConfirmed = { [weak self] newName in
+                self?.saveUsername(newName)
+            }
+        }
 
         Firestore.firestore().collection("users").document(user.uid)
-            .getDocument { [weak cell, weak self] snap, _ in
+            .getDocument { [weak self] snap, _ in
                 let profile = try? snap?.data(as: UserProfile.self)
                 DispatchQueue.main.async {
-                    cell?.configure(
+                    guard let self = self,
+                          let cell = self.tableView.cellForRow(at: indexPath) as? UserAvatarCell else { return }
+                    cell.configure(
                         name: profile?.username ?? user.displayName ?? "",
                         detail: user.email
                     )
                     cell?.onUsernameConfirmed = { [weak self] newName in
                         self?.saveUsername(newName)
+                    }
+                }
+            }
+    }
+
+    private func saveUsername(_ name: String) {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        Firestore.firestore().collection("users").document(uid)
+            .updateData(["displayName": name]) { [weak self] error in
+                if let error = error {
+                    DispatchQueue.main.async {
+                        self?.showAlert(String(format: NSLocalizedString("settings.error.signOutFailed", comment: ""), error.localizedDescription))
                     }
                 }
             }
@@ -84,7 +103,12 @@ class SettingsViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
+        if indexPath.section == 0, indexPath.row == 0,
+           let cell = tableView.cellForRow(at: indexPath) as? UserAvatarCell {
+            cell.startEditing()
+        } else {
+            tableView.deselectRow(at: indexPath, animated: true)
+        }
     }
 
     override func shouldPerformSegue(withIdentifier identifier: String, sender: Any?) -> Bool {

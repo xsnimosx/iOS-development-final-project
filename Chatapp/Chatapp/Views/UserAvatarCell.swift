@@ -24,6 +24,7 @@ class UserAvatarCell: UITableViewCell {
 
     override func awakeFromNib() {
         super.awakeFromNib()
+        selectionStyle = .none
         avatarImageView.tintColor = AppCell.avatarTint
         avatarImageView.clipsToBounds = true
 
@@ -34,10 +35,6 @@ class UserAvatarCell: UITableViewCell {
             usernameField.centerYAnchor.constraint(equalTo: nameLabel.centerYAnchor),
         ])
         usernameField.delegate = self
-
-        let tap = UITapGestureRecognizer(target: self, action: #selector(nameLabelTapped))
-        nameLabel.isUserInteractionEnabled = true
-        nameLabel.addGestureRecognizer(tap)
     }
 
     override func layoutSubviews() {
@@ -51,7 +48,7 @@ class UserAvatarCell: UITableViewCell {
         detailLabel.isHidden = detail == nil || detail!.isEmpty
     }
 
-    @objc private func nameLabelTapped() {
+    func startEditing() {
         preEditUsername = nameLabel.text ?? ""
         usernameField.text = preEditUsername
         nameLabel.isHidden = true
