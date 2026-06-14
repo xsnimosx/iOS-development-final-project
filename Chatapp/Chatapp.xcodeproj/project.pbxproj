@@ -35,7 +35,6 @@
 		51565CAD2FDEA7770096FB15 /* MessageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51565CAC2FDEA7770096FB15 /* MessageCell.swift */; };
 		51917A5B2FDC4CED002959E9 /* FriendsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51917A5A2FDC4CED002959E9 /* FriendsViewController.swift */; };
 		51917A5D2FDC4CF8002959E9 /* AddFriendViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51917A5C2FDC4CF7002959E9 /* AddFriendViewController.swift */; };
-		51565CD32FDF20040096FB15 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 51565CD22FDF20030096FB15 /* InfoPlist.strings */; };
 		51917A5F2FDC4EC0002959E9 /* FriendRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51917A5E2FDC4EC0002959E9 /* FriendRequest.swift */; };
 /* End PBXBuildFile section */
 
@@ -61,8 +60,6 @@
 		514169D12FDB2AB2007FE670 /* UserAvatarCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserAvatarCell.swift; sourceTree = "<group>"; };
 		51565C9B2FDDB0B20096FB15 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		51565C9D2FDDB1800096FB15 /* UserRowCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserRowCell.swift; sourceTree = "<group>"; };
-		51565CD02FDF20010096FB15 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = InfoPlist.strings; sourceTree = "<group>"; };
-		51565CD12FDF20020096FB15 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = InfoPlist.strings; sourceTree = "<group>"; };
 		51565CA22FDDE9710096FB15 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = Localizable.strings; sourceTree = "<group>"; };
 		51565CA62FDE92BA0096FB15 /* Chatapp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Chatapp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		51565CA72FDE93020096FB15 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = Localizable.strings; sourceTree = "<group>"; };
@@ -131,7 +128,6 @@
 				514169A42FDB2AB2007FE670 /* Assets.xcassets */,
 				51565C9B2FDDB0B20096FB15 /* GoogleService-Info.plist */,
 				514169A62FDB2AB2007FE670 /* Info.plist */,
-				51565CD22FDF20030096FB15 /* InfoPlist.strings */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -272,7 +268,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				51565CAA2FDE93020096FB15 /* Localizable.strings in Resources */,
-				51565CD32FDF20040096FB15 /* InfoPlist.strings in Resources */,
 				51565C9C2FDDB0C70096FB15 /* GoogleService-Info.plist in Resources */,
 				514169BF2FDB2AB2007FE670 /* Assets.xcassets in Resources */,
 				514169C32FDB2AB2007FE670 /* Main.storyboard in Resources */,
@@ -342,18 +337,8 @@
 			isa = PBXVariantGroup;
 			children = (
 				51565CA72FDE93020096FB15 /* en */,
-				51565CA22FDDE9710096FB15 /* zh-Hant */,
 			);
 			name = Localizable.strings;
-			sourceTree = "<group>";
-		};
-		51565CD22FDF20030096FB15 /* InfoPlist.strings */ = {
-			isa = PBXVariantGroup;
-			children = (
-				51565CD02FDF20010096FB15 /* en */,
-				51565CD12FDF20020096FB15 /* zh-Hant */,
-			);
-			name = InfoPlist.strings;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -490,7 +475,7 @@
 				INFOPLIST_FILE = Chatapp/Resources/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Chatapp;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.social-networking";
-				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = NO;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -521,7 +506,7 @@
 				INFOPLIST_FILE = Chatapp/Resources/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Chatapp;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.social-networking";
-				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = NO;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
