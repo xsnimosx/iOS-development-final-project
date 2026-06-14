@@ -7,7 +7,7 @@ import UIKit
 import FirebaseAuth
 import FirebaseFirestore
 
-private class PendingButton: UIButton {
+private class BadgeButton: UIButton {
     var tapAction: (() -> Void)?
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -184,11 +184,11 @@ class AddFriendViewController: UIViewController {
 
     // MARK: - Helpers
 
-    private func makeStatusBadge(for status: RelationshipStatus, onCancel: (() -> Void)? = nil) -> UIView? {
+    private func makeStatusBadge(for status: RelationshipStatus, onCancel: (() -> Void)? = nil, onAccept: (() -> Void)? = nil) -> UIView? {
         switch status {
         case .none, .friends: return nil
         case .sentPending:
-            let button = PendingButton()
+            let button = BadgeButton()
             button.setTitle(NSLocalizedString("addfriend.badge.pending", comment: ""), for: .normal)
             button.setTitleColor(.systemOrange, for: .normal)
             button.titleLabel?.font = .systemFont(ofSize: 13, weight: .semibold)
@@ -199,12 +199,16 @@ class AddFriendViewController: UIViewController {
             button.tapAction = onCancel
             return button
         case .receivedPending:
-            let label = UILabel()
-            label.text = NSLocalizedString("addfriend.badge.accept", comment: "")
-            label.font = .systemFont(ofSize: 12, weight: .semibold)
-            label.textColor = .systemGreen
-            label.sizeToFit()
-            return label
+            let button = BadgeButton()
+            button.setTitle(NSLocalizedString("addfriend.badge.accept", comment: ""), for: .normal)
+            button.setTitleColor(.systemGreen, for: .normal)
+            button.titleLabel?.font = .systemFont(ofSize: 13, weight: .semibold)
+            button.backgroundColor = .systemGray5
+            button.layer.cornerRadius = 14
+            button.contentEdgeInsets = UIEdgeInsets(top: 6, left: 14, bottom: 6, right: 14)
+            button.sizeToFit()
+            button.tapAction = onAccept
+            return button
         }
     }
 
@@ -237,7 +241,8 @@ extension AddFriendViewController: UITableViewDataSource {
         cell.configure(name: user.username, detail: user.email)
         let status = statusMap[user.id ?? ""] ?? .none
         let cancelAction: (() -> Void)? = status == .sentPending ? { [weak self] in self?.cancelFriendRequest(to: user) } : nil
-        cell.accessoryView = makeStatusBadge(for: status, onCancel: cancelAction)
+        let acceptAction: (() -> Void)? = status == .receivedPending ? { [weak self] in self?.handleTap(on: user) } : nil
+        cell.accessoryView = makeStatusBadge(for: status, onCancel: cancelAction, onAccept: acceptAction)
         return cell
     }
 }
