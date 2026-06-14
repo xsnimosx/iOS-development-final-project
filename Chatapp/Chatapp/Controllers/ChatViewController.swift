@@ -34,6 +34,9 @@ class ChatViewController: UIViewController, UIImagePickerControllerDelegate, UIN
         startListening()
         setupKeyboardLayoutGuide()
         setupKeyboardDismissOnTap()
+        messageTextField.autocapitalizationType = .sentences
+        messageTextField.returnKeyType = .send
+        messageTextField.textContentType = .none
     }
 
     override func viewWillDisappear(_ animated: Bool) {
