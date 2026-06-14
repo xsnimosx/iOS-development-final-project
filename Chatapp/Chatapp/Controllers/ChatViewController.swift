@@ -32,42 +32,15 @@ class ChatViewController: UIViewController, UIImagePickerControllerDelegate, UIN
         tableView.separatorStyle = .none
         fetchCurrentUserName()
         startListening()
-        setupKeyboardLayoutGuide()
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
         setupKeyboardDismissOnTap()
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         listener?.remove()
-    }
-
-    // MARK: - Keyboard
-    private func setupKeyboardLayoutGuide() {
-        if #available(iOS 15, *) {
-            guard let inputContainer = inputBottomConstraint.firstItem as? UIView else { return }
-            inputBottomConstraint.isActive = false
-            inputContainer.bottomAnchor.constraint(
-                equalTo: view.keyboardLayoutGuide.topAnchor
-            ).isActive = true
-        } else {
-            NotificationCenter.default.addObserver(
-                self, selector: #selector(keyboardWillChangeFrame(_:)),
-                name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
-        }
-    }
-
-    @objc private func keyboardWillChangeFrame(_ notification: Notification) {
-        guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
-              let duration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double,
-              let curveRaw = notification.userInfo?[UIResponder.keyboardAnimationCurveUserInfoKey] as? UInt
-        else { return }
-        let overlap = max(UIScreen.main.bounds.height - keyboardFrame.minY - view.safeAreaInsets.bottom, 0)
-        inputBottomConstraint.constant = -overlap
-        UIView.animate(withDuration: duration,
-                       delay: 0,
-                       options: UIView.AnimationOptions(rawValue: curveRaw << 16)) {
-            self.view.layoutIfNeeded()
-        }
+        NotificationCenter.default.removeObserver(self)
     }
 
     // MARK: - Data
@@ -114,9 +87,9 @@ class ChatViewController: UIViewController, UIImagePickerControllerDelegate, UIN
         ]
         db.collection("conversations").document(conversationId)
             .collection("messages").addDocument(data: data) { [weak self] error in
-                guard let self = self, error == nil else { return }
-                DispatchQueue.main.async { self.messageTextField.text = "" }
-                self.updateConversationMeta(lastMessage: content)
+                if error == nil {
+                    DispatchQueue.main.async { self?.messageTextField.text = "" }
+                }
             }
     }
 
@@ -143,18 +116,26 @@ class ChatViewController: UIViewController, UIImagePickerControllerDelegate, UIN
                 "isRead": false
             ]
             self.db.collection("conversations").document(self.conversationId)
-                .collection("messages").addDocument(data: data) { [weak self] error in
-                    guard let self = self, error == nil else { return }
-                    self.updateConversationMeta(lastMessage: "[Image]")
-                }
+                .collection("messages").addDocument(data: data)
         }
     }
 
-    private func updateConversationMeta(lastMessage: String) {
-        db.collection("conversations").document(conversationId)
-            .updateData(["lastMessage": lastMessage, "lastUpdated": Timestamp(date: Date())])
+    // MARK: - Keyboard
+    @objc private func keyboardWillShow(_ notification: Notification) {
+        guard let info = notification.userInfo,
+              let keyboardFrame = info[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
+              let duration = info[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double else { return }
+        let safeBottom = view.safeAreaInsets.bottom
+        inputBottomConstraint?.constant = -(keyboardFrame.height - safeBottom)
+        UIView.animate(withDuration: duration) { self.view.layoutIfNeeded() }
+        scrollToBottom()
     }
 
+    @objc private func keyboardWillHide(_ notification: Notification) {
+        guard let duration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double else { return }
+        inputBottomConstraint?.constant = 0
+        UIView.animate(withDuration: duration) { self.view.layoutIfNeeded() }
+    }
 
     private func deleteMessage(_ message: Message) {
         guard let id = message.id else { return }
@@ -171,10 +152,6 @@ extension ChatViewController: UITableViewDataSource {
         let cell = tableView.dequeueReusableCell(withIdentifier: MessageCell.reuseId, for: indexPath) as! MessageCell
         let message = messages[indexPath.row]
         cell.configure(with: message, isOwn: message.senderId == Auth.auth().currentUser?.uid)
-        cell.onImageLoaded = { [weak self] in
-            self?.tableView.beginUpdates()
-            self?.tableView.endUpdates()
-        }
         return cell
     }
 }
@@ -195,133 +172,10 @@ extension ChatViewController: UITableViewDelegate {
         let message = messages[indexPath.row]
         guard message.senderId == Auth.auth().currentUser?.uid else { return nil }
         return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ in
-            let delete = UIAction(title: NSLocalizedString("chat.action.delete", comment: ""), image: UIImage(systemName: "trash"), attributes: .destructive) { [weak self] _ in
+            let delete = UIAction(title: "刪除", image: UIImage(systemName: "trash"), attributes: .destructive) { [weak self] _ in
                 self?.deleteMessage(message)
             }
             return UIMenu(title: "", children: [delete])
         }
-    }
-}
-
-// MARK: - MessageCell
-class MessageCell: UITableViewCell {
-    static let reuseId = "MessageCell"
-    private static let imageCache = NSCache<NSString, UIImage>()
-
-    var onImageLoaded: (() -> Void)?
-
-    private let bubbleView = UIView()
-    private let nameLabel = UILabel()
-    private let contentLabel = UILabel()
-    private let msgImageView = UIImageView()
-
-    private var imageHeightConstraint: NSLayoutConstraint?
-    // Stored separately so it can be toggled off for image messages,
-    // avoiding a Required-priority conflict with msgImageView.bottom = bubbleView.bottom.
-    private var textBottomConstraint: NSLayoutConstraint?
-    private var bubbleLeading: NSLayoutConstraint?
-    private var bubbleTrailing: NSLayoutConstraint?
-
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
-        selectionStyle = .none
-        setupViews()
-    }
-
-    required init?(coder: NSCoder) { fatalError() }
-
-    private func setupViews() {
-        bubbleView.layer.cornerRadius = 12
-        bubbleView.clipsToBounds = true
-        bubbleView.translatesAutoresizingMaskIntoConstraints = false
-
-        nameLabel.font = .systemFont(ofSize: 11, weight: .medium)
-        nameLabel.textColor = .secondaryLabel
-        nameLabel.translatesAutoresizingMaskIntoConstraints = false
-
-        contentLabel.numberOfLines = 0
-        contentLabel.font = .systemFont(ofSize: 15)
-        contentLabel.translatesAutoresizingMaskIntoConstraints = false
-
-        msgImageView.contentMode = .scaleAspectFill
-        msgImageView.translatesAutoresizingMaskIntoConstraints = false
-
-        bubbleView.addSubview(nameLabel)
-        bubbleView.addSubview(contentLabel)
-        bubbleView.addSubview(msgImageView)
-        contentView.addSubview(bubbleView)
-
-        bubbleLeading = bubbleView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12)
-        bubbleTrailing = bubbleView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12)
-        textBottomConstraint = contentLabel.bottomAnchor.constraint(equalTo: bubbleView.bottomAnchor, constant: -6)
-
-        NSLayoutConstraint.activate([
-            nameLabel.topAnchor.constraint(equalTo: bubbleView.topAnchor, constant: 6),
-            nameLabel.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor, constant: 10),
-            nameLabel.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant: -10),
-            contentLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 2),
-            contentLabel.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor, constant: 10),
-            contentLabel.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant: -10),
-            msgImageView.topAnchor.constraint(equalTo: bubbleView.topAnchor),
-            msgImageView.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor),
-            msgImageView.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor),
-            msgImageView.bottomAnchor.constraint(equalTo: bubbleView.bottomAnchor),
-            bubbleView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 4),
-            bubbleView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -4),
-            bubbleView.widthAnchor.constraint(lessThanOrEqualTo: contentView.widthAnchor, multiplier: 0.72),
-            bubbleLeading!
-        ])
-    }
-
-    func configure(with message: Message, isOwn: Bool) {
-        let isImage = message.type == "image"
-
-        nameLabel.isHidden = isOwn || isImage
-        nameLabel.text = isOwn ? nil : message.senderName
-        contentLabel.isHidden = isImage
-        contentLabel.text = isImage ? nil : message.content
-        msgImageView.isHidden = !isImage
-        msgImageView.image = nil
-
-        textBottomConstraint?.isActive = !isImage
-        imageHeightConstraint?.isActive = false
-
-        if isImage {
-            let maxWidth = max(contentView.bounds.width * 0.72 - 24, 160)
-            imageHeightConstraint = msgImageView.heightAnchor.constraint(equalToConstant: 160)
-            imageHeightConstraint?.isActive = true
-            loadImage(urlString: message.imageURL, displayWidth: maxWidth)
-        }
-
-        bubbleView.backgroundColor = isOwn ? .systemBlue : .secondarySystemFill
-        contentLabel.textColor = isOwn ? .white : .label
-        nameLabel.textColor = isOwn ? .white : .secondaryLabel
-        bubbleLeading?.isActive = !isOwn
-        bubbleTrailing?.isActive = isOwn
-    }
-
-    private func loadImage(urlString: String?, displayWidth: CGFloat) {
-        guard let urlString = urlString, let url = URL(string: urlString) else { return }
-        let key = urlString as NSString
-
-        if let cached = MessageCell.imageCache.object(forKey: key) {
-            applyImage(cached, displayWidth: displayWidth)
-            return
-        }
-
-        URLSession.shared.dataTask(with: url) { [weak self] data, _, _ in
-            guard let data = data, let img = UIImage(data: data) else { return }
-            MessageCell.imageCache.setObject(img, forKey: key)
-            DispatchQueue.main.async {
-                self?.applyImage(img, displayWidth: displayWidth)
-                self?.onImageLoaded?()
-            }
-        }.resume()
-    }
-
-    private func applyImage(_ image: UIImage, displayWidth: CGFloat) {
-        msgImageView.image = image
-        let ratio = image.size.height / image.size.width
-        imageHeightConstraint?.constant = min(displayWidth * ratio, 280)
     }
 }
