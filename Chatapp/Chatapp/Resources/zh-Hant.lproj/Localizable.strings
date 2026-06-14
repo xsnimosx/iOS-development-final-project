@@ -32,7 +32,8 @@
 "login.segment.signUp" = "註冊";
 "login.field.email" = "電子郵件";
 "login.field.password" = "密碼";
-"login.button.title" = "登入";
+"login.button.signIn" = "登入";
+"login.button.signUp" = "註冊";
 "login.error.emptyFields" = "請填寫 Email 和密碼";
 "login.error.signInFailed" = "登入失敗：%@";
 "login.error.registerFailed" = "註冊失敗：%@";

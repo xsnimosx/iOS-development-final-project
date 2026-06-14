@@ -21,7 +21,8 @@ class LoginViewController: UIViewController {
         segmentedControl.setTitle(NSLocalizedString("login.segment.signUp", comment: ""), forSegmentAt: 1)
         emailField.placeholder = NSLocalizedString("login.field.email", comment: "")
         passwordField.placeholder = NSLocalizedString("login.field.password", comment: "")
-        loginButton.setTitle(NSLocalizedString("login.button.title", comment: ""), for: .normal)
+        segmentedControl.addTarget(self, action: #selector(segmentChanged), for: .valueChanged)
+        updateButtonTitle()
         if Auth.auth().currentUser != nil {
             navigateToMainApp()
         }
@@ -41,8 +42,17 @@ class LoginViewController: UIViewController {
         }
     }
 
-    // MARK: - IBAction
-    // 在 Xcode 中 ctrl-drag 從 LOGIN 按鈕連接到這裡
+    // MARK: - Actions
+
+    @objc private func segmentChanged() {
+        updateButtonTitle()
+    }
+
+    private func updateButtonTitle() {
+        let key = segmentedControl.selectedSegmentIndex == 0 ? "login.button.signIn" : "login.button.signUp"
+        loginButton.setTitle(NSLocalizedString(key, comment: ""), for: .normal)
+    }
+
     @IBAction func loginButtonTapped(_ sender: UIButton) {
         guard let email = emailField.text, !email.isEmpty,
               let password = passwordField.text, !password.isEmpty else {
