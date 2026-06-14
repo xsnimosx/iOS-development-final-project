@@ -1,0 +1,62 @@
+/* FriendsViewController — RequestCell */
+"friends.request.accept" = "Accept";
+"friends.request.ignore" = "Ignore";
+
+/* FriendsViewController — Navigation & Section Header */
+"friends.nav.title" = "Friends";
+"friends.section.pending" = "Pending — %d";
+"friends.section.friends" = "Friends — %d";
+
+/* FriendsViewController — Remove Friend Alert */
+"friends.remove.title" = "Remove Friend";
+"friends.remove.message" = "Are you sure you want to remove \"%@\" from your friends?";
+"friends.remove.cancel" = "Cancel";
+"friends.remove.confirm" = "Remove";
+"friends.swipe.remove" = "Remove";
+
+/* AddFriendViewController — Status Messages */
+"addfriend.status.alreadyFriends" = "You are already friends.";
+"addfriend.status.requestSent" = "Friend request sent.";
+"addfriend.status.nowFriends" = "You are now friends!";
+"addfriend.status.requestSentSuccess" = "Friend request sent!";
+
+/* AddFriendViewController — Status Badge */
+"addfriend.badge.pending" = "Pending...";
+"addfriend.badge.accept" = "Accept";
+
+/* AddFriendViewController — Alert Button */
+"addfriend.alert.ok" = "OK";
+
+/* LoginViewController */
+"login.segment.signIn" = "Sign In";
+"login.segment.signUp" = "Sign Up";
+"login.field.email" = "Email";
+"login.field.password" = "Password";
+"login.button.title" = "Sign In";
+"login.error.emptyFields" = "Please enter your email and password";
+"login.error.signInFailed" = "Sign in failed: %@";
+"login.error.registerFailed" = "Registration failed: %@";
+"login.alert.ok" = "OK";
+
+/* ChatViewController */
+"chat.action.delete" = "Delete";
+
+/* Tab Bar */
+"tab.chats" = "Chats";
+"tab.friends" = "Friends";
+"tab.settings" = "Settings";
+
+/* Navigation Titles (Storyboard override) */
+"chats.nav.title" = "Chats";
+"addfriend.nav.title" = "Add Friend";
+"settings.nav.title" = "Settings";
+
+/* ChatListViewController */
+"chatlist.unknownUser" = "Unknown";
+
+/* SettingsViewController */
+"settings.section.profile" = "Profile";
+"settings.section.logout" = "Sign Out";
+"settings.cell.logout" = "Sign Out";
+"settings.error.signOutFailed" = "Sign out failed: %@";
+"settings.alert.ok" = "OK";
