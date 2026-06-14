@@ -81,8 +81,6 @@
             </objects>
             <point key="canvasLocation" x="-832" y="-1577"/>
         </scene>
-
-
         <!--Chats-->
         <scene sceneID="cvx-EW-T4P">
             <objects>
@@ -103,7 +101,7 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="person.crop.circle.fill" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="Afd-WL-gR1">
-                                                    <rect key="frame" x="16" y="13" width="44" height="44"/>
+                                                    <rect key="frame" x="16" y="15" width="44" height="42.666666666666671"/>
                                                     <color key="tintColor" systemColor="systemBrownColor"/>
                                                     <constraints>
                                                         <constraint firstAttribute="height" constant="44" id="CL-av-h"/>
@@ -111,12 +109,12 @@
                                                     </constraints>
                                                 </imageView>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Name" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5gd-h5-ksN">
-                                                    <rect key="frame" x="76" y="14.000000000000002" width="270" height="19.666666666666671"/>
+                                                    <rect key="frame" x="72" y="14.000000000000002" width="274" height="19.666666666666671"/>
                                                     <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Last message..." textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Jc8-VU-ogF">
-                                                    <rect key="frame" x="76" y="37.666666666666664" width="322" height="20.333333333333336"/>
+                                                    <rect key="frame" x="72" y="37.666666666666664" width="326" height="20.333333333333336"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                     <color key="textColor" systemColor="secondaryLabelColor"/>
                                                     <nil key="highlightedColor"/>
@@ -298,7 +296,7 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="person.crop.circle.fill" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="ecQ-Kj-anL">
-                                                    <rect key="frame" x="16" y="13" width="44" height="44"/>
+                                                    <rect key="frame" x="16" y="15" width="44" height="42.666666666666671"/>
                                                     <color key="tintColor" systemColor="systemBrownColor"/>
                                                     <constraints>
                                                         <constraint firstAttribute="height" constant="44" id="Set-av-h"/>
@@ -306,16 +304,16 @@
                                                     </constraints>
                                                 </imageView>
                                                 <stackView opaque="NO" userInteractionEnabled="NO" contentMode="left" axis="vertical" spacing="2" translatesAutoresizingMaskIntoConstraints="NO" id="Set-stk-001">
-                                                    <rect key="frame" x="76" y="17" width="282" height="38"/>
+                                                    <rect key="frame" x="72" y="17" width="286" height="38"/>
                                                     <subviews>
                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Username" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hWX-Tl-iGU">
-                                                            <rect key="frame" x="0.0" y="0.0" width="282" height="20.333333333333332"/>
+                                                            <rect key="frame" x="0.0" y="0.0" width="286" height="20.333333333333332"/>
                                                             <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
                                                             <nil key="textColor"/>
                                                             <nil key="highlightedColor"/>
                                                         </label>
                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="email@example.com" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="irl-s8-Ua7">
-                                                            <rect key="frame" x="0.0" y="22.333333333333336" width="282" height="15.666666666666664"/>
+                                                            <rect key="frame" x="0.0" y="22.333333333333336" width="286" height="15.666666666666664"/>
                                                             <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                             <color key="textColor" systemColor="secondaryLabelColor"/>
                                                             <nil key="highlightedColor"/>
@@ -602,6 +600,7 @@
             <point key="canvasLocation" x="3342" y="-1577"/>
         </scene>
     </scenes>
+    <color key="tintColor" name="AccentColor"/>
     <resources>
         <image name="gearshape" catalog="system" width="128" height="123"/>
         <image name="gearshape.fill" catalog="system" width="128" height="123"/>
@@ -614,6 +613,9 @@
         <image name="person.crop.circle" catalog="system" width="128" height="123"/>
         <image name="person.crop.circle.fill" catalog="system" width="128" height="123"/>
         <image name="photo" catalog="system" width="128" height="93"/>
+        <namedColor name="AccentColor">
+            <color red="0.95300000905990601" green="0.86299997568130493" blue="0.74900001287460327" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
         <systemColor name="groupTableViewBackgroundColor">
             <color red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>

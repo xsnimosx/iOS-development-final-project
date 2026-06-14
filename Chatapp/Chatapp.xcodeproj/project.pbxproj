@@ -31,6 +31,7 @@
 		5143101E2FB21F1900A3BBAB /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 5143101D2FB21F1900A3BBAB /* FirebaseStorage */; };
 		51565C9C2FDDB0C70096FB15 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 51565C9B2FDDB0B20096FB15 /* GoogleService-Info.plist */; };
 		51565C9E2FDDB1800096FB15 /* UserRowCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51565C9D2FDDB1800096FB15 /* UserRowCell.swift */; };
+		51565CA52FDDE9720096FB15 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 51565CA32FDDE9710096FB15 /* Localizable.strings */; };
 		51917A5B2FDC4CED002959E9 /* FriendsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51917A5A2FDC4CED002959E9 /* FriendsViewController.swift */; };
 		51917A5D2FDC4CF8002959E9 /* AddFriendViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51917A5C2FDC4CF7002959E9 /* AddFriendViewController.swift */; };
 		51917A5F2FDC4EC0002959E9 /* FriendRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51917A5E2FDC4EC0002959E9 /* FriendRequest.swift */; };
@@ -58,7 +59,8 @@
 		514169D12FDB2AB2007FE670 /* UserAvatarCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserAvatarCell.swift; sourceTree = "<group>"; };
 		51565C9B2FDDB0B20096FB15 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		51565C9D2FDDB1800096FB15 /* UserRowCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserRowCell.swift; sourceTree = "<group>"; };
-		515934742FD9B47C00A0CA14 /* Chatapp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = Chatapp.app; path = "/Users/snimos/iOS-development-final-project/Chatapp/build/Debug-iphoneos/Chatapp.app"; sourceTree = "<absolute>"; };
+		51565CA12FDDE0040096FB15 /* Chatapp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Chatapp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		51565CA22FDDE9710096FB15 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = Localizable.strings; sourceTree = "<group>"; };
 		51917A5A2FDC4CED002959E9 /* FriendsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FriendsViewController.swift; sourceTree = "<group>"; };
 		51917A5C2FDC4CF7002959E9 /* AddFriendViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddFriendViewController.swift; sourceTree = "<group>"; };
 		51917A5E2FDC4EC0002959E9 /* FriendRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = FriendRequest.swift; path = Chatapp/Models/FriendRequest.swift; sourceTree = SOURCE_ROOT; };
@@ -117,6 +119,7 @@
 		514169A72FDB2AB2007FE670 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				51565CA42FDDE9710096FB15 /* zh-Hant.lproj */,
 				514169A42FDB2AB2007FE670 /* Assets.xcassets */,
 				51565C9B2FDDB0B20096FB15 /* GoogleService-Info.plist */,
 				514169A62FDB2AB2007FE670 /* Info.plist */,
@@ -158,11 +161,20 @@
 			path = Chatapp;
 			sourceTree = "<group>";
 		};
+		51565CA42FDDE9710096FB15 /* zh-Hant.lproj */ = {
+			isa = PBXGroup;
+			children = (
+				51565CA32FDDE9710096FB15 /* Localizable.strings */,
+			);
+			path = "zh-Hant.lproj";
+			sourceTree = "<group>";
+		};
 		518852762FB206D2009B9ECA = {
 			isa = PBXGroup;
 			children = (
 				514169B22FDB2AB2007FE670 /* Chatapp */,
 				51AC294B2FB318A400493A46 /* Frameworks */,
+				51565CA12FDDE0040096FB15 /* Chatapp.app */,
 			);
 			sourceTree = "<group>";
 		};
@@ -196,7 +208,7 @@
 				5143101D2FB21F1900A3BBAB /* FirebaseStorage */,
 			);
 			productName = Chatapp;
-			productReference = 515934742FD9B47C00A0CA14 /* Chatapp.app */;
+			productReference = 51565CA12FDDE0040096FB15 /* Chatapp.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -221,6 +233,7 @@
 			knownRegions = (
 				en,
 				Base,
+				"zh-Hant",
 			);
 			mainGroup = 518852762FB206D2009B9ECA;
 			packageReferences = (
@@ -240,6 +253,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				51565CA52FDDE9720096FB15 /* Localizable.strings in Resources */,
 				51565C9C2FDDB0C70096FB15 /* GoogleService-Info.plist in Resources */,
 				514169BF2FDB2AB2007FE670 /* Assets.xcassets in Resources */,
 				514169C32FDB2AB2007FE670 /* Main.storyboard in Resources */,
@@ -293,6 +307,14 @@
 				514169AA2FDB2AB2007FE670 /* Base */,
 			);
 			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		51565CA32FDDE9710096FB15 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				51565CA22FDDE9710096FB15 /* zh-Hant */,
+			);
+			name = Localizable.strings;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
