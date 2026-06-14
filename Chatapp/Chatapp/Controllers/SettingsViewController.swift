@@ -38,21 +38,6 @@ class SettingsViewController: UITableViewController {
                         name: profile?.username ?? user.displayName ?? "",
                         detail: user.email
                     )
-                    cell?.onUsernameConfirmed = { [weak self] newName in
-                        self?.saveUsername(newName)
-                    }
-                }
-            }
-    }
-
-    private func saveUsername(_ name: String) {
-        guard let uid = Auth.auth().currentUser?.uid else { return }
-        Firestore.firestore().collection("users").document(uid)
-            .updateData(["displayName": name]) { [weak self] error in
-                if let error = error {
-                    DispatchQueue.main.async {
-                        self?.showAlert(String(format: NSLocalizedString("settings.error.signOutFailed", comment: ""), error.localizedDescription))
-                    }
                 }
             }
     }
