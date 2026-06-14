@@ -16,14 +16,28 @@ class LoginViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        applyBrandStyling()
         segmentedControl.setTitle(NSLocalizedString("login.segment.signIn", comment: ""), forSegmentAt: 0)
         segmentedControl.setTitle(NSLocalizedString("login.segment.signUp", comment: ""), forSegmentAt: 1)
         passwordField.placeholder = NSLocalizedString("login.field.password", comment: "")
-        loginButton.configuration?.title = NSLocalizedString("login.button.title", comment: "")
+        loginButton.setTitle(NSLocalizedString("login.button.title", comment: ""), for: .normal)
         if Auth.auth().currentUser != nil {
             navigateToMainApp()
         }
         setupKeyboardDismissOnTap()
+    }
+
+    private func applyBrandStyling() {
+        view.backgroundColor = UIColor(named: "AccentColor")
+        for field in [emailField, passwordField] {
+            guard let field else { continue }
+            field.backgroundColor = UIColor.systemBackground.withAlphaComponent(0.85)
+            field.layer.cornerRadius = 10
+            field.layer.masksToBounds = true
+            field.borderStyle = .none
+            field.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 12, height: 0))
+            field.leftViewMode = .always
+        }
     }
 
     // MARK: - IBAction

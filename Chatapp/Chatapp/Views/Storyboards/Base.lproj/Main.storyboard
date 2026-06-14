@@ -20,16 +20,14 @@
                             <stackView opaque="NO" contentMode="scaleAspectFit" axis="vertical" spacing="30" translatesAutoresizingMaskIntoConstraints="NO" id="KjL-2S-9Jj">
                                 <rect key="frame" x="40" y="262" width="334" height="372"/>
                                 <subviews>
-                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="person.circle.fill" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="lSN-ZQ-IbY">
+                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Logo" translatesAutoresizingMaskIntoConstraints="NO" id="lSN-ZQ-IbY">
                                         <rect key="frame" x="0.0" y="1" width="334" height="98.666666666666671"/>
-                                        <color key="tintColor" systemColor="underPageBackgroundColor"/>
                                         <constraints>
-                                            <constraint firstAttribute="height" constant="100" id="Y9P-uN-J32"/>
+                                            <constraint firstAttribute="height" constant="120" id="Y9P-uN-J32"/>
                                         </constraints>
                                     </imageView>
                                     <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="LST-Qn-Ubx">
                                         <rect key="frame" x="0.0" y="130" width="334" height="32"/>
-                                        <color key="backgroundColor" systemColor="systemGray3Color"/>
                                         <segments>
                                             <segment title="Sign In"/>
                                             <segment title="Sign Up"/>
@@ -48,11 +46,11 @@
                                     </textField>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="pSv-3A-a3p">
                                         <rect key="frame" x="0.0" y="319" width="334" height="53"/>
-                                        <color key="backgroundColor" systemColor="groupTableViewBackgroundColor"/>
                                         <state key="normal" title="Button"/>
-                                        <buttonConfiguration key="configuration" style="plain" title="LOGIN" titleAlignment="center">
-                                            <fontDescription key="titleFontDescription" name="MarkerFelt-Wide" family="Marker Felt" pointSize="30"/>
-                                            <color key="baseForegroundColor" systemColor="systemBrownColor"/>
+                                        <buttonConfiguration key="configuration" style="filled" title="LOGIN" titleAlignment="center">
+                                            <fontDescription key="titleFontDescription" type="boldSystem" pointSize="17"/>
+                                            <color key="baseForegroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                            <color key="baseBackgroundColor" systemColor="systemBrownColor"/>
                                         </buttonConfiguration>
                                         <connections>
                                             <action selector="loginButtonTapped:" destination="zGu-Wh-MrJ" eventType="touchUpInside" id="AAB-C1-005"/>
@@ -62,7 +60,7 @@
                             </stackView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="j6f-Gs-wRK"/>
-                        <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="KjL-2S-9Jj" firstAttribute="leading" secondItem="j6f-Gs-wRK" secondAttribute="leading" constant="40" id="QhB-tl-71t"/>
                             <constraint firstItem="j6f-Gs-wRK" firstAttribute="trailing" secondItem="KjL-2S-9Jj" secondAttribute="trailing" constant="40" id="VtL-XE-8e2"/>
