@@ -134,7 +134,6 @@ class AddFriendViewController: UIViewController {
                             self.statusMap[toUID] = .friends
                             self.filteredUsers = self.nonFriendUsers
                             self.tableView.reloadData()
-                            self.showAlert(NSLocalizedString("addfriend.status.nowFriends", comment: ""))
                         } else {
                             // Request may have been withdrawn; reload status
                             self.loadRelationships { self.tableView.reloadData() }
