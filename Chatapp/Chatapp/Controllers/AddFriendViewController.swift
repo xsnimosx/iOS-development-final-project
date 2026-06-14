@@ -158,7 +158,6 @@ class AddFriendViewController: UIViewController {
                         guard let self = self, error == nil else { return }
                         self.statusMap[toUID] = .sentPending
                         self.tableView.reloadData()
-                        self.showAlert(NSLocalizedString("addfriend.status.requestSentSuccess", comment: ""))
                     }
                 }
         }

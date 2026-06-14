@@ -16,9 +16,7 @@
 
 /* AddFriendViewController — Status Messages */
 "addfriend.status.alreadyFriends" = "You are already friends.";
-"addfriend.status.requestSent" = "Friend request sent.";
 "addfriend.status.nowFriends" = "You are now friends!";
-"addfriend.status.requestSentSuccess" = "Friend request sent!";
 
 /* AddFriendViewController — Status Badge */
 "addfriend.badge.pending" = "Pending...";
