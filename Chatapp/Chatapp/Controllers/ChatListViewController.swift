@@ -23,6 +23,7 @@ class ChatListViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        title = NSLocalizedString("chats.nav.title", comment: "")
         tableView.dataSource = self
         tableView.delegate = self
         startListening()
@@ -47,29 +48,11 @@ class ChatListViewController: UIViewController {
                     guard let names = data["participantNames"] as? [String: String],
                           let last = data["lastMessage"] as? String,
                           let ts = (data["lastUpdated"] as? Timestamp)?.dateValue() else { return nil }
-                    let otherName = names.first(where: { $0.key != uid })?.value ?? "未知"
+                    let otherName = names.first(where: { $0.key != uid })?.value ?? NSLocalizedString("chatlist.unknownUser", comment: "")
                     return Conversation(id: doc.documentID, otherUserName: otherName, lastMessage: last, timestamp: ts)
                 }
                 DispatchQueue.main.async { self?.tableView.reloadData() }
             }
-    }
-
-    // MARK: - IBActions
-    // TODO: Remove when friend feature is ready
-    @IBAction func addButtonTapped(_ sender: UIBarButtonItem) {
-        guard let uid = Auth.auth().currentUser?.uid else { return }
-        let convId = "test-conversation"
-        Firestore.firestore().collection("conversations").document(convId).setData([
-            "participants": [uid],
-            "participantNames": [uid: Auth.auth().currentUser?.email ?? "Me"],
-            "lastMessage": "",
-            "lastUpdated": Timestamp(date: Date())
-        ], merge: true) { [weak self] _ in
-            let testConv = Conversation(id: convId, otherUserName: "Test User", lastMessage: "", timestamp: Date())
-            DispatchQueue.main.async {
-                self?.performSegue(withIdentifier: "showChat", sender: testConv)
-            }
-        }
     }
 
     // MARK: - Segue
