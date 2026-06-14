@@ -28,6 +28,7 @@ class ChatListViewController: UIViewController {
         title = NSLocalizedString("chats.nav.title", comment: "")
         tableView.dataSource = self
         tableView.delegate = self
+        tableView.separatorStyle = .none
     }
 
     override func viewWillAppear(_ animated: Bool) {
