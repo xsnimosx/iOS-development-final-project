@@ -6,6 +6,9 @@ class MessageCell: UITableViewCell {
 
     var onImageLoaded: (() -> Void)?
 
+    private let timestampLabel = UILabel()
+    private var timestampHeightConstraint: NSLayoutConstraint!
+
     private let bubbleView = UIView()
     private let nameLabel = UILabel()
     private let contentLabel = UILabel()
@@ -27,6 +30,12 @@ class MessageCell: UITableViewCell {
     required init?(coder: NSCoder) { fatalError() }
 
     private func setupViews() {
+        timestampLabel.font = .systemFont(ofSize: 11)
+        timestampLabel.textColor = .tertiaryLabel
+        timestampLabel.textAlignment = .center
+        timestampLabel.clipsToBounds = true
+        timestampLabel.translatesAutoresizingMaskIntoConstraints = false
+
         bubbleView.layer.cornerRadius = 12
         bubbleView.clipsToBounds = true
         bubbleView.translatesAutoresizingMaskIntoConstraints = false
@@ -45,13 +54,19 @@ class MessageCell: UITableViewCell {
         bubbleView.addSubview(nameLabel)
         bubbleView.addSubview(contentLabel)
         bubbleView.addSubview(msgImageView)
+        contentView.addSubview(timestampLabel)
         contentView.addSubview(bubbleView)
 
         bubbleLeading = bubbleView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12)
         bubbleTrailing = bubbleView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12)
         textBottomConstraint = contentLabel.bottomAnchor.constraint(equalTo: bubbleView.bottomAnchor, constant: -6)
+        timestampHeightConstraint = timestampLabel.heightAnchor.constraint(equalToConstant: 0)
 
         NSLayoutConstraint.activate([
+            timestampLabel.topAnchor.constraint(equalTo: contentView.topAnchor),
+            timestampLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            timestampLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            timestampHeightConstraint,
             nameLabel.topAnchor.constraint(equalTo: bubbleView.topAnchor, constant: 6),
             nameLabel.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor, constant: 10),
             nameLabel.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant: -10),
@@ -62,14 +77,14 @@ class MessageCell: UITableViewCell {
             msgImageView.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor),
             msgImageView.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor),
             msgImageView.bottomAnchor.constraint(equalTo: bubbleView.bottomAnchor),
-            bubbleView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 4),
+            bubbleView.topAnchor.constraint(equalTo: timestampLabel.bottomAnchor, constant: 4),
             bubbleView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -4),
             bubbleView.widthAnchor.constraint(lessThanOrEqualTo: contentView.widthAnchor, multiplier: 0.72),
             bubbleLeading!
         ])
     }
 
-    func configure(with message: Message, isOwn: Bool) {
+    func configure(with message: Message, isOwn: Bool, showTimestamp: Bool = false) {
         let isImage = message.type == "image"
 
         nameLabel.isHidden = isOwn || isImage
@@ -94,6 +109,18 @@ class MessageCell: UITableViewCell {
         nameLabel.textColor = isOwn ? .white : .secondaryLabel
         bubbleLeading?.isActive = !isOwn
         bubbleTrailing?.isActive = isOwn
+
+        setTimestampVisible(showTimestamp, timestamp: message.timestamp)
+    }
+
+    private func setTimestampVisible(_ visible: Bool, timestamp: Date?) {
+        if visible, let ts = timestamp {
+            let f = DateFormatter()
+            f.dateStyle = .none
+            f.timeStyle = .short
+            timestampLabel.text = f.string(from: ts)
+        }
+        timestampHeightConstraint.constant = visible ? 18 : 0
     }
 
     private func loadImage(urlString: String?, displayWidth: CGFloat) {
