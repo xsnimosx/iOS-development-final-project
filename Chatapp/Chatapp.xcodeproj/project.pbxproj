@@ -290,8 +290,7 @@
 				514169BC2FDB2AB2007FE670 /* LocalCacheManager.swift in Sources */,
 				51565CAD2FDEA7770096FB15 /* MessageCell.swift in Sources */,
 				514169B52FDB2AB2007FE670 /* LoginViewController.swift in Sources */,
-				51565CD32FDF20040096FB15 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 51565CD22FDF20030096FB15 /* InfoPlist.strings */; };
-		51917A5F2FDC4EC0002959E9 /* FriendRequest.swift in Sources */,
+				51917A5F2FDC4EC0002959E9 /* FriendRequest.swift in Sources */,
 				514169B92FDB2AB2007FE670 /* SettingsViewController.swift in Sources */,
 				51917A5B2FDC4CED002959E9 /* FriendsViewController.swift in Sources */,
 				514169C52FDB2AB2007FE670 /* AppDelegate.swift in Sources */,
