@@ -1,0 +1,150 @@
+import UIKit
+
+class MessageCell: UITableViewCell {
+    static let reuseId = "MessageCell"
+    private static let imageCache = NSCache<NSString, UIImage>()
+
+    var onImageLoaded: (() -> Void)?
+
+    private let timestampLabel = UILabel()
+    private var timestampHeightConstraint: NSLayoutConstraint!
+
+    private let bubbleView = UIView()
+    private let nameLabel = UILabel()
+    private let contentLabel = UILabel()
+    private let msgImageView = UIImageView()
+
+    private var imageHeightConstraint: NSLayoutConstraint?
+    // Stored separately so it can be toggled off for image messages,
+    // avoiding a Required-priority conflict with msgImageView.bottom = bubbleView.bottom.
+    private var textBottomConstraint: NSLayoutConstraint?
+    private var bubbleLeading: NSLayoutConstraint?
+    private var bubbleTrailing: NSLayoutConstraint?
+
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        selectionStyle = .none
+        setupViews()
+    }
+
+    required init?(coder: NSCoder) { fatalError() }
+
+    private func setupViews() {
+        timestampLabel.font = .systemFont(ofSize: 11)
+        timestampLabel.textColor = .tertiaryLabel
+        timestampLabel.textAlignment = .center
+        timestampLabel.clipsToBounds = true
+        timestampLabel.translatesAutoresizingMaskIntoConstraints = false
+
+        bubbleView.layer.cornerRadius = 12
+        bubbleView.clipsToBounds = true
+        bubbleView.translatesAutoresizingMaskIntoConstraints = false
+
+        nameLabel.font = .systemFont(ofSize: 11, weight: .medium)
+        nameLabel.textColor = .secondaryLabel
+        nameLabel.translatesAutoresizingMaskIntoConstraints = false
+
+        contentLabel.numberOfLines = 0
+        contentLabel.font = .systemFont(ofSize: 15)
+        contentLabel.translatesAutoresizingMaskIntoConstraints = false
+
+        msgImageView.contentMode = .scaleAspectFill
+        msgImageView.translatesAutoresizingMaskIntoConstraints = false
+
+        bubbleView.addSubview(nameLabel)
+        bubbleView.addSubview(contentLabel)
+        bubbleView.addSubview(msgImageView)
+        contentView.addSubview(timestampLabel)
+        contentView.addSubview(bubbleView)
+
+        bubbleLeading = bubbleView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12)
+        bubbleTrailing = bubbleView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12)
+        textBottomConstraint = contentLabel.bottomAnchor.constraint(equalTo: bubbleView.bottomAnchor, constant: -6)
+        timestampHeightConstraint = timestampLabel.heightAnchor.constraint(equalToConstant: 0)
+
+        NSLayoutConstraint.activate([
+            timestampLabel.topAnchor.constraint(equalTo: contentView.topAnchor),
+            timestampLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            timestampLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            timestampHeightConstraint,
+            nameLabel.topAnchor.constraint(equalTo: bubbleView.topAnchor, constant: 6),
+            nameLabel.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor, constant: 10),
+            nameLabel.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant: -10),
+            contentLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 2),
+            contentLabel.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor, constant: 10),
+            contentLabel.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant: -10),
+            msgImageView.topAnchor.constraint(equalTo: bubbleView.topAnchor),
+            msgImageView.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor),
+            msgImageView.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor),
+            msgImageView.bottomAnchor.constraint(equalTo: bubbleView.bottomAnchor),
+            bubbleView.topAnchor.constraint(equalTo: timestampLabel.bottomAnchor, constant: 4),
+            bubbleView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -4),
+            bubbleView.widthAnchor.constraint(lessThanOrEqualTo: contentView.widthAnchor, multiplier: 0.72),
+            bubbleLeading!
+        ])
+    }
+
+    func configure(with message: Message, isOwn: Bool, showTimestamp: Bool = false) {
+        let isImage = message.type == "image"
+
+        nameLabel.isHidden = isOwn || isImage
+        nameLabel.text = isOwn ? nil : message.senderName
+        contentLabel.isHidden = isImage
+        contentLabel.text = isImage ? nil : message.content
+        msgImageView.isHidden = !isImage
+        msgImageView.image = nil
+
+        textBottomConstraint?.isActive = !isImage
+        imageHeightConstraint?.isActive = false
+
+        if isImage {
+            let maxWidth = max(contentView.bounds.width * 0.72 - 24, 160)
+            imageHeightConstraint = msgImageView.heightAnchor.constraint(equalToConstant: 160)
+            imageHeightConstraint?.isActive = true
+            loadImage(urlString: message.imageURL, displayWidth: maxWidth)
+        }
+
+        bubbleView.backgroundColor = isOwn ? .systemBlue : .secondarySystemFill
+        contentLabel.textColor = isOwn ? .white : .label
+        nameLabel.textColor = isOwn ? .white : .secondaryLabel
+        bubbleLeading?.isActive = !isOwn
+        bubbleTrailing?.isActive = isOwn
+
+        setTimestampVisible(showTimestamp, timestamp: message.timestamp)
+    }
+
+    private func setTimestampVisible(_ visible: Bool, timestamp: Date?) {
+        if visible, let ts = timestamp {
+            let f = DateFormatter()
+            f.dateStyle = .none
+            f.timeStyle = .short
+            timestampLabel.text = f.string(from: ts)
+        }
+        timestampHeightConstraint.constant = visible ? 18 : 0
+    }
+
+    private func loadImage(urlString: String?, displayWidth: CGFloat) {
+        guard let urlString = urlString, let url = URL(string: urlString) else { return }
+        let key = urlString as NSString
+
+        if let cached = MessageCell.imageCache.object(forKey: key) {
+            applyImage(cached, displayWidth: displayWidth)
+            return
+        }
+
+        URLSession.shared.dataTask(with: url) { [weak self] data, _, _ in
+            guard let data = data, let img = UIImage(data: data) else { return }
+            MessageCell.imageCache.setObject(img, forKey: key)
+            DispatchQueue.main.async {
+                self?.applyImage(img, displayWidth: displayWidth)
+                self?.onImageLoaded?()
+            }
+        }.resume()
+    }
+
+    private func applyImage(_ image: UIImage, displayWidth: CGFloat) {
+        msgImageView.image = image
+        let ratio = image.size.height / image.size.width
+        imageHeightConstraint?.constant = min(displayWidth * ratio, 280)
+    }
+}

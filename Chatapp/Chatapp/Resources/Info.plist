@@ -3,13 +3,14 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
-	<string>zh-Hant</string>
+	<string>en</string>
 	<key>CFBundleLocalizations</key>
 	<array>
+		<string>en</string>
 		<string>zh-Hant</string>
 	</array>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>選取要傳送的圖片</string>
+	<string>Select a photo to send.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

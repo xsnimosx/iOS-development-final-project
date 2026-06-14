@@ -30,10 +30,14 @@
 /* LoginViewController */
 "login.segment.signIn" = "Sign In";
 "login.segment.signUp" = "Sign Up";
+"login.field.username" = "Username (optional)";
 "login.field.email" = "Email";
 "login.field.password" = "Password";
-"login.button.title" = "Sign In";
+"login.field.confirmPassword" = "Confirm Password";
+"login.button.signIn" = "Sign In";
+"login.button.signUp" = "Sign Up";
 "login.error.emptyFields" = "Please enter your email and password";
+"login.error.passwordMismatch" = "Passwords do not match";
 "login.error.signInFailed" = "Sign in failed: %@";
 "login.error.registerFailed" = "Registration failed: %@";
 "login.alert.ok" = "OK";

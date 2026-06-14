@@ -7,7 +7,7 @@ import UIKit
 import FirebaseAuth
 import FirebaseFirestore
 
-private class PendingButton: UIButton {
+private class BadgeButton: UIButton {
     var tapAction: (() -> Void)?
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -134,7 +134,9 @@ class AddFriendViewController: UIViewController {
                             self.statusMap[toUID] = .friends
                             self.filteredUsers = self.nonFriendUsers
                             self.tableView.reloadData()
-                            self.showAlert(NSLocalizedString("addfriend.status.nowFriends", comment: ""))
+                            NotificationCenter.default.post(name: .friendRequestAccepted,
+                                                           object: nil,
+                                                           userInfo: ["friend": user])
                         } else {
                             // Request may have been withdrawn; reload status
                             self.loadRelationships { self.tableView.reloadData() }
@@ -143,24 +145,27 @@ class AddFriendViewController: UIViewController {
                 }
 
         case .none:
-            guard let displayName = Auth.auth().currentUser?.displayName
-                                    ?? Auth.auth().currentUser?.email else { return }
             let requestId = "\(currentUID)_\(toUID)"
-            Firestore.firestore().collection("friendRequests").document(requestId)
-                .setData([
-                    "fromUID": currentUID,
-                    "toUID": toUID,
-                    "fromName": displayName,
-                    "status": "pending",
-                    "createdAt": Timestamp(date: Date())
-                ]) { [weak self] error in
-                    DispatchQueue.main.async {
-                        guard let self = self, error == nil else { return }
-                        self.statusMap[toUID] = .sentPending
-                        self.tableView.reloadData()
-                        self.showAlert(NSLocalizedString("addfriend.status.requestSentSuccess", comment: ""))
+            let db = Firestore.firestore()
+            db.collection("users").document(currentUID).getDocument { [weak self] snap, _ in
+                guard let self = self else { return }
+                let fromName = (try? snap?.data(as: UserProfile.self))?.username
+                    ?? Auth.auth().currentUser?.email ?? ""
+                db.collection("friendRequests").document(requestId)
+                    .setData([
+                        "fromUID": currentUID,
+                        "toUID": toUID,
+                        "fromName": fromName,
+                        "status": "pending",
+                        "createdAt": Timestamp(date: Date())
+                    ]) { [weak self] error in
+                        DispatchQueue.main.async {
+                            guard let self = self, error == nil else { return }
+                            self.statusMap[toUID] = .sentPending
+                            self.tableView.reloadData()
+                        }
                     }
-                }
+            }
         }
     }
 
@@ -172,7 +177,7 @@ class AddFriendViewController: UIViewController {
             .delete { [weak self] _ in
                 DispatchQueue.main.async {
                     guard let self = self else { return }
-                    self.statusMap[toUID] = .none
+                    self.statusMap[toUID] = RelationshipStatus.none
                     self.filteredUsers = self.nonFriendUsers
                     self.tableView.reloadData()
                 }
@@ -181,11 +186,11 @@ class AddFriendViewController: UIViewController {
 
     // MARK: - Helpers
 
-    private func makeStatusBadge(for status: RelationshipStatus, onCancel: (() -> Void)? = nil) -> UIView? {
+    private func makeStatusBadge(for status: RelationshipStatus, onCancel: (() -> Void)? = nil, onAccept: (() -> Void)? = nil) -> UIView? {
         switch status {
         case .none, .friends: return nil
         case .sentPending:
-            let button = PendingButton()
+            let button = BadgeButton()
             button.setTitle(NSLocalizedString("addfriend.badge.pending", comment: ""), for: .normal)
             button.setTitleColor(.systemOrange, for: .normal)
             button.titleLabel?.font = .systemFont(ofSize: 13, weight: .semibold)
@@ -196,12 +201,16 @@ class AddFriendViewController: UIViewController {
             button.tapAction = onCancel
             return button
         case .receivedPending:
-            let label = UILabel()
-            label.text = NSLocalizedString("addfriend.badge.accept", comment: "")
-            label.font = .systemFont(ofSize: 12, weight: .semibold)
-            label.textColor = .systemGreen
-            label.sizeToFit()
-            return label
+            let button = BadgeButton()
+            button.setTitle(NSLocalizedString("addfriend.badge.accept", comment: ""), for: .normal)
+            button.setTitleColor(.systemGreen, for: .normal)
+            button.titleLabel?.font = .systemFont(ofSize: 13, weight: .semibold)
+            button.backgroundColor = .systemGray5
+            button.layer.cornerRadius = 14
+            button.contentEdgeInsets = UIEdgeInsets(top: 6, left: 14, bottom: 6, right: 14)
+            button.sizeToFit()
+            button.tapAction = onAccept
+            return button
         }
     }
 
@@ -217,7 +226,7 @@ extension AddFriendViewController: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         let base = nonFriendUsers
         filteredUsers = searchText.isEmpty ? base : base.filter {
-            $0.displayName.localizedCaseInsensitiveContains(searchText) ||
+            $0.username.localizedCaseInsensitiveContains(searchText) ||
             $0.email.localizedCaseInsensitiveContains(searchText)
         }
         tableView.reloadData()
@@ -231,10 +240,11 @@ extension AddFriendViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: AddFriendUserCell.reuseId, for: indexPath) as! AddFriendUserCell
         let user = filteredUsers[indexPath.row]
-        cell.configure(name: user.displayName, detail: user.email)
+        cell.configure(name: user.username, detail: user.email)
         let status = statusMap[user.id ?? ""] ?? .none
         let cancelAction: (() -> Void)? = status == .sentPending ? { [weak self] in self?.cancelFriendRequest(to: user) } : nil
-        cell.accessoryView = makeStatusBadge(for: status, onCancel: cancelAction)
+        let acceptAction: (() -> Void)? = status == .receivedPending ? { [weak self] in self?.handleTap(on: user) } : nil
+        cell.accessoryView = makeStatusBadge(for: status, onCancel: cancelAction, onAccept: acceptAction)
         return cell
     }
 }

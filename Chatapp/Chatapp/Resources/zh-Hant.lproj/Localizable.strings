@@ -17,11 +17,10 @@
 /* AddFriendViewController — 狀態訊息 */
 "addfriend.status.alreadyFriends" = "你們已經是好友了。";
 "addfriend.status.requestSent" = "好友邀請已送出。";
-"addfriend.status.nowFriends" = "已成功加為好友！";
 "addfriend.status.requestSentSuccess" = "好友邀請已送出！";
 
 /* AddFriendViewController — 狀態徽章 */
-"addfriend.badge.pending" = "待確認";
+"addfriend.badge.pending" = "待確認...";
 "addfriend.badge.accept" = "接受";
 
 /* AddFriendViewController — Alert 按鈕 */
@@ -30,11 +29,14 @@
 /* LoginViewController */
 "login.segment.signIn" = "登入";
 "login.segment.signUp" = "註冊";
+"login.field.username" = "用戶名稱（選填）";
 "login.field.email" = "電子郵件";
 "login.field.password" = "密碼";
+"login.field.confirmPassword" = "確認密碼";
 "login.button.signIn" = "登入";
 "login.button.signUp" = "註冊";
 "login.error.emptyFields" = "請填寫 Email 和密碼";
+"login.error.passwordMismatch" = "兩次輸入的密碼不相符";
 "login.error.signInFailed" = "登入失敗：%@";
 "login.error.registerFailed" = "註冊失敗：%@";
 "login.alert.ok" = "確定";

@@ -1,0 +1,69 @@
+
+/* Class = "UILabel"; text = "Name"; ObjectID = "5gd-h5-ksN"; */
+"5gd-h5-ksN.text" = "Name";
+
+/* Class = "UITabBarItem"; title = "Settings"; ObjectID = "7vy-fg-1KD"; */
+"7vy-fg-1KD.title" = "Settings";
+
+/* Class = "UILabel"; text = "Username"; ObjectID = "AFV-lbl-001"; */
+"AFV-lbl-001.text" = "Username";
+
+/* Class = "UINavigationItem"; title = "Add Friend"; ObjectID = "AFV-ni-001"; */
+"AFV-ni-001.title" = "Add Friend";
+
+/* Class = "UISearchBar"; placeholder = "Search by name or email..."; ObjectID = "AFV-sb-001"; */
+"AFV-sb-001.placeholder" = "Search by name or email...";
+
+/* Class = "UITextField"; placeholder = "Email"; ObjectID = "Etj-O4-JWw"; */
+"Etj-O4-JWw.placeholder" = "Email";
+
+/* Class = "UINavigationItem"; title = "Friends"; ObjectID = "FRV-ni-001"; */
+"FRV-ni-001.title" = "Friends";
+
+/* Class = "UITextField"; placeholder = "Password"; ObjectID = "HB7-YS-gpY"; */
+"HB7-YS-gpY.placeholder" = "Password";
+
+/* Class = "UITabBarItem"; title = "Chats"; ObjectID = "Ifu-SY-Mvc"; */
+"Ifu-SY-Mvc.title" = "Chats";
+
+/* Class = "UILabel"; text = "Last message..."; ObjectID = "Jc8-VU-ogF"; */
+"Jc8-VU-ogF.text" = "Last message...";
+
+/* Class = "UISegmentedControl"; LST-Qn-Ubx.segmentTitles[0] = "Sign In"; ObjectID = "LST-Qn-Ubx"; */
+"LST-Qn-Ubx.segmentTitles[0]" = "Sign In";
+
+/* Class = "UISegmentedControl"; LST-Qn-Ubx.segmentTitles[1] = "Sign Up"; ObjectID = "LST-Qn-Ubx"; */
+"LST-Qn-Ubx.segmentTitles[1]" = "Sign Up";
+
+/* Class = "UITabBarItem"; title = "Friends"; ObjectID = "PLU-ti-001"; */
+"PLU-ti-001.title" = "Friends";
+
+/* Class = "UILabel"; text = "Logout"; ObjectID = "PoM-QN-ROS"; */
+"PoM-QN-ROS.text" = "Logout";
+
+/* Class = "UINavigationItem"; title = "Chats"; ObjectID = "SOF-9J-0Qa"; */
+"SOF-9J-0Qa.title" = "Chats";
+
+/* Class = "UINavigationItem"; title = "Settings"; ObjectID = "SiA-YQ-cLF"; */
+"SiA-YQ-cLF.title" = "Settings";
+
+/* Class = "UILabel"; text = "12:00"; ObjectID = "TlT-5L-dA8"; */
+"TlT-5L-dA8.text" = "12:00";
+
+/* Class = "UITableViewSection"; headerTitle = "Profile"; ObjectID = "ZW3-Yu-XZU"; */
+"ZW3-Yu-XZU.headerTitle" = "Profile";
+
+/* Class = "UITextField"; placeholder = "Type a message..."; ObjectID = "aZp-F6-hPC"; */
+"aZp-F6-hPC.placeholder" = "Type a message...";
+
+/* Class = "UITableViewSection"; headerTitle = "Logout"; ObjectID = "gG4-hM-j1h"; */
+"gG4-hM-j1h.headerTitle" = "Logout";
+
+/* Class = "UILabel"; text = "Username"; ObjectID = "hWX-Tl-iGU"; */
+"hWX-Tl-iGU.text" = "Username";
+
+/* Class = "UILabel"; text = "email@example.com"; ObjectID = "irl-s8-Ua7"; */
+"irl-s8-Ua7.text" = "email@example.com";
+
+/* Class = "UIButton"; normalTitle = "LOGIN"; ObjectID = "pSv-3A-a3p"; */
+"pSv-3A-a3p.normalTitle" = "LOGIN";

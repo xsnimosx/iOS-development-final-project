@@ -13,7 +13,7 @@ class FriendCell: UserRowCell {
     static let reuseId = "FriendCell"
 
     func configure(user: UserProfile) {
-        configure(name: user.displayName)
+        configure(name: user.username, detail: user.email)
     }
 }
 
@@ -114,8 +114,8 @@ class RequestCell: UITableViewCell {
     @objc private func acceptTapped() { onAccept?() }
     @objc private func declineTapped() { onDecline?() }
 
-    func configure(request: FriendRequest, onAccept: @escaping () -> Void, onDecline: @escaping () -> Void) {
-        nameLabel.text = request.fromName
+    func configure(name: String, onAccept: @escaping () -> Void, onDecline: @escaping () -> Void) {
+        nameLabel.text = name
         self.onAccept = onAccept
         self.onDecline = onDecline
     }
@@ -129,6 +129,7 @@ class FriendsViewController: UIViewController {
 
     private var friends: [UserProfile] = []
     private var pendingRequests: [FriendRequest] = []
+    private var requestSenderNames: [String: String] = [:]
     private var requestsListener: ListenerRegistration?
 
     private enum Section { case pendingRequests, friends }
@@ -154,6 +155,8 @@ class FriendsViewController: UIViewController {
             target: self,
             action: #selector(addFriendTapped))
         startRequestsListener()
+        NotificationCenter.default.addObserver(self, selector: #selector(handleFriendAccepted(_:)),
+                                               name: .friendRequestAccepted, object: nil)
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -163,12 +166,26 @@ class FriendsViewController: UIViewController {
 
     deinit {
         requestsListener?.remove()
+        NotificationCenter.default.removeObserver(self)
     }
 
     @objc private func addFriendTapped() {
         let sb = UIStoryboard(name: "Main", bundle: nil)
         let navVC = sb.instantiateViewController(withIdentifier: "AddFriendNav")
         present(navVC, animated: true)
+    }
+
+    @objc private func handleFriendAccepted(_ notification: Notification) {
+        guard let friend = notification.userInfo?["friend"] as? UserProfile else { return }
+        guard !friends.contains(where: { $0.id == friend.id }) else { return }
+        let insertIdx = friends.firstIndex(where: { $0.username > friend.username }) ?? friends.count
+        friends.insert(friend, at: insertIdx)
+        let section = sections.firstIndex(of: .friends)!
+        tableView.performBatchUpdates({
+            tableView.insertRows(at: [IndexPath(row: insertIdx, section: section)], with: .automatic)
+        }, completion: { _ in
+            self.tableView.reloadSections(IndexSet(integer: section), with: .none)
+        })
     }
 
     // MARK: - Data
@@ -212,7 +229,7 @@ class FriendsViewController: UIViewController {
                 }
             }
             profileGroup.notify(queue: .main) { [weak self] in
-                self?.friends = profiles.sorted { $0.displayName < $1.displayName }
+                self?.friends = profiles.sorted { $0.username < $1.username }
                 self?.tableView.reloadData()
             }
         }
@@ -220,16 +237,38 @@ class FriendsViewController: UIViewController {
 
     private func startRequestsListener() {
         guard let uid = Auth.auth().currentUser?.uid else { return }
-        requestsListener = Firestore.firestore()
+        let db = Firestore.firestore()
+        requestsListener = db
             .collection("friendRequests")
             .whereField("toUID", isEqualTo: uid)
             .whereField("status", isEqualTo: "pending")
             .addSnapshotListener { [weak self] snapshot, _ in
-                self?.pendingRequests = snapshot?.documents.compactMap {
+                guard let self = self else { return }
+                let requests = snapshot?.documents.compactMap {
                     try? $0.data(as: FriendRequest.self)
                 } ?? []
-                DispatchQueue.main.async {
-                    self?.tableView.reloadData()
+                self.pendingRequests = requests
+
+                let group = DispatchGroup()
+                var names: [String: String] = [:]
+                let lock = NSLock()
+                for request in requests {
+                    group.enter()
+                    db.collection("users").document(request.fromUID).getDocument { snap, _ in
+                        defer { group.leave() }
+                        if let profile = try? snap?.data(as: UserProfile.self) {
+                            lock.lock()
+                            names[request.fromUID] = profile.username
+                            lock.unlock()
+                        }
+                    }
+                }
+                group.notify(queue: .main) { [weak self] in
+                    guard let self else { return }
+                    self.requestSenderNames = names
+                    self.tableView.reloadData()
+                    let count = self.pendingRequests.count
+                    self.tabBarItem.badgeValue = count > 0 ? "\(count)" : nil
                 }
             }
     }
@@ -243,26 +282,32 @@ class FriendsViewController: UIViewController {
         let participants = [currentUID, userID].sorted()
         let convId = participants.joined(separator: "_")
         let ref = db.collection("conversations").document(convId)
-        ref.getDocument { [weak self] snapshot, _ in
+
+        db.collection("users").document(currentUID).getDocument { [weak self] profileSnap, _ in
+            let currentUsername = (try? profileSnap?.data(as: UserProfile.self))?.username
+                ?? Auth.auth().currentUser?.email ?? ""
+            let names: [String: String] = [currentUID: currentUsername, userID: user.username]
             let navigate = {
                 DispatchQueue.main.async {
                     let sb = UIStoryboard(name: "Main", bundle: nil)
                     guard let chatVC = sb.instantiateViewController(withIdentifier: "ChatViewController")
                             as? ChatViewController else { return }
                     chatVC.conversationId = convId
+                    chatVC.otherUID = userID
                     self?.navigationController?.pushViewController(chatVC, animated: true)
                 }
             }
-            if snapshot?.exists == false {
-                ref.setData([
-                    "participants": participants,
-                    "participantNames": [currentUID: Auth.auth().currentUser?.email ?? "",
-                                         userID: user.displayName],
-                    "lastMessage": "",
-                    "lastUpdated": Timestamp(date: Date())
-                ]) { _ in navigate() }
-            } else {
-                navigate()
+            ref.getDocument { snapshot, _ in
+                if snapshot?.exists == false {
+                    ref.setData([
+                        "participants": participants,
+                        "participantNames": names,
+                        "lastMessage": "",
+                        "lastUpdated": Timestamp(date: Date())
+                    ]) { _ in navigate() }
+                } else {
+                    ref.updateData(["participantNames": names]) { _ in navigate() }
+                }
             }
         }
     }
@@ -271,9 +316,63 @@ class FriendsViewController: UIViewController {
 
     private func acceptRequest(_ request: FriendRequest) {
         guard let requestId = request.id else { return }
+
         Firestore.firestore().collection("friendRequests").document(requestId)
-            .updateData(["status": "accepted"]) { [weak self] _ in
-                self?.fetchFriends()
+            .updateData(["status": "accepted"]) { [weak self] error in
+                guard error == nil, let self = self else { return }
+                Firestore.firestore().collection("users").document(request.fromUID)
+                    .getDocument(completion: { [weak self] snap, _ in
+                        guard let self = self else { return }
+                        let newFriend = try? snap?.data(as: UserProfile.self)
+                        DispatchQueue.main.async {
+                            let friendInsertIdx: Int? = newFriend.map { friend in
+                                self.friends.firstIndex(where: { $0.username > friend.username }) ?? self.friends.count
+                            }
+
+                            let currentIdx = self.pendingRequests.firstIndex(where: { $0.id == requestId })
+
+                            if currentIdx == nil {
+                                // Path A: snapshot listener already cleared pendingRequests and called
+                                // reloadData(). Table's pending state is correct — just insert the friend.
+                                guard let friend = newFriend, let insertIdx = friendInsertIdx else { return }
+                                self.friends.insert(friend, at: insertIdx)
+                                let friendsSectionIdx = self.sections.firstIndex(of: .friends)!
+                                self.tableView.performBatchUpdates({
+                                    self.tableView.insertRows(at: [IndexPath(row: insertIdx, section: friendsSectionIdx)], with: .automatic)
+                                }, completion: { _ in
+                                    self.tableView.reloadSections(IndexSet(integer: friendsSectionIdx), with: .none)
+                                })
+                            } else {
+                                // Path B: handle both pending removal and friend insertion atomically.
+                                guard let currentIdx = currentIdx,
+                                      let pendingSectionIdx = self.sections.firstIndex(of: .pendingRequests) else { return }
+
+                                let willRemovePendingSection = self.pendingRequests.count == 1
+
+                                self.pendingRequests.remove(at: currentIdx)
+                                if let friend = newFriend, let idx = friendInsertIdx {
+                                    self.friends.insert(friend, at: idx)
+                                }
+
+                                let friendsSectionIdxNew = self.sections.firstIndex(of: .friends)!
+
+                                self.tableView.performBatchUpdates({
+                                    if willRemovePendingSection {
+                                        self.tableView.deleteSections(IndexSet(integer: pendingSectionIdx), with: .automatic)
+                                    } else {
+                                        self.tableView.deleteRows(at: [IndexPath(row: currentIdx, section: pendingSectionIdx)], with: .automatic)
+                                    }
+                                    if let idx = friendInsertIdx {
+                                        self.tableView.insertRows(at: [IndexPath(row: idx, section: friendsSectionIdxNew)], with: .automatic)
+                                    }
+                                }, completion: { _ in
+                                    var toReload = IndexSet(integer: friendsSectionIdxNew)
+                                    if !willRemovePendingSection { toReload.insert(pendingSectionIdx) }
+                                    self.tableView.reloadSections(toReload, with: .none)
+                                })
+                            }
+                        }
+                    })
             }
     }
 
@@ -289,7 +388,7 @@ class FriendsViewController: UIViewController {
         let friend = friends[indexPath.row]
         let alert = UIAlertController(
             title: NSLocalizedString("friends.remove.title", comment: ""),
-            message: String(format: NSLocalizedString("friends.remove.message", comment: ""), friend.displayName),
+            message: String(format: NSLocalizedString("friends.remove.message", comment: ""), friend.username),
             preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: NSLocalizedString("friends.remove.cancel", comment: ""), style: .cancel))
         alert.addAction(UIAlertAction(title: NSLocalizedString("friends.remove.confirm", comment: ""), style: .destructive) { [weak self] _ in
@@ -342,8 +441,9 @@ extension FriendsViewController: UITableViewDataSource {
         case .pendingRequests:
             let cell = tableView.dequeueReusableCell(withIdentifier: RequestCell.reuseId, for: indexPath) as! RequestCell
             let request = pendingRequests[indexPath.row]
+            let senderName = requestSenderNames[request.fromUID] ?? request.fromName
             cell.configure(
-                request: request,
+                name: senderName,
                 onAccept: { [weak self] in self?.acceptRequest(request) },
                 onDecline: { [weak self] in self?.declineRequest(request) })
             return cell
@@ -402,4 +502,8 @@ extension FriendsViewController: UITableViewDelegate {
         remove.image = UIImage(systemName: "person.fill.xmark")
         return UISwipeActionsConfiguration(actions: [remove])
     }
+}
+
+extension Notification.Name {
+    static let friendRequestAccepted = Notification.Name("friendRequestAccepted")
 }
