@@ -7,6 +7,16 @@ import UIKit
 import FirebaseAuth
 import FirebaseFirestore
 
+private class PendingButton: UIButton {
+    var tapAction: (() -> Void)?
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        addTarget(self, action: #selector(handleTap), for: .touchUpInside)
+    }
+    required init?(coder: NSCoder) { fatalError() }
+    @objc private func handleTap() { tapAction?() }
+}
+
 class AddFriendViewController: UIViewController {
 
     // MARK: - IBOutlets
@@ -111,7 +121,7 @@ class AddFriendViewController: UIViewController {
             showAlert(NSLocalizedString("addfriend.status.alreadyFriends", comment: ""))
 
         case .sentPending:
-            showAlert(NSLocalizedString("addfriend.status.requestSent", comment: ""))
+            break
 
         case .receivedPending:
             // Discord-style: they already sent us a request — just accept it
@@ -154,23 +164,45 @@ class AddFriendViewController: UIViewController {
         }
     }
 
+    private func cancelFriendRequest(to user: UserProfile) {
+        guard let currentUID = Auth.auth().currentUser?.uid,
+              let toUID = user.id else { return }
+        let requestId = "\(currentUID)_\(toUID)"
+        Firestore.firestore().collection("friendRequests").document(requestId)
+            .delete { [weak self] _ in
+                DispatchQueue.main.async {
+                    guard let self = self else { return }
+                    self.statusMap[toUID] = .none
+                    self.filteredUsers = self.nonFriendUsers
+                    self.tableView.reloadData()
+                }
+            }
+    }
+
     // MARK: - Helpers
 
-    private func makeStatusBadge(for status: RelationshipStatus) -> UIView? {
-        let text: String
-        let color: UIColor
+    private func makeStatusBadge(for status: RelationshipStatus, onCancel: (() -> Void)? = nil) -> UIView? {
         switch status {
-        case .none: return nil
-        case .sentPending:  text = NSLocalizedString("addfriend.badge.pending", comment: ""); color = .systemOrange
-        case .receivedPending: text = NSLocalizedString("addfriend.badge.accept", comment: ""); color = .systemGreen
-        case .friends: return nil
+        case .none, .friends: return nil
+        case .sentPending:
+            let button = PendingButton()
+            button.setTitle(NSLocalizedString("addfriend.badge.pending", comment: ""), for: .normal)
+            button.setTitleColor(.systemOrange, for: .normal)
+            button.titleLabel?.font = .systemFont(ofSize: 13, weight: .semibold)
+            button.backgroundColor = .systemGray5
+            button.layer.cornerRadius = 14
+            button.contentEdgeInsets = UIEdgeInsets(top: 6, left: 14, bottom: 6, right: 14)
+            button.sizeToFit()
+            button.tapAction = onCancel
+            return button
+        case .receivedPending:
+            let label = UILabel()
+            label.text = NSLocalizedString("addfriend.badge.accept", comment: "")
+            label.font = .systemFont(ofSize: 12, weight: .semibold)
+            label.textColor = .systemGreen
+            label.sizeToFit()
+            return label
         }
-        let label = UILabel()
-        label.text = text
-        label.font = .systemFont(ofSize: 12, weight: .semibold)
-        label.textColor = color
-        label.sizeToFit()
-        return label
     }
 
     private func showAlert(_ message: String) {
@@ -200,7 +232,9 @@ extension AddFriendViewController: UITableViewDataSource {
         let cell = tableView.dequeueReusableCell(withIdentifier: AddFriendUserCell.reuseId, for: indexPath) as! AddFriendUserCell
         let user = filteredUsers[indexPath.row]
         cell.configure(name: user.displayName, detail: user.email)
-        cell.accessoryView = makeStatusBadge(for: statusMap[user.id ?? ""] ?? .none)
+        let status = statusMap[user.id ?? ""] ?? .none
+        let cancelAction: (() -> Void)? = status == .sentPending ? { [weak self] in self?.cancelFriendRequest(to: user) } : nil
+        cell.accessoryView = makeStatusBadge(for: status, onCancel: cancelAction)
         return cell
     }
 }

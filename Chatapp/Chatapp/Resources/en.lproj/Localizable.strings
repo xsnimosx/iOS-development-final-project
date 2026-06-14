@@ -21,7 +21,7 @@
 "addfriend.status.requestSentSuccess" = "Friend request sent!";
 
 /* AddFriendViewController — Status Badge */
-"addfriend.badge.pending" = "Pending";
+"addfriend.badge.pending" = "Pending...";
 "addfriend.badge.accept" = "Accept";
 
 /* AddFriendViewController — Alert Button */
