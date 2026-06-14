@@ -51,7 +51,8 @@ class UserAvatarCell: UITableViewCell {
 
     func startEditing() {
         preEditUsername = nameLabel.text ?? ""
-        usernameField.text = preEditUsername
+        usernameField.text = ""
+        usernameField.placeholder = preEditUsername
         nameLabel.alpha = 0
         detailLabel.alpha = 0
         usernameField.isHidden = false
