@@ -10,7 +10,6 @@ class UserAvatarCell: UITableViewCell {
     var onUsernameConfirmed: ((String) -> Void)?
 
     private var preEditUsername: String = ""
-    private var savedDetailHidden: Bool = false
 
     private let usernameField: UITextField = {
         let tf = UITextField()
@@ -45,56 +44,31 @@ class UserAvatarCell: UITableViewCell {
     }
 
     func configure(name: String, detail: String? = nil) {
-        nameLabel.attributedText = makeNameText(name)
+        nameLabel.text = name
         detailLabel.text = detail
         detailLabel.isHidden = detail == nil || detail!.isEmpty
     }
 
     func startEditing() {
-        preEditUsername = nameLabel.attributedText?.string
-            .components(separatedBy: "  ").first ?? nameLabel.text ?? ""
-        savedDetailHidden = detailLabel.isHidden
-        usernameField.placeholder = preEditUsername
-        usernameField.text = ""
-        nameLabel.isHidden = true
-        detailLabel.isHidden = true
+        preEditUsername = nameLabel.text ?? ""
+        usernameField.text = preEditUsername
+        nameLabel.alpha = 0
+        detailLabel.alpha = 0
         usernameField.isHidden = false
         usernameField.becomeFirstResponder()
     }
 
     private func confirmEdit() {
         let trimmed = usernameField.text?.trimmingCharacters(in: .whitespaces) ?? ""
-        let isValid = isValidUsername(trimmed)
-        let finalName = isValid ? trimmed : preEditUsername
-        nameLabel.attributedText = makeNameText(finalName)
-        nameLabel.isHidden = false
-        detailLabel.isHidden = savedDetailHidden
+        let finalName = trimmed.isEmpty ? preEditUsername : trimmed
+        nameLabel.text = finalName
+        nameLabel.alpha = 1
+        detailLabel.alpha = 1
         usernameField.isHidden = true
         usernameField.resignFirstResponder()
-        if isValid && finalName != preEditUsername {
+        if finalName != preEditUsername {
             onUsernameConfirmed?(finalName)
         }
-    }
-
-    private func isValidUsername(_ name: String) -> Bool {
-        guard !name.isEmpty else { return false }
-        let allowed = CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "_"))
-        return name.unicodeScalars.allSatisfy { allowed.contains($0) }
-    }
-
-    private func makeNameText(_ name: String) -> NSAttributedString {
-        let font = nameLabel.font ?? UIFont.boldSystemFont(ofSize: 17)
-        let iconSize = font.pointSize * 0.65
-        let config = UIImage.SymbolConfiguration(pointSize: iconSize, weight: .regular)
-        let icon = UIImage(systemName: "pencil", withConfiguration: config)?
-            .withTintColor(.tertiaryLabel, renderingMode: .alwaysOriginal)
-        let attachment = NSTextAttachment()
-        attachment.image = icon
-
-        let result = NSMutableAttributedString(
-            string: name + "  ", attributes: [.font: font])
-        result.append(NSAttributedString(attachment: attachment))
-        return result
     }
 }
 
