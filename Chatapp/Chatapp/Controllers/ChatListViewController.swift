@@ -26,6 +26,10 @@ class ChatListViewController: UIViewController {
         title = NSLocalizedString("chats.nav.title", comment: "")
         tableView.dataSource = self
         tableView.delegate = self
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
         startListening()
     }
 
@@ -36,22 +40,57 @@ class ChatListViewController: UIViewController {
 
     // MARK: - Firestore
     private func startListening() {
+        listener?.remove()
+        conversations = []
+        tableView.reloadData()
+
         guard let uid = Auth.auth().currentUser?.uid else { return }
-        listener = Firestore.firestore()
+        let db = Firestore.firestore()
+
+        listener = db
             .collection("conversations")
             .whereField("participants", arrayContains: uid)
             .order(by: "lastUpdated", descending: true)
             .addSnapshotListener { [weak self] snapshot, _ in
-                guard let docs = snapshot?.documents else { return }
-                self?.conversations = docs.compactMap { doc -> Conversation? in
-                    let data = doc.data()
-                    guard let names = data["participantNames"] as? [String: String],
-                          let last = data["lastMessage"] as? String,
-                          let ts = (data["lastUpdated"] as? Timestamp)?.dateValue() else { return nil }
-                    let otherName = names.first(where: { $0.key != uid })?.value ?? NSLocalizedString("chatlist.unknownUser", comment: "")
-                    return Conversation(id: doc.documentID, otherUserName: otherName, lastMessage: last, timestamp: ts)
+                guard let self = self,
+                      let docs = snapshot?.documents, !docs.isEmpty else {
+                    DispatchQueue.main.async {
+                        self?.conversations = []
+                        self?.tableView.reloadData()
+                    }
+                    return
                 }
-                DispatchQueue.main.async { self?.tableView.reloadData() }
+
+                let group = DispatchGroup()
+                var indexed: [(Int, Conversation)] = []
+                let lock = NSLock()
+
+                for (i, doc) in docs.enumerated() {
+                    let data = doc.data()
+                    guard let participants = data["participants"] as? [String],
+                          let last = data["lastMessage"] as? String,
+                          let ts = (data["lastUpdated"] as? Timestamp)?.dateValue() else { continue }
+                    let otherUID = participants.first(where: { $0 != uid }) ?? ""
+
+                    group.enter()
+                    db.collection("users").document(otherUID).getDocument { snap, _ in
+                        defer { group.leave() }
+                        let name: String
+                        if let profile = try? snap?.data(as: UserProfile.self) {
+                            name = profile.username
+                        } else {
+                            name = NSLocalizedString("chatlist.unknownUser", comment: "")
+                        }
+                        lock.lock()
+                        indexed.append((i, Conversation(id: doc.documentID, otherUserName: name, lastMessage: last, timestamp: ts)))
+                        lock.unlock()
+                    }
+                }
+
+                group.notify(queue: .main) { [weak self] in
+                    self?.conversations = indexed.sorted { $0.0 < $1.0 }.map { $0.1 }
+                    self?.tableView.reloadData()
+                }
             }
     }
 
