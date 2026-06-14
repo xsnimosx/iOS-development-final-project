@@ -59,7 +59,7 @@
 		514169D12FDB2AB2007FE670 /* UserAvatarCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserAvatarCell.swift; sourceTree = "<group>"; };
 		51565C9B2FDDB0B20096FB15 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		51565C9D2FDDB1800096FB15 /* UserRowCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserRowCell.swift; sourceTree = "<group>"; };
-		51565CA12FDDE0040096FB15 /* Chatapp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Chatapp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		51565CA12FDDE0040096FB15 /* Chatapp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = Chatapp.app; path = "/Users/snimos/iOS-development-final-project/Chatapp/build/Debug-iphoneos/Chatapp.app"; sourceTree = "<absolute>"; };
 		51565CA22FDDE9710096FB15 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = Localizable.strings; sourceTree = "<group>"; };
 		51917A5A2FDC4CED002959E9 /* FriendsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FriendsViewController.swift; sourceTree = "<group>"; };
 		51917A5C2FDC4CF7002959E9 /* AddFriendViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddFriendViewController.swift; sourceTree = "<group>"; };
@@ -174,7 +174,6 @@
 			children = (
 				514169B22FDB2AB2007FE670 /* Chatapp */,
 				51AC294B2FB318A400493A46 /* Frameworks */,
-				51565CA12FDDE0040096FB15 /* Chatapp.app */,
 			);
 			sourceTree = "<group>";
 		};

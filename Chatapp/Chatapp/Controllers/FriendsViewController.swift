@@ -367,6 +367,24 @@ extension FriendsViewController: UITableViewDelegate {
         }
     }
 
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        guard let title = self.tableView(tableView, titleForHeaderInSection: section) else { return nil }
+
+        let label = UILabel()
+        label.text = title
+        label.font = UIFont.boldSystemFont(ofSize: 13)
+        label.textColor = .secondaryLabel
+
+        let container = UIView()
+        container.addSubview(label)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            label.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 16),
+            label.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -8)
+        ])
+        return container
+    }
+    
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         guard sections[indexPath.section] == .friends else { return }

@@ -40,7 +40,25 @@ class SettingsViewController: UITableViewController {
         case 0: return NSLocalizedString("settings.section.profile", comment: "")
         case 1: return NSLocalizedString("settings.section.logout", comment: "")
         default: return nil
-        }
+        }	
+    }
+    
+    override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        guard let title = self.tableView(tableView, titleForHeaderInSection: section) else { return nil }
+
+        let label = UILabel()
+        label.text = title
+        label.font = UIFont.boldSystemFont(ofSize: 13)
+        label.textColor = .secondaryLabel
+
+        let container = UIView()
+        container.addSubview(label)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            label.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 16),
+            label.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -8)
+        ])
+        return container
     }
 
     override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {

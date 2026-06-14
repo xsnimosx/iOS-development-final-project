@@ -18,16 +18,16 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleAspectFit" axis="vertical" spacing="30" translatesAutoresizingMaskIntoConstraints="NO" id="KjL-2S-9Jj">
-                                <rect key="frame" x="40" y="262" width="334" height="372"/>
+                                <rect key="frame" x="40" y="261.33333333333337" width="334" height="373.33333333333337"/>
                                 <subviews>
                                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Logo" translatesAutoresizingMaskIntoConstraints="NO" id="lSN-ZQ-IbY">
-                                        <rect key="frame" x="0.0" y="1" width="334" height="98.666666666666671"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="334" height="120"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="120" id="Y9P-uN-J32"/>
                                         </constraints>
                                     </imageView>
                                     <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="LST-Qn-Ubx">
-                                        <rect key="frame" x="0.0" y="130" width="334" height="32"/>
+                                        <rect key="frame" x="0.0" y="150" width="334" height="32"/>
                                         <segments>
                                             <segment title="Sign In"/>
                                             <segment title="Sign Up"/>
@@ -35,17 +35,17 @@
                                         <color key="selectedSegmentTintColor" systemColor="systemBrownColor"/>
                                     </segmentedControl>
                                     <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Email" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="Etj-O4-JWw">
-                                        <rect key="frame" x="0.0" y="191" width="334" height="34"/>
+                                        <rect key="frame" x="0.0" y="211" width="334" height="34"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                         <textInputTraits key="textInputTraits"/>
                                     </textField>
                                     <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Password" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="HB7-YS-gpY">
-                                        <rect key="frame" x="0.0" y="255" width="334" height="34"/>
+                                        <rect key="frame" x="0.0" y="275.00000000000006" width="334" height="34"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                         <textInputTraits key="textInputTraits" secureTextEntry="YES"/>
                                     </textField>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="pSv-3A-a3p">
-                                        <rect key="frame" x="0.0" y="319" width="334" height="53"/>
+                                        <rect key="frame" x="0.0" y="339.00000000000006" width="334" height="34.333333333333314"/>
                                         <state key="normal" title="Button"/>
                                         <buttonConfiguration key="configuration" style="filled" title="LOGIN" titleAlignment="center">
                                             <fontDescription key="titleFontDescription" type="boldSystem" pointSize="17"/>
@@ -600,6 +600,7 @@
     </scenes>
     <color key="tintColor" name="AccentColor"/>
     <resources>
+        <image name="Logo" width="573.33331298828125" height="599"/>
         <image name="gearshape" catalog="system" width="128" height="123"/>
         <image name="gearshape.fill" catalog="system" width="128" height="123"/>
         <image name="message" catalog="system" width="128" height="116"/>
@@ -607,16 +608,12 @@
         <image name="paperplane.fill" catalog="system" width="128" height="119"/>
         <image name="person.2" catalog="system" width="128" height="87"/>
         <image name="person.2.fill" catalog="system" width="128" height="86"/>
-        <image name="person.circle.fill" catalog="system" width="128" height="123"/>
         <image name="person.crop.circle" catalog="system" width="128" height="123"/>
         <image name="person.crop.circle.fill" catalog="system" width="128" height="123"/>
         <image name="photo" catalog="system" width="128" height="93"/>
         <namedColor name="AccentColor">
             <color red="0.95300000905990601" green="0.86299997568130493" blue="0.74900001287460327" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
-        <systemColor name="groupTableViewBackgroundColor">
-            <color red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-        </systemColor>
         <systemColor name="secondaryLabelColor">
             <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
@@ -626,17 +623,11 @@
         <systemColor name="systemBrownColor">
             <color red="0.63529411764705879" green="0.51764705882352946" blue="0.36862745098039218" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
-        <systemColor name="systemGray3Color">
-            <color red="0.7803921568627451" green="0.7803921568627451" blue="0.80000000000000004" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-        </systemColor>
         <systemColor name="systemGray5Color">
             <color red="0.89803921568627454" green="0.89803921568627454" blue="0.91764705882352937" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemGroupedBackgroundColor">
             <color red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-        </systemColor>
-        <systemColor name="underPageBackgroundColor">
-            <color red="0.70980392156862748" green="0.71764705882352942" blue="0.74117647058823533" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>
