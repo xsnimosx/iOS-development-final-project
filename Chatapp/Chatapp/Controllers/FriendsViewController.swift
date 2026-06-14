@@ -13,7 +13,7 @@ class FriendCell: UserRowCell {
     static let reuseId = "FriendCell"
 
     func configure(user: UserProfile) {
-        configure(name: user.displayName)
+        configure(name: user.username, detail: user.email)
     }
 }
 
@@ -212,7 +212,7 @@ class FriendsViewController: UIViewController {
                 }
             }
             profileGroup.notify(queue: .main) { [weak self] in
-                self?.friends = profiles.sorted { $0.displayName < $1.displayName }
+                self?.friends = profiles.sorted { $0.username < $1.username }
                 self?.tableView.reloadData()
             }
         }
@@ -257,7 +257,7 @@ class FriendsViewController: UIViewController {
                 ref.setData([
                     "participants": participants,
                     "participantNames": [currentUID: Auth.auth().currentUser?.email ?? "",
-                                         userID: user.displayName],
+                                         userID: user.username],
                     "lastMessage": "",
                     "lastUpdated": Timestamp(date: Date())
                 ]) { _ in navigate() }
@@ -289,7 +289,7 @@ class FriendsViewController: UIViewController {
         let friend = friends[indexPath.row]
         let alert = UIAlertController(
             title: NSLocalizedString("friends.remove.title", comment: ""),
-            message: String(format: NSLocalizedString("friends.remove.message", comment: ""), friend.displayName),
+            message: String(format: NSLocalizedString("friends.remove.message", comment: ""), friend.username),
             preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: NSLocalizedString("friends.remove.cancel", comment: ""), style: .cancel))
         alert.addAction(UIAlertAction(title: NSLocalizedString("friends.remove.confirm", comment: ""), style: .destructive) { [weak self] _ in
