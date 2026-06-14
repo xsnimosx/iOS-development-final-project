@@ -40,6 +40,14 @@ class LoginViewController: UIViewController {
             field.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 12, height: 0))
             field.leftViewMode = .always
         }
+        emailField.keyboardType = .emailAddress
+        emailField.textContentType = .emailAddress
+        emailField.autocapitalizationType = .none
+        emailField.autocorrectionType = .no
+
+        passwordField.isSecureTextEntry = true
+        passwordField.autocapitalizationType = .none
+        passwordField.autocorrectionType = .no
     }
 
     // MARK: - Actions
@@ -49,8 +57,10 @@ class LoginViewController: UIViewController {
     }
 
     private func updateButtonTitle() {
-        let key = segmentedControl.selectedSegmentIndex == 0 ? "login.button.signIn" : "login.button.signUp"
+        let isSignIn = segmentedControl.selectedSegmentIndex == 0
+        let key = isSignIn ? "login.button.signIn" : "login.button.signUp"
         loginButton.setTitle(NSLocalizedString(key, comment: ""), for: .normal)
+        passwordField.textContentType = isSignIn ? .password : .newPassword
     }
 
     @IBAction func loginButtonTapped(_ sender: UIButton) {
