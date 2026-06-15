@@ -546,18 +546,21 @@ class LoginViewController: UIViewController {
         lastSignInEmailLength = emailLength
         lastSignInPasswordLength = passwordLength
 
-        autoLoginTimer?.invalidate()
-
         // Only auto-submit on AutoFill, and only once both fields are populated.
         // Manual typing must NEVER auto-submit: otherwise each keystroke fires a
         // failed sign-in, spamming alerts and tripping Firebase's rate limiter
         // (auth/too-many-requests → "blocked request").
+        //
+        // Invalidate only AFTER this guard, not before: picking a saved credential
+        // fills both username and password, so a non-qualifying trailing event (the
+        // username re-fill) must not cancel the submit the password event scheduled.
         guard segmentedControl.selectedSegmentIndex == 0,
               jump > 1,
               emailLength > 0, passwordLength > 0 else { return }
 
         // Debounce: iCloud Password fills email then password as two separate change
         // events, so wait briefly for both to settle before submitting.
+        autoLoginTimer?.invalidate()
         autoLoginTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: false) { [weak self] _ in
             self?.loginButtonTapped()
         }
