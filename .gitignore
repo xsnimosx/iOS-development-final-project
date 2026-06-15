@@ -1,3 +1,4 @@
 *.xcuserstate
 GoogleService-Info.plist
 .claude/
+.DS_Store
