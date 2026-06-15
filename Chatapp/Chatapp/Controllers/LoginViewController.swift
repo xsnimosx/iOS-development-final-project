@@ -44,6 +44,12 @@ class LoginViewController: UIViewController {
     private let loginButton = UIButton(type: .system)
     private var autoLoginTimer: Timer?
 
+    // Last seen lengths of the sign-in credential fields, used to tell an AutoFill
+    // (whole value inserted in one event → large jump) from manual typing (+1 per
+    // keystroke). Only AutoFill should auto-submit.
+    private var lastSignInEmailLength = 0
+    private var lastSignInPasswordLength = 0
+
     // Most recent keyboard height (0 when hidden); used to re-rest the button
     // above the keyboard after a mode switch changes the form height.
     private var lastKeyboardHeight: CGFloat = 0
@@ -248,6 +254,10 @@ class LoginViewController: UIViewController {
         // Strong Password suggestion).
         if isSignIn {
             signInEmailField.text = signUpEmailField.text
+            // Setting .text programmatically doesn't fire textDidChange; keep the
+            // tracked length in sync so the next manual edit isn't misread as a bulk
+            // AutoFill insertion.
+            lastSignInEmailLength = signInEmailField.text?.count ?? 0
         } else {
             signUpEmailField.text = signInEmailField.text
         }
@@ -449,7 +459,7 @@ class LoginViewController: UIViewController {
         for field in [signInEmailField, signInPasswordField] {
             NotificationCenter.default.addObserver(
                 self,
-                selector: #selector(credentialFieldChanged),
+                selector: #selector(credentialFieldChanged(_:)),
                 name: UITextField.textDidChangeNotification,
                 object: field
             )
@@ -523,16 +533,31 @@ class LoginViewController: UIViewController {
         }
     }
 
-    @objc private func credentialFieldChanged() {
-        guard segmentedControl.selectedSegmentIndex == 0,
-              let email = signInEmailField.text, !email.isEmpty,
-              let password = signInPasswordField.text, !password.isEmpty else {
-            autoLoginTimer?.invalidate()
-            return
-        }
+    @objc private func credentialFieldChanged(_ note: Notification) {
+        let changedField = note.object as? UITextField
+
+        let emailLength = signInEmailField.text?.count ?? 0
+        let passwordLength = signInPasswordField.text?.count ?? 0
+        // How many characters this single change added to the field that fired it.
+        // AutoFill inserts the whole value at once (jump > 1); manual typing is +1.
+        let jump: Int = changedField == signInEmailField
+            ? emailLength - lastSignInEmailLength
+            : passwordLength - lastSignInPasswordLength
+        lastSignInEmailLength = emailLength
+        lastSignInPasswordLength = passwordLength
+
         autoLoginTimer?.invalidate()
-        // Debounce: iCloud Password fills email then password as two separate change events,
-        // so wait briefly for both to settle before submitting.
+
+        // Only auto-submit on AutoFill, and only once both fields are populated.
+        // Manual typing must NEVER auto-submit: otherwise each keystroke fires a
+        // failed sign-in, spamming alerts and tripping Firebase's rate limiter
+        // (auth/too-many-requests → "blocked request").
+        guard segmentedControl.selectedSegmentIndex == 0,
+              jump > 1,
+              emailLength > 0, passwordLength > 0 else { return }
+
+        // Debounce: iCloud Password fills email then password as two separate change
+        // events, so wait briefly for both to settle before submitting.
         autoLoginTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: false) { [weak self] _ in
             self?.loginButtonTapped()
         }
