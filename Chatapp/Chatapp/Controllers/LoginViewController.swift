@@ -15,15 +15,33 @@ class LoginViewController: UIViewController {
     private let formStack = UIStackView()
     private let logoImageView = UIImageView()
     private let segmentedControl = UISegmentedControl(items: ["", ""])
-    private let usernameField = UITextField()
-    private let emailField = UITextField()
-    private let passwordField = UITextField()
-    private let confirmPasswordField = UITextField()
+
+    // Sign-in and Sign-up use *separate* field instances so each keeps a fixed,
+    // never-mutated textContentType. Reusing one field and flipping its
+    // textContentType corrupts iOS's cached AutoFill context (the .newPassword
+    // "Strong Password" session bled into Sign-in). Separate instances make that
+    // class of bug structurally impossible.
+    private let signUpUsernameField = UITextField()
+    private let signInEmailField = UITextField()
+    private let signUpEmailField = UITextField()
+    private let signInPasswordField = UITextField()
+    private let signUpPasswordField = UITextField()
+    private let signUpConfirmPasswordField = UITextField()
+
     private let loginButton = UIButton(type: .system)
     private var autoLoginTimer: Timer?
 
+    // Most recent keyboard height (0 when hidden); used to re-rest the button
+    // above the keyboard after a mode switch changes the form height.
+    private var lastKeyboardHeight: CGFloat = 0
+
     // Gap kept between the login button and the top of the keyboard
     private let buttonKeyboardGap: CGFloat = 12
+
+    private var allFields: [UITextField] {
+        [signUpUsernameField, signInEmailField, signUpEmailField,
+         signInPasswordField, signUpPasswordField, signUpConfirmPasswordField]
+    }
 
     // MARK: - Lifecycle
 
@@ -36,7 +54,7 @@ class LoginViewController: UIViewController {
         localizeUI()
         segmentedControl.selectedSegmentIndex = 0
         updateModeUI(animated: false)
-        setupKeyboardDismissOnTap()
+        setupKeyboardDismissOnTapExcludingSegment()
         setupKeyboardObservers()
         if Auth.auth().currentUser != nil {
             navigateToMainApp()
@@ -75,16 +93,20 @@ class LoginViewController: UIViewController {
         segmentedControl.addTarget(self, action: #selector(segmentChanged), for: .valueChanged)
         loginButton.addTarget(self, action: #selector(loginButtonTapped), for: .touchUpInside)
 
-        for field in [usernameField, emailField, passwordField, confirmPasswordField] {
+        for field in allFields {
             field.delegate = self
         }
 
         formStack.addArrangedSubview(logoImageView)
         formStack.addArrangedSubview(segmentedControl)
-        formStack.addArrangedSubview(usernameField)
-        formStack.addArrangedSubview(emailField)
-        formStack.addArrangedSubview(passwordField)
-        formStack.addArrangedSubview(confirmPasswordField)
+        // Two email/password instances sit adjacent; only one of each is visible
+        // per mode, so the stack still reads as a single email/password row.
+        formStack.addArrangedSubview(signUpUsernameField)
+        formStack.addArrangedSubview(signInEmailField)
+        formStack.addArrangedSubview(signUpEmailField)
+        formStack.addArrangedSubview(signInPasswordField)
+        formStack.addArrangedSubview(signUpPasswordField)
+        formStack.addArrangedSubview(signUpConfirmPasswordField)
         formStack.addArrangedSubview(loginButton)
     }
 
@@ -113,17 +135,16 @@ class LoginViewController: UIViewController {
 
         logoImageView.heightAnchor.constraint(equalToConstant: 120).isActive = true
         segmentedControl.heightAnchor.constraint(equalToConstant: 32).isActive = true
-        usernameField.heightAnchor.constraint(equalToConstant: 36).isActive = true
-        emailField.heightAnchor.constraint(equalToConstant: 36).isActive = true
-        passwordField.heightAnchor.constraint(equalToConstant: 36).isActive = true
-        confirmPasswordField.heightAnchor.constraint(equalToConstant: 36).isActive = true
+        for field in allFields {
+            field.heightAnchor.constraint(equalToConstant: 36).isActive = true
+        }
         loginButton.heightAnchor.constraint(equalToConstant: 36).isActive = true
     }
 
     private func applyBrandStyling() {
         let brandBrown = UIColor(red: 0.635, green: 0.518, blue: 0.369, alpha: 1)
 
-        for field in [usernameField, emailField, passwordField, confirmPasswordField] {
+        for field in allFields {
             field.backgroundColor = UIColor.systemBackground.withAlphaComponent(0.85)
             field.layer.cornerRadius = 10
             field.layer.masksToBounds = true
@@ -143,54 +164,114 @@ class LoginViewController: UIViewController {
         loginButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: 17)
     }
 
+    /// Each field's AutoFill traits are fixed here and never change afterward.
     private func setupTextFieldAttributes() {
-        emailField.keyboardType = .emailAddress
-        emailField.autocapitalizationType = .none
-        emailField.autocorrectionType = .no
-        emailField.textContentType = .username
-        emailField.returnKeyType = .next
+        // Sign-in email: .username triggers iCloud Keychain "fill existing password"
+        signInEmailField.keyboardType = .emailAddress
+        signInEmailField.autocapitalizationType = .none
+        signInEmailField.autocorrectionType = .no
+        signInEmailField.textContentType = .username
+        signInEmailField.returnKeyType = .next
 
-        usernameField.autocapitalizationType = .none
-        usernameField.autocorrectionType = .no
-        usernameField.textContentType = .name
-        usernameField.returnKeyType = .next
+        signInPasswordField.isSecureTextEntry = true
+        signInPasswordField.autocapitalizationType = .none
+        signInPasswordField.autocorrectionType = .no
+        signInPasswordField.textContentType = .password
+        signInPasswordField.returnKeyType = .go
 
-        // passwordField: textContentType and returnKeyType are set dynamically by updateModeUI
-        passwordField.isSecureTextEntry = true
-        passwordField.autocapitalizationType = .none
-        passwordField.autocorrectionType = .no
+        // Sign-up username is a display name, not a credential
+        signUpUsernameField.autocapitalizationType = .none
+        signUpUsernameField.autocorrectionType = .no
+        signUpUsernameField.textContentType = .name
+        signUpUsernameField.returnKeyType = .next
 
-        confirmPasswordField.isSecureTextEntry = true
-        confirmPasswordField.textContentType = .newPassword
-        confirmPasswordField.passwordRules = UITextInputPasswordRules(descriptor: "minlength: 6;")
-        confirmPasswordField.returnKeyType = .go
+        signUpEmailField.keyboardType = .emailAddress
+        signUpEmailField.autocapitalizationType = .none
+        signUpEmailField.autocorrectionType = .no
+        signUpEmailField.textContentType = .emailAddress
+        signUpEmailField.returnKeyType = .next
+
+        // Sign-up password: .newPassword triggers the "Use Strong Password" flow
+        signUpPasswordField.isSecureTextEntry = true
+        signUpPasswordField.autocapitalizationType = .none
+        signUpPasswordField.autocorrectionType = .no
+        signUpPasswordField.textContentType = .newPassword
+        signUpPasswordField.passwordRules = UITextInputPasswordRules(descriptor: "minlength: 6;")
+        signUpPasswordField.returnKeyType = .next
+
+        signUpConfirmPasswordField.isSecureTextEntry = true
+        signUpConfirmPasswordField.autocapitalizationType = .none
+        signUpConfirmPasswordField.autocorrectionType = .no
+        signUpConfirmPasswordField.textContentType = .newPassword
+        signUpConfirmPasswordField.passwordRules = UITextInputPasswordRules(descriptor: "minlength: 6;")
+        signUpConfirmPasswordField.returnKeyType = .go
     }
 
     // MARK: - Mode
 
-    private func updateModeUI(animated: Bool) {
+    private func updateModeUI(animated: Bool, keepKeyboard: Bool = false) {
         let isSignIn = segmentedControl.selectedSegmentIndex == 0
 
-        let applyHidden = {
-            self.usernameField.isHidden = isSignIn
-            self.confirmPasswordField.isHidden = isSignIn
+        // Capture the field to move focus to BEFORE hiding anything.
+        let focusTarget = keepKeyboard ? counterpart(of: currentFirstResponderField(), isSignIn: isSignIn) : nil
+
+        // Carry the email across the mode boundary so it doesn't vanish on switch.
+        // Passwords stay independent per mode (avoids suppressing the Sign-up
+        // Strong Password suggestion).
+        if isSignIn {
+            signInEmailField.text = signUpEmailField.text
+        } else {
+            signUpEmailField.text = signInEmailField.text
+        }
+
+        let applyVisibility = {
+            self.signInEmailField.isHidden = !isSignIn
+            self.signInPasswordField.isHidden = !isSignIn
+            self.signUpUsernameField.isHidden = isSignIn
+            self.signUpEmailField.isHidden = isSignIn
+            self.signUpPasswordField.isHidden = isSignIn
+            self.signUpConfirmPasswordField.isHidden = isSignIn
             self.formStack.layoutIfNeeded()
         }
 
         if animated {
-            // Clear toggled fields so stale text doesn't survive a mode switch
-            usernameField.text = nil
-            confirmPasswordField.text = nil
-            if isSignIn { passwordField.text = nil }
-            UIView.animate(withDuration: 0.25, delay: 0, options: .curveEaseInOut, animations: applyHidden)
+            UIView.animate(withDuration: 0.25, delay: 0, options: .curveEaseInOut, animations: applyVisibility)
         } else {
-            applyHidden()
+            applyVisibility()
+        }
+
+        // Re-take first responder on the counterpart (now visible) so the keyboard
+        // stays up across the switch. iOS coalesces the resign+become in one runloop.
+        focusTarget?.becomeFirstResponder()
+
+        // The form height differs between modes; re-rest the button above the keyboard.
+        if keepKeyboard, lastKeyboardHeight > 0 {
+            adjustScrollForKeyboard(keyboardHeight: lastKeyboardHeight, duration: 0.25, options: .curveEaseInOut)
         }
 
         updateButtonTitle()
-        updateEmailFieldContentType()
-        updatePasswordFieldContentType()
-        updateReturnKeyTypes()
+    }
+
+    /// The field in the target mode that should inherit focus when switching.
+    private func counterpart(of field: UITextField?, isSignIn: Bool) -> UITextField? {
+        guard let field = field else { return nil }
+        if isSignIn {
+            switch field {
+            case signUpEmailField, signUpUsernameField: return signInEmailField
+            case signUpPasswordField, signUpConfirmPasswordField: return signInPasswordField
+            default: return nil
+            }
+        } else {
+            switch field {
+            case signInEmailField: return signUpEmailField
+            case signInPasswordField: return signUpPasswordField
+            default: return nil
+            }
+        }
+    }
+
+    private func currentFirstResponderField() -> UITextField? {
+        allFields.first { $0.isFirstResponder }
     }
 
     private func updateButtonTitle() {
@@ -199,68 +280,42 @@ class LoginViewController: UIViewController {
         loginButton.setTitle(NSLocalizedString(key, comment: ""), for: .normal)
     }
 
-    private func updateEmailFieldContentType() {
-        emailField.textContentType = segmentedControl.selectedSegmentIndex == 0 ? .username : .emailAddress
-    }
-
-    private func updatePasswordFieldContentType() {
-        if segmentedControl.selectedSegmentIndex == 0 {
-            // Sign-in: offer to fill from Keychain
-            passwordField.textContentType = .password
-            passwordField.passwordRules = nil
-        } else {
-            // Sign-up: trigger "Use Strong Password" suggestion
-            passwordField.textContentType = .newPassword
-            passwordField.passwordRules = UITextInputPasswordRules(descriptor: "minlength: 6;")
-        }
-        // The same passwordField instance is reused across Sign-in/Sign-up.
-        // iOS caches a field's AutoFill context (notably the .newPassword
-        // "Strong Password" session) when it first becomes first responder and
-        // ignores a later textContentType change — so the Sign-up strong-password
-        // context bleeds into Sign-in if Sign-up was last left from a credential
-        // field. Toggling isSecureTextEntry tears down and rebuilds the secure
-        // input session, forcing iOS to re-read textContentType on next focus.
-        let preservedText = passwordField.text
-        passwordField.isSecureTextEntry = false
-        passwordField.isSecureTextEntry = true
-        if passwordField.text != preservedText { passwordField.text = preservedText }
-    }
-
-    private func updateReturnKeyTypes() {
-        passwordField.returnKeyType = segmentedControl.selectedSegmentIndex == 0 ? .go : .next
-    }
-
     private func localizeUI() {
         segmentedControl.setTitle(NSLocalizedString("login.segment.signIn", comment: ""), forSegmentAt: 0)
         segmentedControl.setTitle(NSLocalizedString("login.segment.signUp", comment: ""), forSegmentAt: 1)
-        usernameField.placeholder = NSLocalizedString("login.field.username", comment: "")
-        emailField.placeholder = NSLocalizedString("login.field.email", comment: "")
-        passwordField.placeholder = NSLocalizedString("login.field.password", comment: "")
-        confirmPasswordField.placeholder = NSLocalizedString("login.field.confirmPassword", comment: "")
+        signUpUsernameField.placeholder = NSLocalizedString("login.field.username", comment: "")
+        let emailPlaceholder = NSLocalizedString("login.field.email", comment: "")
+        signInEmailField.placeholder = emailPlaceholder
+        signUpEmailField.placeholder = emailPlaceholder
+        let passwordPlaceholder = NSLocalizedString("login.field.password", comment: "")
+        signInPasswordField.placeholder = passwordPlaceholder
+        signUpPasswordField.placeholder = passwordPlaceholder
+        signUpConfirmPasswordField.placeholder = NSLocalizedString("login.field.confirmPassword", comment: "")
         updateButtonTitle()
     }
 
     // MARK: - Actions
 
     @objc private func segmentChanged() {
-        view.endEditing(true)
-        updateModeUI(animated: true)
+        updateModeUI(animated: true, keepKeyboard: true)
     }
 
     @objc private func loginButtonTapped() {
         let isSignIn = segmentedControl.selectedSegmentIndex == 0
-        let email = emailField.text?.trimmingCharacters(in: .whitespaces) ?? ""
-        let password = passwordField.text ?? ""
 
         if isSignIn {
+            let email = signInEmailField.text?.trimmingCharacters(in: .whitespaces) ?? ""
+            let password = signInPasswordField.text ?? ""
             guard !email.isEmpty, !password.isEmpty else {
                 showAlert(NSLocalizedString("login.error.emptyFields", comment: ""))
                 return
             }
             signIn(email: email, password: password)
         } else {
-            let username = usernameField.text?.trimmingCharacters(in: .whitespaces) ?? ""
-            let confirm = confirmPasswordField.text ?? ""
+            let email = signUpEmailField.text?.trimmingCharacters(in: .whitespaces) ?? ""
+            let password = signUpPasswordField.text ?? ""
+            let username = signUpUsernameField.text?.trimmingCharacters(in: .whitespaces) ?? ""
+            let confirm = signUpConfirmPasswordField.text ?? ""
 
             guard !email.isEmpty, !password.isEmpty, !confirm.isEmpty else {
                 showAlert(NSLocalizedString("login.error.emptyFields", comment: ""))
@@ -306,6 +361,16 @@ class LoginViewController: UIViewController {
 
     // MARK: - Keyboard
 
+    private func setupKeyboardDismissOnTapExcludingSegment() {
+        // A tap anywhere dismisses the keyboard — except on the segmented control,
+        // so switching mode can keep the keyboard up. (Reuses dismissKeyboard from
+        // the shared UIViewController+Keyboard extension.)
+        let tap = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tap.cancelsTouchesInView = false
+        tap.delegate = self
+        view.addGestureRecognizer(tap)
+    }
+
     private func setupKeyboardObservers() {
         NotificationCenter.default.addObserver(
             self,
@@ -319,7 +384,8 @@ class LoginViewController: UIViewController {
             name: UIResponder.keyboardWillHideNotification,
             object: nil
         )
-        for field in [emailField, passwordField] {
+        // Auto-login on AutoFill only applies to Sign-in, so watch those fields.
+        for field in [signInEmailField, signInPasswordField] {
             NotificationCenter.default.addObserver(
                 self,
                 selector: #selector(credentialFieldChanged),
@@ -335,21 +401,26 @@ class LoginViewController: UIViewController {
               let duration = info[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double,
               let curveRaw = info[UIResponder.keyboardAnimationCurveUserInfoKey] as? UInt else { return }
 
+        lastKeyboardHeight = keyboardFrame.height
+        adjustScrollForKeyboard(keyboardHeight: keyboardFrame.height,
+                                duration: duration,
+                                options: UIView.AnimationOptions(rawValue: curveRaw << 16))
+    }
+
+    /// Lift the login button (plus a small gap) above the keyboard by extending the
+    /// scroll range — not the full keyboard height — so the bottom of the scroll
+    /// rests on the button.
+    private func adjustScrollForKeyboard(keyboardHeight: CGFloat, duration: TimeInterval, options: UIView.AnimationOptions) {
         // Make sure frames are current before measuring the button position
         view.layoutIfNeeded()
 
-        // Distance from the button's bottom edge down to the bottom of the scrollable content.
-        // The scroll range only needs to lift the button (plus a small gap) above the keyboard —
-        // not the whole keyboard height — so the very bottom of the scroll lands on the button.
         let buttonMaxY = loginButton.convert(loginButton.bounds, to: contentView).maxY
         let spaceBelowButton = contentView.bounds.height - buttonMaxY
-        let bottomInset = max(keyboardFrame.height - spaceBelowButton + buttonKeyboardGap, 0)
+        let bottomInset = max(keyboardHeight - spaceBelowButton + buttonKeyboardGap, 0)
 
-        // Mirror the system's own curve so the scroll tracks the keyboard animation exactly
-        UIView.animate(withDuration: duration, delay: 0,
-                       options: UIView.AnimationOptions(rawValue: curveRaw << 16)) {
+        UIView.animate(withDuration: duration, delay: 0, options: options) {
             self.scrollView.contentInset.bottom = bottomInset
-            self.scrollView.scrollIndicatorInsets.bottom = keyboardFrame.height
+            self.scrollView.scrollIndicatorInsets.bottom = keyboardHeight
             // Rest at the bottom of the scroll range: button sits just above the keyboard.
             // Over-scrolling past this bounces straight back here.
             let restingOffsetY = max(
@@ -361,6 +432,7 @@ class LoginViewController: UIViewController {
     }
 
     @objc private func keyboardWillHide(_ notification: Notification) {
+        lastKeyboardHeight = 0
         guard let duration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double,
               let curveRaw = notification.userInfo?[UIResponder.keyboardAnimationCurveUserInfoKey] as? UInt else { return }
         UIView.animate(withDuration: duration, delay: 0,
@@ -373,8 +445,8 @@ class LoginViewController: UIViewController {
 
     @objc private func credentialFieldChanged() {
         guard segmentedControl.selectedSegmentIndex == 0,
-              let email = emailField.text, !email.isEmpty,
-              let password = passwordField.text, !password.isEmpty else {
+              let email = signInEmailField.text, !email.isEmpty,
+              let password = signInPasswordField.text, !password.isEmpty else {
             autoLoginTimer?.invalidate()
             return
         }
@@ -407,24 +479,36 @@ class LoginViewController: UIViewController {
 
 extension LoginViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        let isSignIn = segmentedControl.selectedSegmentIndex == 0
         switch textField {
-        case usernameField:
-            emailField.becomeFirstResponder()
-        case emailField:
-            passwordField.becomeFirstResponder()
-        case passwordField:
-            if isSignIn {
-                textField.resignFirstResponder()
-                loginButtonTapped()
-            } else {
-                confirmPasswordField.becomeFirstResponder()
-            }
-        case confirmPasswordField:
+        case signInEmailField:
+            signInPasswordField.becomeFirstResponder()
+        case signInPasswordField:
+            textField.resignFirstResponder()
+            loginButtonTapped()
+        case signUpUsernameField:
+            signUpEmailField.becomeFirstResponder()
+        case signUpEmailField:
+            signUpPasswordField.becomeFirstResponder()
+        case signUpPasswordField:
+            signUpConfirmPasswordField.becomeFirstResponder()
+        case signUpConfirmPasswordField:
             textField.resignFirstResponder()
             loginButtonTapped()
         default:
             textField.resignFirstResponder()
+        }
+        return true
+    }
+}
+
+// MARK: - UIGestureRecognizerDelegate
+
+extension LoginViewController: UIGestureRecognizerDelegate {
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceiveTouch touch: UITouch) -> Bool {
+        // Don't let the dismiss-on-tap gesture fire when tapping the segmented
+        // control, otherwise switching mode would dismiss the keyboard.
+        if let touched = touch.view, touched.isDescendant(of: segmentedControl) {
+            return false
         }
         return true
     }
