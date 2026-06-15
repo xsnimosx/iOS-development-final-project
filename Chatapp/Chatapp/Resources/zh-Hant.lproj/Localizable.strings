@@ -63,3 +63,7 @@
 "settings.cell.logout" = "登出";
 "settings.error.signOutFailed" = "登出失敗：%@";
 "settings.alert.ok" = "確定";
+"settings.logout.confirmation.title" = "確定要登出？";
+"settings.logout.confirmation.message" = "你確定要登出帳號嗎？";
+"settings.logout.confirmation.cancel" = "取消";
+"settings.logout.confirmation.confirm" = "登出";
