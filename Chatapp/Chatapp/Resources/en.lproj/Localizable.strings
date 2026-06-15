@@ -44,6 +44,10 @@
 
 /* ChatViewController */
 "chat.action.delete" = "Delete";
+"chat.message.placeholder" = "Type a message...";
+
+/* AddFriendViewController — Search Placeholder */
+"addfriend.search.placeholder" = "Search by name or email...";
 
 /* Tab Bar */
 "tab.chats" = "Chats";
@@ -64,3 +68,7 @@
 "settings.cell.logout" = "Sign Out";
 "settings.error.signOutFailed" = "Sign out failed: %@";
 "settings.alert.ok" = "OK";
+"settings.logout.confirmation.title" = "Log Out";
+"settings.logout.confirmation.message" = "Are you sure you want to log out?";
+"settings.logout.confirmation.cancel" = "Cancel";
+"settings.logout.confirmation.confirm" = "Log Out";

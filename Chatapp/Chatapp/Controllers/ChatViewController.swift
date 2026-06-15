@@ -32,6 +32,7 @@ class ChatViewController: UIViewController, UIImagePickerControllerDelegate, UIN
         tableView.delegate = self
         tableView.register(MessageCell.self, forCellReuseIdentifier: MessageCell.reuseId)
         tableView.separatorStyle = .none
+        messageTextField.placeholder = NSLocalizedString("chat.message.placeholder", comment: "")
         fetchCurrentUserName()
         startListening()
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)

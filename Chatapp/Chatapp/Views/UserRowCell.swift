@@ -82,7 +82,6 @@ class UserRowCell: UITableViewCell {
             avatarImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: AppCell.verticalPadding),
             avatarImageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -AppCell.verticalPadding),
             avatarImageView.widthAnchor.constraint(equalToConstant: AppCell.avatarSize),
-            avatarImageView.heightAnchor.constraint(equalToConstant: AppCell.avatarSize),
 
             labelStack.leadingAnchor.constraint(equalTo: avatarImageView.trailingAnchor, constant: AppCell.avatarLabelSpacing),
             labelStackTrailingConstraint,

@@ -36,6 +36,9 @@
 		51917A5B2FDC4CED002959E9 /* FriendsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51917A5A2FDC4CED002959E9 /* FriendsViewController.swift */; };
 		51917A5D2FDC4CF8002959E9 /* AddFriendViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51917A5C2FDC4CF7002959E9 /* AddFriendViewController.swift */; };
 		51917A5F2FDC4EC0002959E9 /* FriendRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51917A5E2FDC4EC0002959E9 /* FriendRequest.swift */; };
+		51F8A7772FDFD3AD00B1C0D2 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 51F8A7752FDFD3AD00B1C0D2 /* InfoPlist.strings */; };
+		51F8A77F2FDFDB6A00B1C0D2 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 51F8A77B2FDFDB6A00B1C0D2 /* Localizable.strings */; };
+		51F8A7802FDFDB6A00B1C0D2 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 51F8A77D2FDFDB6A00B1C0D2 /* InfoPlist.strings */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -64,10 +67,13 @@
 		51565CA62FDE92BA0096FB15 /* Chatapp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Chatapp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		51565CA72FDE93020096FB15 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = Localizable.strings; sourceTree = "<group>"; };
 		51565CAC2FDEA7770096FB15 /* MessageCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessageCell.swift; sourceTree = "<group>"; };
-		51565CB02FDDE9720096FB16 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = Localizable.strings; sourceTree = "<group>"; };
 		51917A5A2FDC4CED002959E9 /* FriendsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FriendsViewController.swift; sourceTree = "<group>"; };
 		51917A5C2FDC4CF7002959E9 /* AddFriendViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddFriendViewController.swift; sourceTree = "<group>"; };
 		51917A5E2FDC4EC0002959E9 /* FriendRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = FriendRequest.swift; path = Chatapp/Models/FriendRequest.swift; sourceTree = SOURCE_ROOT; };
+		51F8A7762FDFD3AD00B1C0D2 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = InfoPlist.strings; sourceTree = "<group>"; };
+		51F8A7792FDFD3B500B1C0D2 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = InfoPlist.strings; sourceTree = "<group>"; };
+		51F8A77C2FDFDB6A00B1C0D2 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = Localizable.strings; sourceTree = "<group>"; };
+		51F8A77E2FDFDB6A00B1C0D2 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = InfoPlist.strings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -170,7 +176,8 @@
 		51565CA42FDDE9710096FB15 /* zh-Hant.lproj */ = {
 			isa = PBXGroup;
 			children = (
-				51565CA32FDDE9710096FB15 /* Localizable.strings */,
+				51F8A7752FDFD3AD00B1C0D2 /* InfoPlist.strings */,
+				51565CA82FDE93020096FB15 /* Localizable.strings */,
 			);
 			path = "zh-Hant.lproj";
 			sourceTree = "<group>";
@@ -178,7 +185,8 @@
 		51565CA92FDE93020096FB15 /* en.lproj */ = {
 			isa = PBXGroup;
 			children = (
-				51565CA82FDE93020096FB15 /* Localizable.strings */,
+				51F8A77D2FDFDB6A00B1C0D2 /* InfoPlist.strings */,
+				51F8A77B2FDFDB6A00B1C0D2 /* Localizable.strings */,
 			);
 			path = en.lproj;
 			sourceTree = "<group>";
@@ -268,7 +276,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				51565CAA2FDE93020096FB15 /* Localizable.strings in Resources */,
+				51F8A7802FDFDB6A00B1C0D2 /* InfoPlist.strings in Resources */,
+				51F8A7772FDFD3AD00B1C0D2 /* InfoPlist.strings in Resources */,
 				51565C9C2FDDB0C70096FB15 /* GoogleService-Info.plist in Resources */,
+				51F8A77F2FDFDB6A00B1C0D2 /* Localizable.strings in Resources */,
 				514169BF2FDB2AB2007FE670 /* Assets.xcassets in Resources */,
 				514169C32FDB2AB2007FE670 /* Main.storyboard in Resources */,
 				514169C22FDB2AB2007FE670 /* LaunchScreen.storyboard in Resources */,
@@ -324,15 +335,6 @@
 			name = Main.storyboard;
 			sourceTree = "<group>";
 		};
-		51565CA32FDDE9710096FB15 /* Localizable.strings */ = {
-			isa = PBXVariantGroup;
-			children = (
-				51565CB02FDDE9720096FB16 /* en */,
-				51565CA22FDDE9710096FB15 /* zh-Hant */,
-			);
-			name = Localizable.strings;
-			sourceTree = "<group>";
-		};
 		51565CA82FDE93020096FB15 /* Localizable.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -340,6 +342,31 @@
 				51565CA22FDDE9710096FB15 /* zh-Hant */,
 			);
 			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+		51F8A7752FDFD3AD00B1C0D2 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				51F8A7762FDFD3AD00B1C0D2 /* en */,
+				51F8A7792FDFD3B500B1C0D2 /* zh-Hant */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		51F8A77B2FDFDB6A00B1C0D2 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				51F8A77C2FDFDB6A00B1C0D2 /* en */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+		51F8A77D2FDFDB6A00B1C0D2 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				51F8A77E2FDFDB6A00B1C0D2 /* en */,
+			);
+			name = InfoPlist.strings;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */

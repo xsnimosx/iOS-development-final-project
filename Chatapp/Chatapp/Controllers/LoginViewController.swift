@@ -30,6 +30,7 @@ class LoginViewController: UIViewController {
         setupTextFieldAttributes()
         applyBrandStyling()
         localizeUI()
+        segmentedControl.selectedSegmentIndex = 0
         updateModeUI(animated: false)
         setupKeyboardDismissOnTap()
         setupKeyboardObservers()
@@ -107,11 +108,11 @@ class LoginViewController: UIViewController {
 
         logoImageView.heightAnchor.constraint(equalToConstant: 120).isActive = true
         segmentedControl.heightAnchor.constraint(equalToConstant: 32).isActive = true
-        usernameField.heightAnchor.constraint(equalToConstant: 44).isActive = true
-        emailField.heightAnchor.constraint(equalToConstant: 44).isActive = true
-        passwordField.heightAnchor.constraint(equalToConstant: 44).isActive = true
-        confirmPasswordField.heightAnchor.constraint(equalToConstant: 44).isActive = true
-        loginButton.heightAnchor.constraint(equalToConstant: 44).isActive = true
+        usernameField.heightAnchor.constraint(equalToConstant: 36).isActive = true
+        emailField.heightAnchor.constraint(equalToConstant: 36).isActive = true
+        passwordField.heightAnchor.constraint(equalToConstant: 36).isActive = true
+        confirmPasswordField.heightAnchor.constraint(equalToConstant: 36).isActive = true
+        loginButton.heightAnchor.constraint(equalToConstant: 36).isActive = true
     }
 
     private func applyBrandStyling() {
@@ -141,12 +142,12 @@ class LoginViewController: UIViewController {
         emailField.keyboardType = .emailAddress
         emailField.autocapitalizationType = .none
         emailField.autocorrectionType = .no
-        emailField.textContentType = .emailAddress
+        emailField.textContentType = .username
         emailField.returnKeyType = .next
 
         usernameField.autocapitalizationType = .none
         usernameField.autocorrectionType = .no
-        usernameField.textContentType = .username
+        usernameField.textContentType = .name
         usernameField.returnKeyType = .next
 
         // passwordField: textContentType and returnKeyType are set dynamically by updateModeUI
@@ -312,12 +313,12 @@ class LoginViewController: UIViewController {
                        options: UIView.AnimationOptions(rawValue: curveRaw << 16)) {
             self.scrollView.contentInset = insets
             self.scrollView.scrollIndicatorInsets = insets
-        }
-
-        if let activeField = [usernameField, emailField, passwordField, confirmPasswordField]
-            .first(where: { $0.isFirstResponder }) {
-            let rect = activeField.convert(activeField.bounds, to: scrollView)
-            scrollView.scrollRectToVisible(rect.insetBy(dx: 0, dy: -16), animated: true)
+            if let activeField = [self.usernameField, self.emailField,
+                                  self.passwordField, self.confirmPasswordField]
+                .first(where: { $0.isFirstResponder }) {
+                let rect = activeField.convert(activeField.bounds, to: self.scrollView)
+                self.scrollView.scrollRectToVisible(rect.insetBy(dx: 0, dy: -16), animated: false)
+            }
         }
     }
 
