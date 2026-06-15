@@ -316,8 +316,10 @@ class LoginViewController: UIViewController {
             if let activeField = [self.usernameField, self.emailField,
                                   self.passwordField, self.confirmPasswordField]
                 .first(where: { $0.isFirstResponder }) {
-                let rect = activeField.convert(activeField.bounds, to: self.scrollView)
-                self.scrollView.scrollRectToVisible(rect.insetBy(dx: 0, dy: -16), animated: false)
+                let fieldRect = activeField.convert(activeField.bounds, to: self.scrollView)
+                let buttonRect = self.loginButton.convert(self.loginButton.bounds, to: self.scrollView)
+                let targetRect = fieldRect.union(buttonRect).insetBy(dx: 0, dy: -16)
+                self.scrollView.scrollRectToVisible(targetRect, animated: false)
             }
         }
     }
