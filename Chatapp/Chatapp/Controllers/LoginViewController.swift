@@ -289,6 +289,13 @@ class LoginViewController: UIViewController {
             self.formStack.layoutIfNeeded()
         } completion: { _ in
             self.isSwitchingMode = false
+            // Layout has settled and lastKeyboardHeight now reflects the new field's
+            // actual keyboard (which can differ in height, e.g. a password field's
+            // AutoFill/Strong-Password accessory bar). Re-rest the button above it.
+            guard self.lastKeyboardHeight > 0 else { return }
+            UIView.animate(withDuration: 0.25) {
+                self.applyScrollInset(for: self.lastKeyboardHeight)
+            }
         }
 
         updateButtonTitle()
