@@ -78,10 +78,17 @@ class ConversationCell: UITableViewCell {
             unreadBadgeLabel.text = unread > 9 ? " \(unread) " : "\(unread)"
             messageTrailingToBadge.isActive = true
             nameLabel.font = .boldSystemFont(ofSize: 17)
+            // 未讀:預覽文字從灰(secondaryLabel)提亮為主要文字色並加重,
+            // 模仿 iMessage/WhatsApp「亮起來」的視覺權重。
+            messageLabel.textColor = .label
+            messageLabel.font = .systemFont(ofSize: 14, weight: .medium)
         } else {
             unreadBadgeLabel.isHidden = true
             messageTrailingToBadge.isActive = false
             nameLabel.font = .systemFont(ofSize: 17)
+            // 已讀:還原 storyboard 原本的灰字、一般字重(cell 會被重用,務必還原)
+            messageLabel.textColor = .secondaryLabel
+            messageLabel.font = .systemFont(ofSize: 14, weight: .regular)
         }
     }
 

@@ -95,8 +95,10 @@ class ChatListViewController: UIViewController {
                     self.tableView.reloadData()
                     // 紅氣泡必須設在 navigationController 的 tabBarItem 上 ——
                     // ChatListViewController 是 nav controller 的 root,tab bar 只認 nav controller 的 item。
-                    let totalUnread = self.conversations.reduce(0) { $0 + $1.unreadCount }
-                    self.navigationController?.tabBarItem.badgeValue = totalUnread > 0 ? "\(totalUnread)" : nil
+                    // badge 顯示「有未讀的對話數」(幾個人傳來未讀),
+                    // 而非未讀訊息的總則數 —— 與業界即時通訊 app 的 tab badge 語意一致。
+                    let unreadConversations = self.conversations.filter { $0.unreadCount > 0 }.count
+                    self.navigationController?.tabBarItem.badgeValue = unreadConversations > 0 ? "\(unreadConversations)" : nil
                 }
             }
     }
