@@ -22,6 +22,7 @@ class ChatListViewController: UIViewController {
 
     private var conversations: [Conversation] = []
     private var listener: ListenerRegistration?
+    private var authHandle: AuthStateDidChangeListenerHandle?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -29,23 +30,32 @@ class ChatListViewController: UIViewController {
         tableView.dataSource = self
         tableView.delegate = self
         tableView.separatorStyle = .none
+
+        // Listener 跟著登入狀態存活,而非 view 生命週期 —— 這樣切到其他 tab 時
+        // 仍能收到新訊息並即時更新 tab bar 紅氣泡。
+        authHandle = Auth.auth().addStateDidChangeListener { [weak self] _, user in
+            guard let self = self else { return }
+            if user != nil {
+                self.startListening()
+            } else {
+                self.listener?.remove()
+                self.conversations = []
+                self.tableView.reloadData()
+                self.navigationController?.tabBarItem.badgeValue = nil
+            }
+        }
     }
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        startListening()
-    }
-
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
+    deinit {
         listener?.remove()
+        if let authHandle = authHandle {
+            Auth.auth().removeStateDidChangeListener(authHandle)
+        }
     }
 
     // MARK: - Firestore
     private func startListening() {
         listener?.remove()
-        conversations = []
-        tableView.reloadData()
 
         guard let uid = Auth.auth().currentUser?.uid else { return }
         let db = Firestore.firestore()
@@ -54,49 +64,41 @@ class ChatListViewController: UIViewController {
             .collection("conversations")
             .whereField("participants", arrayContains: uid)
             .order(by: "lastUpdated", descending: true)
-            .addSnapshotListener { [weak self] snapshot, _ in
-                guard let self = self,
-                      let docs = snapshot?.documents, !docs.isEmpty else {
-                    DispatchQueue.main.async {
-                        self?.conversations = []
-                        self?.tableView.reloadData()
-                    }
+            .addSnapshotListener { [weak self] snapshot, error in
+                guard let self = self else { return }
+                if let error = error {
+                    print("conversation listener error: \(error)")
                     return
                 }
 
-                let group = DispatchGroup()
-                var indexed: [(Int, Conversation)] = []
-                let lock = NSLock()
-
-                for (i, doc) in docs.enumerated() {
+                // 對方名稱直接讀 conversation 文件裡的 participantNames map,
+                // 不再逐筆查 users collection —— handler 變同步,消除競態與多餘讀取。
+                let docs = snapshot?.documents ?? []
+                self.conversations = docs.compactMap { doc -> Conversation? in
                     let data = doc.data()
                     guard let participants = data["participants"] as? [String],
                           let last = data["lastMessage"] as? String,
-                          let ts = (data["lastUpdated"] as? Timestamp)?.dateValue() else { continue }
+                          let ts = (data["lastUpdated"] as? Timestamp)?.dateValue() else { return nil }
                     let otherUID = participants.first(where: { $0 != uid }) ?? ""
+                    let names = data["participantNames"] as? [String: String] ?? [:]
+                    let name = names[otherUID] ?? NSLocalizedString("chatlist.unknownUser", comment: "")
                     let unreadCounts = data["unreadCounts"] as? [String: Int] ?? [:]
-                    let unreadCount = unreadCounts[uid] ?? 0
-
-                    group.enter()
-                    db.collection("users").document(otherUID).getDocument { snap, _ in
-                        defer { group.leave() }
-                        let name: String
-                        if let profile = try? snap?.data(as: UserProfile.self) {
-                            name = profile.username
-                        } else {
-                            name = NSLocalizedString("chatlist.unknownUser", comment: "")
-                        }
-                        lock.lock()
-                        indexed.append((i, Conversation(id: doc.documentID, otherUserID: otherUID, otherUserName: name, lastMessage: last, timestamp: ts, unreadCount: unreadCount)))
-                        lock.unlock()
-                    }
+                    return Conversation(id: doc.documentID,
+                                        otherUserID: otherUID,
+                                        otherUserName: name,
+                                        lastMessage: last,
+                                        timestamp: ts,
+                                        unreadCount: unreadCounts[uid] ?? 0)
                 }
 
-                group.notify(queue: .main) { [weak self] in
-                    self?.conversations = indexed.sorted { $0.0 < $1.0 }.map { $0.1 }
-                    self?.tableView.reloadData()
-                    let totalUnread = self?.conversations.filter { $0.unreadCount > 0 }.count ?? 0
-                    self?.tabBarItem.badgeValue = totalUnread > 0 ? "\(totalUnread)" : nil
+                DispatchQueue.main.async {
+                    self.tableView.reloadData()
+                    // 紅氣泡必須設在 navigationController 的 tabBarItem 上 ——
+                    // ChatListViewController 是 nav controller 的 root,tab bar 只認 nav controller 的 item。
+                    // badge 顯示「有未讀的對話數」(幾個人傳來未讀),
+                    // 而非未讀訊息的總則數 —— 與業界即時通訊 app 的 tab badge 語意一致。
+                    let unreadConversations = self.conversations.filter { $0.unreadCount > 0 }.count
+                    self.navigationController?.tabBarItem.badgeValue = unreadConversations > 0 ? "\(unreadConversations)" : nil
                 }
             }
     }
