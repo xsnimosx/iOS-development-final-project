@@ -585,11 +585,27 @@ extension LoginViewController: UITextFieldDelegate {
 
 extension LoginViewController: UIGestureRecognizerDelegate {
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
-        // Don't let the dismiss-on-tap gesture fire when tapping the segmented
-        // control, otherwise switching mode would dismiss the keyboard.
-        if let touched = touch.view, touched.isDescendant(of: segmentedControl) {
-            return false
+        // Only dismiss the keyboard on a genuine background tap. Taps on any
+        // interactive control must NOT run endEditing: the segment switches mode
+        // (keeps the keyboard), a text field hands first-responder to itself, and
+        // the button submits. A spurious endEditing fires a transient keyboard
+        // hide that bounces the scroll down — and the keyboardWillHide guard can't
+        // always catch it, because sign-in's password AutoFill delays the tapped
+        // field from becoming first responder. Cutting the tap off here avoids the
+        // hide entirely, regardless of that timing.
+        guard let touched = touch.view else { return true }
+        return !isInteractiveTouch(touched)
+    }
+
+    /// True if `view` is, or lives inside, any UIControl (text field, segment,
+    /// button). Walks up the superview chain because the hit view is often an
+    /// internal subview of the control rather than the control itself.
+    private func isInteractiveTouch(_ view: UIView) -> Bool {
+        var node: UIView? = view
+        while let current = node {
+            if current is UIControl { return true }
+            node = current.superview
         }
-        return true
+        return false
     }
 }
