@@ -142,12 +142,12 @@ class LoginViewController: UIViewController {
         emailField.keyboardType = .emailAddress
         emailField.autocapitalizationType = .none
         emailField.autocorrectionType = .no
-        emailField.textContentType = .emailAddress
+        emailField.textContentType = .username
         emailField.returnKeyType = .next
 
         usernameField.autocapitalizationType = .none
         usernameField.autocorrectionType = .no
-        usernameField.textContentType = .username
+        usernameField.textContentType = .name
         usernameField.returnKeyType = .next
 
         // passwordField: textContentType and returnKeyType are set dynamically by updateModeUI
