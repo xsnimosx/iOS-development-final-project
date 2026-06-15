@@ -268,7 +268,8 @@ class FriendsViewController: UIViewController {
                     self.requestSenderNames = names
                     self.tableView.reloadData()
                     let count = self.pendingRequests.count
-                    self.tabBarItem.badgeValue = count > 0 ? "\(count)" : nil
+                    // FriendsViewController 同樣是 nav controller 的 root,badge 要設在 nav controller 的 item 上。
+                    self.navigationController?.tabBarItem.badgeValue = count > 0 ? "\(count)" : nil
                 }
             }
     }
