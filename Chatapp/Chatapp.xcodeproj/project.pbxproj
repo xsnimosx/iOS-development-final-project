@@ -39,6 +39,7 @@
 		51F8A7772FDFD3AD00B1C0D2 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 51F8A7752FDFD3AD00B1C0D2 /* InfoPlist.strings */; };
 		51F8A77F2FDFDB6A00B1C0D2 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 51F8A77B2FDFDB6A00B1C0D2 /* Localizable.strings */; };
 		51F8A7802FDFDB6A00B1C0D2 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 51F8A77D2FDFDB6A00B1C0D2 /* InfoPlist.strings */; };
+		51F8A7822FDFF0F700B1C0D2 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 51F8A7812FDFF0F700B1C0D2 /* PrivacyInfo.xcprivacy */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -74,6 +75,7 @@
 		51F8A7792FDFD3B500B1C0D2 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = InfoPlist.strings; sourceTree = "<group>"; };
 		51F8A77C2FDFDB6A00B1C0D2 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = Localizable.strings; sourceTree = "<group>"; };
 		51F8A77E2FDFDB6A00B1C0D2 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = InfoPlist.strings; sourceTree = "<group>"; };
+		51F8A7812FDFF0F700B1C0D2 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -134,6 +136,7 @@
 				514169A42FDB2AB2007FE670 /* Assets.xcassets */,
 				51565C9B2FDDB0B20096FB15 /* GoogleService-Info.plist */,
 				514169A62FDB2AB2007FE670 /* Info.plist */,
+				51F8A7812FDFF0F700B1C0D2 /* PrivacyInfo.xcprivacy */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -278,6 +281,7 @@
 				51565CAA2FDE93020096FB15 /* Localizable.strings in Resources */,
 				51F8A7802FDFDB6A00B1C0D2 /* InfoPlist.strings in Resources */,
 				51F8A7772FDFD3AD00B1C0D2 /* InfoPlist.strings in Resources */,
+				51F8A7822FDFF0F700B1C0D2 /* PrivacyInfo.xcprivacy in Resources */,
 				51565C9C2FDDB0C70096FB15 /* GoogleService-Info.plist in Resources */,
 				51F8A77F2FDFDB6A00B1C0D2 /* Localizable.strings in Resources */,
 				514169BF2FDB2AB2007FE670 /* Assets.xcassets in Resources */,
@@ -424,7 +428,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.2;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -481,7 +485,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.2;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -513,7 +517,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.5.1;
+				MARKETING_VERSION = 0.6.0;
 				PRODUCT_BUNDLE_IDENTIFIER = tw.edu.nptu.Chatapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -544,7 +548,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.5.1;
+				MARKETING_VERSION = 0.6.0;
 				PRODUCT_BUNDLE_IDENTIFIER = tw.edu.nptu.Chatapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;

@@ -7,7 +7,7 @@
 	<key>CFBundleLocalizations</key>
 	<array>
 		<string>en</string>
-		<string>zh-Hant</string>
+		<string>zh_TW</string>
 	</array>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Select a photo to send.</string>
