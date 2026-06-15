@@ -63,6 +63,13 @@ class LoginViewController: UIViewController {
     // is known. Run by keyboardWillShow (accurate height) or a next-runloop fallback.
     private var pendingModeSwitchSpring: ((CGFloat) -> Void)?
 
+    // Coalescing of keyboard show/hide bursts. The AutoFill suggestion bar flickers
+    // when focus moves between fields, churning the keyboard height through several
+    // notifications; we collapse them into one scroll adjustment on the next runloop.
+    private var keyboardSettleScheduled = false
+    private var settleDuration: Double = 0.25
+    private var settleCurveRaw: UInt = 0
+
     // Gap kept between the login button and the top of the keyboard
     private let buttonKeyboardGap: CGFloat = 12
 
@@ -483,9 +490,33 @@ class LoginViewController: UIViewController {
             return
         }
 
-        UIView.animate(withDuration: duration, delay: 0,
-                       options: UIView.AnimationOptions(rawValue: curveRaw << 16)) {
-            self.applyScrollInset(for: keyboardFrame.height)
+        scheduleKeyboardSettle(duration: duration, curveRaw: curveRaw)
+    }
+
+    /// Coalesce a burst of keyboard show/hide notifications into a single scroll
+    /// adjustment. When focus moves between fields whose keyboards differ (the
+    /// AutoFill suggestion bar appears on the email/username fields but not the
+    /// secure password field), iOS tears the bar down and rebuilds it — the visible
+    /// "flash" — firing show→hide→show in quick succession. Reacting to each one
+    /// jitters the form. Instead we defer to the next runloop, by which point the
+    /// keyboard frame and first responder have settled, and adjust exactly once.
+    private func scheduleKeyboardSettle(duration: Double, curveRaw: UInt) {
+        settleDuration = duration
+        settleCurveRaw = curveRaw
+        guard !keyboardSettleScheduled else { return }
+        keyboardSettleScheduled = true
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            self.keyboardSettleScheduled = false
+            // A field still first responder means the keyboard is up (a flicker or a
+            // focus move), so keep it at the latest shown height; otherwise it has
+            // genuinely been dismissed and collapses to 0.
+            let height = self.currentFirstResponderField() != nil ? self.lastKeyboardHeight : 0
+            if height == 0 { self.lastKeyboardHeight = 0 }
+            UIView.animate(withDuration: self.settleDuration, delay: 0,
+                           options: UIView.AnimationOptions(rawValue: self.settleCurveRaw << 16)) {
+                self.applyScrollInset(for: height)
+            }
         }
     }
 
@@ -522,22 +553,12 @@ class LoginViewController: UIViewController {
         let duration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double ?? 0.25
         let curveRaw = notification.userInfo?[UIResponder.keyboardAnimationCurveUserInfoKey] as? UInt ?? 0
 
-        // Switching focus between two fields whose keyboards differ in height (the
-        // sign-in email field carries an AutoFill suggestion bar, the secure password
-        // field doesn't) fires a transient hide→show. Don't act on the hide until the
-        // next runloop: by then either the new field is first responder (focus moved,
-        // not a real dismissal — skip) or it isn't (genuine dismissal — collapse).
-        // A synchronous check isn't enough because the password field's AutoFill makes
-        // it first responder a beat late, so the hide would otherwise zero the scroll
-        // and bounce the form down before keyboardWillShow lifts it back.
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self, self.currentFirstResponderField() == nil else { return }
-            self.lastKeyboardHeight = 0
-            UIView.animate(withDuration: duration, delay: 0,
-                           options: UIView.AnimationOptions(rawValue: curveRaw << 16)) {
-                self.applyScrollInset(for: 0)
-            }
-        }
+        // Route through the same coalescer as show: a hide that's really just the
+        // suggestion-bar flicker during a focus move is cancelled out by the show
+        // that follows it in the same runloop turn (the settle sees a field still
+        // first responder and keeps the keyboard height), so the form no longer
+        // bounces. Only a hide with no field first responder by settle time collapses.
+        scheduleKeyboardSettle(duration: duration, curveRaw: curveRaw)
     }
 
     @objc private func credentialFieldChanged(_ note: Notification) {
