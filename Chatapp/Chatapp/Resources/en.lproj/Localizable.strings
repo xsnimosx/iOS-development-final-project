@@ -68,7 +68,7 @@
 "settings.cell.logout" = "Sign Out";
 "settings.error.signOutFailed" = "Sign out failed: %@";
 "settings.alert.ok" = "OK";
-"settings.logout.confirmation.title" = "Sign Out?";
-"settings.logout.confirmation.message" = "Are you sure you want to sign out?";
+"settings.logout.confirmation.title" = "Log Out";
+"settings.logout.confirmation.message" = "Are you sure you want to log out?";
 "settings.logout.confirmation.cancel" = "Cancel";
-"settings.logout.confirmation.confirm" = "Sign Out";
+"settings.logout.confirmation.confirm" = "Log Out";
