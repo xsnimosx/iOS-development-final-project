@@ -32,11 +32,15 @@ class ChatViewController: UIViewController, UIImagePickerControllerDelegate, UIN
         tableView.delegate = self
         tableView.register(MessageCell.self, forCellReuseIdentifier: MessageCell.reuseId)
         tableView.separatorStyle = .none
+        messageTextField.placeholder = NSLocalizedString("chat.message.placeholder", comment: "")
         fetchCurrentUserName()
         startListening()
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
         setupKeyboardDismissOnTap()
+        messageTextField.autocapitalizationType = .sentences
+        messageTextField.returnKeyType = .send
+        messageTextField.textContentType = .none
     }
 
     override func viewWillAppear(_ animated: Bool) {

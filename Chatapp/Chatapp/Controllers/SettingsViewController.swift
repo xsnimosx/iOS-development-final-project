@@ -8,6 +8,8 @@ import FirebaseFirestore
 
 class SettingsViewController: UITableViewController {
 
+    private var logoutConfirmed = false
+
     override func viewDidLoad() {
         super.viewDidLoad()
         title = NSLocalizedString("settings.nav.title", comment: "")
@@ -106,14 +108,40 @@ class SettingsViewController: UITableViewController {
 
     override func shouldPerformSegue(withIdentifier identifier: String, sender: Any?) -> Bool {
         if identifier == "toLogin" {
-            do {
-                try Auth.auth().signOut()
-            } catch {
-                showAlert(String(format: NSLocalizedString("settings.error.signOutFailed", comment: ""), error.localizedDescription))
-                return false
+            if logoutConfirmed {
+                logoutConfirmed = false
+                return true
             }
+            showLogoutConfirmation()
+            return false
         }
         return true
+    }
+
+    private func showLogoutConfirmation() {
+        let alert = UIAlertController(
+            title: NSLocalizedString("settings.logout.confirmation.title", comment: ""),
+            message: NSLocalizedString("settings.logout.confirmation.message", comment: ""),
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(
+            title: NSLocalizedString("settings.logout.confirmation.cancel", comment: ""),
+            style: .cancel
+        ))
+        alert.addAction(UIAlertAction(
+            title: NSLocalizedString("settings.logout.confirmation.confirm", comment: ""),
+            style: .destructive
+        ) { [weak self] _ in
+            guard let self = self else { return }
+            do {
+                try Auth.auth().signOut()
+                self.logoutConfirmed = true
+                self.performSegue(withIdentifier: "toLogin", sender: nil)
+            } catch {
+                self.showAlert(String(format: NSLocalizedString("settings.error.signOutFailed", comment: ""), error.localizedDescription))
+            }
+        })
+        present(alert, animated: true)
     }
 
     private func showAlert(_ message: String) {
