@@ -6,6 +6,17 @@ import UIKit
 import FirebaseAuth
 import FirebaseFirestore
 
+/// A text field that always presents a Latin/English keyboard, overriding iOS's
+/// global "last-used keyboard language" stickiness (which otherwise brings up a
+/// CJK keyboard for email entry once the user has typed in that language
+/// elsewhere). `textInputMode` is re-queried each time the field is focused.
+private final class LatinTextField: UITextField {
+    override var textInputMode: UITextInputMode? {
+        UITextInputMode.activeInputModes.first { ($0.primaryLanguage ?? "").hasPrefix("en") }
+            ?? super.textInputMode
+    }
+}
+
 class LoginViewController: UIViewController {
 
     // MARK: - UI Properties
@@ -22,11 +33,13 @@ class LoginViewController: UIViewController {
     // "Strong Password" session bled into Sign-in). Separate instances make that
     // class of bug structurally impossible.
     private let signUpUsernameField = UITextField()
-    private let signInEmailField = UITextField()
-    private let signUpEmailField = UITextField()
-    private let signInPasswordField = UITextField()
-    private let signUpPasswordField = UITextField()
-    private let signUpConfirmPasswordField = UITextField()
+    private let signInEmailField = LatinTextField()
+    private let signUpEmailField = LatinTextField()
+    // Secure fields already force a Latin keyboard, but LatinTextField makes that
+    // guaranteed and consistent with the email fields across iOS versions.
+    private let signInPasswordField = LatinTextField()
+    private let signUpPasswordField = LatinTextField()
+    private let signUpConfirmPasswordField = LatinTextField()
 
     private let loginButton = UIButton(type: .system)
     private var autoLoginTimer: Timer?
@@ -34,6 +47,11 @@ class LoginViewController: UIViewController {
     // Most recent keyboard height (0 when hidden); used to re-rest the button
     // above the keyboard after a mode switch changes the form height.
     private var lastKeyboardHeight: CGFloat = 0
+
+    // True only during a deliberate segment switch, so the keyboard-frame
+    // observers don't fire their own competing scroll animation — the single
+    // mode-switch spring owns the scroll adjustment instead.
+    private var isSwitchingMode = false
 
     // Gap kept between the login button and the top of the keyboard
     private let buttonKeyboardGap: CGFloat = 12
@@ -227,6 +245,10 @@ class LoginViewController: UIViewController {
             signUpEmailField.text = signInEmailField.text
         }
 
+        let shownFields: [UITextField] = isSignIn
+            ? [signInEmailField, signInPasswordField]
+            : [signUpUsernameField, signUpEmailField, signUpPasswordField, signUpConfirmPasswordField]
+
         let applyVisibility = {
             self.signInEmailField.isHidden = !isSignIn
             self.signInPasswordField.isHidden = !isSignIn
@@ -234,22 +256,39 @@ class LoginViewController: UIViewController {
             self.signUpEmailField.isHidden = isSignIn
             self.signUpPasswordField.isHidden = isSignIn
             self.signUpConfirmPasswordField.isHidden = isSignIn
-            self.formStack.layoutIfNeeded()
         }
 
-        if animated {
-            UIView.animate(withDuration: 0.25, delay: 0, options: .curveEaseInOut, animations: applyVisibility)
-        } else {
+        guard animated else {
             applyVisibility()
+            formStack.layoutIfNeeded()
+            updateButtonTitle()
+            return
         }
 
-        // Re-take first responder on the counterpart (now visible) so the keyboard
-        // stays up across the switch. iOS coalesces the resign+become in one runloop.
+        // One coordinated spring owns the whole transition so nothing competes:
+        // the incoming fields rise from below and fade in, the stack settles to its
+        // new height, and the scroll re-rests the login button above the keyboard.
+        isSwitchingMode = true
+        applyVisibility()
+        for field in shownFields {
+            field.alpha = 0
+            field.transform = CGAffineTransform(translationX: 0, y: 28)
+        }
+        // Move first responder to the counterpart (now visible) so the keyboard
+        // stays up; its frame notifications are ignored while isSwitchingMode is set.
         focusTarget?.becomeFirstResponder()
 
-        // The form height differs between modes; re-rest the button above the keyboard.
-        if keepKeyboard, lastKeyboardHeight > 0 {
-            adjustScrollForKeyboard(keyboardHeight: lastKeyboardHeight, duration: 0.25, options: .curveEaseInOut)
+        UIView.animate(withDuration: 0.5, delay: 0,
+                       usingSpringWithDamping: 0.72, initialSpringVelocity: 0.7,
+                       options: [.curveEaseOut, .allowUserInteraction]) {
+            for field in shownFields {
+                field.alpha = 1
+                field.transform = .identity
+            }
+            self.applyScrollInset(for: self.lastKeyboardHeight)
+            self.formStack.layoutIfNeeded()
+        } completion: { _ in
+            self.isSwitchingMode = false
         }
 
         updateButtonTitle()
@@ -405,44 +444,47 @@ class LoginViewController: UIViewController {
               let curveRaw = info[UIResponder.keyboardAnimationCurveUserInfoKey] as? UInt else { return }
 
         lastKeyboardHeight = keyboardFrame.height
-        adjustScrollForKeyboard(keyboardHeight: keyboardFrame.height,
-                                duration: duration,
-                                options: UIView.AnimationOptions(rawValue: curveRaw << 16))
+        // A mode switch runs its own spring that already adjusts the scroll;
+        // don't fire a competing animation here.
+        guard !isSwitchingMode else { return }
+        UIView.animate(withDuration: duration, delay: 0,
+                       options: UIView.AnimationOptions(rawValue: curveRaw << 16)) {
+            self.applyScrollInset(for: keyboardFrame.height)
+        }
     }
 
-    /// Lift the login button (plus a small gap) above the keyboard by extending the
-    /// scroll range — not the full keyboard height — so the bottom of the scroll
-    /// rests on the button.
-    private func adjustScrollForKeyboard(keyboardHeight: CGFloat, duration: TimeInterval, options: UIView.AnimationOptions) {
+    /// Set the scroll insets/offset so the login button rests just above a keyboard
+    /// of `keyboardHeight` (0 = keyboard hidden). Lifts only enough to clear the
+    /// button — not the whole keyboard. Call inside an animation block to animate it.
+    private func applyScrollInset(for keyboardHeight: CGFloat) {
         // Make sure frames are current before measuring the button position
         view.layoutIfNeeded()
+
+        guard keyboardHeight > 0 else {
+            scrollView.contentInset.bottom = 0
+            scrollView.scrollIndicatorInsets.bottom = 0
+            scrollView.contentOffset = .zero
+            return
+        }
 
         let buttonMaxY = loginButton.convert(loginButton.bounds, to: contentView).maxY
         let spaceBelowButton = contentView.bounds.height - buttonMaxY
         let bottomInset = max(keyboardHeight - spaceBelowButton + buttonKeyboardGap, 0)
-
-        UIView.animate(withDuration: duration, delay: 0, options: options) {
-            self.scrollView.contentInset.bottom = bottomInset
-            self.scrollView.scrollIndicatorInsets.bottom = keyboardHeight
-            // Rest at the bottom of the scroll range: button sits just above the keyboard.
-            // Over-scrolling past this bounces straight back here.
-            let restingOffsetY = max(
-                self.scrollView.contentSize.height + bottomInset - self.scrollView.bounds.height,
-                0
-            )
-            self.scrollView.contentOffset = CGPoint(x: 0, y: restingOffsetY)
-        }
+        scrollView.contentInset.bottom = bottomInset
+        scrollView.scrollIndicatorInsets.bottom = keyboardHeight
+        // Rest at the bottom of the scroll range: button sits just above the keyboard.
+        let restingOffsetY = max(scrollView.contentSize.height + bottomInset - scrollView.bounds.height, 0)
+        scrollView.contentOffset = CGPoint(x: 0, y: restingOffsetY)
     }
 
     @objc private func keyboardWillHide(_ notification: Notification) {
         lastKeyboardHeight = 0
+        guard !isSwitchingMode else { return }
         guard let duration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double,
               let curveRaw = notification.userInfo?[UIResponder.keyboardAnimationCurveUserInfoKey] as? UInt else { return }
         UIView.animate(withDuration: duration, delay: 0,
                        options: UIView.AnimationOptions(rawValue: curveRaw << 16)) {
-            self.scrollView.contentInset.bottom = 0
-            self.scrollView.scrollIndicatorInsets.bottom = 0
-            self.scrollView.contentOffset = .zero
+            self.applyScrollInset(for: 0)
         }
     }
 
