@@ -20,6 +20,8 @@ class LoginViewController: UIViewController {
     private let passwordField = UITextField()
     private let confirmPasswordField = UITextField()
     private let loginButton = UIButton(type: .system)
+    private var loginButtonBottomConstraint: NSLayoutConstraint!
+    private var autoLoginTimer: Timer?
 
     // MARK: - Lifecycle
 
@@ -41,6 +43,7 @@ class LoginViewController: UIViewController {
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
+        autoLoginTimer?.invalidate()
         NotificationCenter.default.removeObserver(self)
     }
 
@@ -80,10 +83,17 @@ class LoginViewController: UIViewController {
         formStack.addArrangedSubview(emailField)
         formStack.addArrangedSubview(passwordField)
         formStack.addArrangedSubview(confirmPasswordField)
-        formStack.addArrangedSubview(loginButton)
+
+        loginButton.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(loginButton)
     }
 
     private func setupConstraints() {
+        loginButtonBottomConstraint = loginButton.bottomAnchor.constraint(
+            equalTo: view.safeAreaLayoutGuide.bottomAnchor,
+            constant: -16
+        )
+
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -98,12 +108,17 @@ class LoginViewController: UIViewController {
             contentView.widthAnchor.constraint(equalTo: scrollView.frameLayoutGuide.widthAnchor),
             contentView.heightAnchor.constraint(equalTo: scrollView.frameLayoutGuide.heightAnchor),
 
-            // formStack centered vertically; guards prevent clipping on small devices
+            // formStack centered vertically; bottom guard clears the floating loginButton
             formStack.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
             formStack.topAnchor.constraint(greaterThanOrEqualTo: contentView.topAnchor, constant: 40),
-            formStack.bottomAnchor.constraint(lessThanOrEqualTo: contentView.bottomAnchor, constant: -40),
+            formStack.bottomAnchor.constraint(lessThanOrEqualTo: contentView.bottomAnchor, constant: -80),
             formStack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 40),
             formStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -40),
+
+            loginButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 40),
+            loginButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40),
+            loginButton.heightAnchor.constraint(equalToConstant: 36),
+            loginButtonBottomConstraint,
         ])
 
         logoImageView.heightAnchor.constraint(equalToConstant: 120).isActive = true
@@ -112,7 +127,6 @@ class LoginViewController: UIViewController {
         emailField.heightAnchor.constraint(equalToConstant: 36).isActive = true
         passwordField.heightAnchor.constraint(equalToConstant: 36).isActive = true
         confirmPasswordField.heightAnchor.constraint(equalToConstant: 36).isActive = true
-        loginButton.heightAnchor.constraint(equalToConstant: 36).isActive = true
     }
 
     private func applyBrandStyling() {
@@ -299,6 +313,14 @@ class LoginViewController: UIViewController {
             name: UIResponder.keyboardWillHideNotification,
             object: nil
         )
+        for field in [emailField, passwordField] {
+            NotificationCenter.default.addObserver(
+                self,
+                selector: #selector(credentialFieldChanged),
+                name: UITextField.textDidChangeNotification,
+                object: field
+            )
+        }
     }
 
     @objc private func keyboardWillShow(_ notification: Notification) {
@@ -307,19 +329,21 @@ class LoginViewController: UIViewController {
               let duration = info[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double,
               let curveRaw = info[UIResponder.keyboardAnimationCurveUserInfoKey] as? UInt else { return }
 
-        let insets = UIEdgeInsets(top: 0, left: 0, bottom: keyboardFrame.height, right: 0)
-        // Mirror the system's own curve so the inset tracks the keyboard animation exactly
+        // Extra clearance so scrollRectToVisible won't slide the active field behind the button
+        let buttonClearance: CGFloat = 36 + 8 + 8
+        let insets = UIEdgeInsets(top: 0, left: 0, bottom: keyboardFrame.height + buttonClearance, right: 0)
+        // Mirror the system's own curve so the button tracks the keyboard animation exactly
         UIView.animate(withDuration: duration, delay: 0,
                        options: UIView.AnimationOptions(rawValue: curveRaw << 16)) {
+            self.loginButtonBottomConstraint.constant = self.view.safeAreaInsets.bottom - keyboardFrame.height - 8
             self.scrollView.contentInset = insets
-            self.scrollView.scrollIndicatorInsets = insets
+            self.scrollView.scrollIndicatorInsets = UIEdgeInsets(top: 0, left: 0, bottom: keyboardFrame.height, right: 0)
+            self.view.layoutIfNeeded()
             if let activeField = [self.usernameField, self.emailField,
                                   self.passwordField, self.confirmPasswordField]
                 .first(where: { $0.isFirstResponder }) {
-                let fieldRect = activeField.convert(activeField.bounds, to: self.scrollView)
-                let buttonRect = self.loginButton.convert(self.loginButton.bounds, to: self.scrollView)
-                let targetRect = fieldRect.union(buttonRect).insetBy(dx: 0, dy: -16)
-                self.scrollView.scrollRectToVisible(targetRect, animated: false)
+                let rect = activeField.convert(activeField.bounds, to: self.scrollView)
+                self.scrollView.scrollRectToVisible(rect.insetBy(dx: 0, dy: -16), animated: false)
             }
         }
     }
@@ -329,8 +353,24 @@ class LoginViewController: UIViewController {
               let curveRaw = notification.userInfo?[UIResponder.keyboardAnimationCurveUserInfoKey] as? UInt else { return }
         UIView.animate(withDuration: duration, delay: 0,
                        options: UIView.AnimationOptions(rawValue: curveRaw << 16)) {
+            self.loginButtonBottomConstraint.constant = -16
             self.scrollView.contentInset = .zero
             self.scrollView.scrollIndicatorInsets = .zero
+            self.view.layoutIfNeeded()
+        }
+    }
+
+    @objc private func credentialFieldChanged() {
+        guard segmentedControl.selectedSegmentIndex == 0,
+              let email = emailField.text, !email.isEmpty,
+              let password = passwordField.text, !password.isEmpty else {
+            autoLoginTimer?.invalidate()
+            return
+        }
+        autoLoginTimer?.invalidate()
+        // Debounce: wait for autofill to finish filling both fields before submitting
+        autoLoginTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: false) { [weak self] _ in
+            self?.loginButtonTapped()
         }
     }
 
