@@ -30,6 +30,7 @@ class LoginViewController: UIViewController {
         setupTextFieldAttributes()
         applyBrandStyling()
         localizeUI()
+        segmentedControl.selectedSegmentIndex = 0
         updateModeUI(animated: false)
         setupKeyboardDismissOnTap()
         setupKeyboardObservers()
@@ -308,12 +309,12 @@ class LoginViewController: UIViewController {
                        options: UIView.AnimationOptions(rawValue: curveRaw << 16)) {
             self.scrollView.contentInset = insets
             self.scrollView.scrollIndicatorInsets = insets
-        }
-
-        if let activeField = [usernameField, emailField, passwordField, confirmPasswordField]
-            .first(where: { $0.isFirstResponder }) {
-            let rect = activeField.convert(activeField.bounds, to: scrollView)
-            scrollView.scrollRectToVisible(rect.insetBy(dx: 0, dy: -16), animated: true)
+            if let activeField = [self.usernameField, self.emailField,
+                                  self.passwordField, self.confirmPasswordField]
+                .first(where: { $0.isFirstResponder }) {
+                let rect = activeField.convert(activeField.bounds, to: self.scrollView)
+                self.scrollView.scrollRectToVisible(rect.insetBy(dx: 0, dy: -16), animated: false)
+            }
         }
     }
 
