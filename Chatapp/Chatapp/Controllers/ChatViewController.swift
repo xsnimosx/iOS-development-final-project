@@ -38,6 +38,9 @@ class ChatViewController: UIViewController, UIImagePickerControllerDelegate, UIN
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
         setupKeyboardDismissOnTap()
+        messageTextField.autocapitalizationType = .sentences
+        messageTextField.returnKeyType = .send
+        messageTextField.textContentType = .none
     }
 
     override func viewWillAppear(_ animated: Bool) {
