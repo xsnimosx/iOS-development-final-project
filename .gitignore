@@ -1,3 +1,4 @@
 *.xcuserstate
+**/xcshareddata/xcschemes/
 GoogleService-Info.plist
 .claude/
