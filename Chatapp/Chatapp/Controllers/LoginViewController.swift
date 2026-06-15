@@ -53,6 +53,10 @@ class LoginViewController: UIViewController {
     // mode-switch spring owns the scroll adjustment instead.
     private var isSwitchingMode = false
 
+    // The mode-switch spring, deferred until the incoming field's keyboard height
+    // is known. Run by keyboardWillShow (accurate height) or a next-runloop fallback.
+    private var pendingModeSwitchSpring: ((CGFloat) -> Void)?
+
     // Gap kept between the login button and the top of the keyboard
     private let buttonKeyboardGap: CGFloat = 12
 
@@ -93,6 +97,9 @@ class LoginViewController: UIViewController {
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.showsVerticalScrollIndicator = false
         scrollView.alwaysBounceVertical = false
+        // Tapping the status bar / notch would otherwise scroll to top and drop the
+        // login button behind the keyboard while the keyboard stays up.
+        scrollView.scrollsToTop = false
         view.addSubview(scrollView)
 
         contentView.translatesAutoresizingMaskIntoConstraints = false
@@ -265,37 +272,42 @@ class LoginViewController: UIViewController {
             return
         }
 
-        // One coordinated spring owns the whole transition so nothing competes:
-        // the incoming fields rise from below and fade in, the stack settles to its
-        // new height, and the scroll re-rests the login button above the keyboard.
+        // Incoming fields rise into place AND the login button scrolls above the
+        // keyboard in one coordinated spring. The scroll needs the *new* field's
+        // keyboard height (AutoFill accessory bars differ in height), which is only
+        // known from keyboardWillShow — so the spring is deferred until that height
+        // is available rather than computed from the stale pre-switch height.
         isSwitchingMode = true
         applyVisibility()
         for field in shownFields {
             field.alpha = 0
             field.transform = CGAffineTransform(translationX: 0, y: 28)
         }
-        // Move first responder to the counterpart (now visible) so the keyboard
-        // stays up; its frame notifications are ignored while isSwitchingMode is set.
+
+        pendingModeSwitchSpring = { [weak self] keyboardHeight in
+            guard let self = self else { return }
+            self.isSwitchingMode = false
+            UIView.animate(withDuration: 0.5, delay: 0,
+                           usingSpringWithDamping: 0.9, initialSpringVelocity: 0.75,
+                           options: [.curveEaseOut, .allowUserInteraction]) {
+                for field in shownFields {
+                    field.alpha = 1
+                    field.transform = .identity
+                }
+                self.applyScrollInset(for: keyboardHeight)
+            }
+        }
+
+        // Keep the keyboard up; this fires keyboardWillShow with the new height,
+        // which runs the deferred spring in sync with the field entrance.
         focusTarget?.becomeFirstResponder()
 
-        UIView.animate(withDuration: 0.5, delay: 0,
-                       usingSpringWithDamping: 0.9, initialSpringVelocity: 0.75,
-                       options: [.curveEaseOut, .allowUserInteraction]) {
-            for field in shownFields {
-                field.alpha = 1
-                field.transform = .identity
-            }
-            self.applyScrollInset(for: self.lastKeyboardHeight)
-            self.formStack.layoutIfNeeded()
-        } completion: { _ in
-            self.isSwitchingMode = false
-            // Layout has settled and lastKeyboardHeight now reflects the new field's
-            // actual keyboard (which can differ in height, e.g. a password field's
-            // AutoFill/Strong-Password accessory bar). Re-rest the button above it.
-            guard self.lastKeyboardHeight > 0 else { return }
-            UIView.animate(withDuration: 0.25) {
-                self.applyScrollInset(for: self.lastKeyboardHeight)
-            }
+        // Fallback: if the keyboard height doesn't change (same keyboard → no
+        // notification) or it's already closed, run next runloop with the current height.
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self, let spring = self.pendingModeSwitchSpring else { return }
+            self.pendingModeSwitchSpring = nil
+            spring(self.lastKeyboardHeight)
         }
 
         updateButtonTitle()
@@ -451,9 +463,16 @@ class LoginViewController: UIViewController {
               let curveRaw = info[UIResponder.keyboardAnimationCurveUserInfoKey] as? UInt else { return }
 
         lastKeyboardHeight = keyboardFrame.height
-        // A mode switch runs its own spring that already adjusts the scroll;
-        // don't fire a competing animation here.
-        guard !isSwitchingMode else { return }
+
+        // A mode switch deferred its coordinated spring until the new keyboard
+        // height was known — run it now, with this accurate height, so the button
+        // scroll and the field entrance move together.
+        if let spring = pendingModeSwitchSpring {
+            pendingModeSwitchSpring = nil
+            spring(keyboardFrame.height)
+            return
+        }
+
         UIView.animate(withDuration: duration, delay: 0,
                        options: UIView.AnimationOptions(rawValue: curveRaw << 16)) {
             self.applyScrollInset(for: keyboardFrame.height)
@@ -485,8 +504,11 @@ class LoginViewController: UIViewController {
     }
 
     @objc private func keyboardWillHide(_ notification: Notification) {
-        lastKeyboardHeight = 0
+        // During a switch the old field briefly resigns before the new one focuses;
+        // ignore that transient hide so the cached height (used by the deferred
+        // spring's fallback) isn't zeroed out.
         guard !isSwitchingMode else { return }
+        lastKeyboardHeight = 0
         guard let duration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double,
               let curveRaw = notification.userInfo?[UIResponder.keyboardAnimationCurveUserInfoKey] as? UInt else { return }
         UIView.animate(withDuration: duration, delay: 0,
