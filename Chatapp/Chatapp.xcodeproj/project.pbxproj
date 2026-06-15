@@ -37,6 +37,8 @@
 		51917A5D2FDC4CF8002959E9 /* AddFriendViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51917A5C2FDC4CF7002959E9 /* AddFriendViewController.swift */; };
 		51917A5F2FDC4EC0002959E9 /* FriendRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51917A5E2FDC4EC0002959E9 /* FriendRequest.swift */; };
 		51F8A7772FDFD3AD00B1C0D2 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 51F8A7752FDFD3AD00B1C0D2 /* InfoPlist.strings */; };
+		51F8A77F2FDFDB6A00B1C0D2 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 51F8A77B2FDFDB6A00B1C0D2 /* Localizable.strings */; };
+		51F8A7802FDFDB6A00B1C0D2 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 51F8A77D2FDFDB6A00B1C0D2 /* InfoPlist.strings */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -70,6 +72,8 @@
 		51917A5E2FDC4EC0002959E9 /* FriendRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = FriendRequest.swift; path = Chatapp/Models/FriendRequest.swift; sourceTree = SOURCE_ROOT; };
 		51F8A7762FDFD3AD00B1C0D2 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = InfoPlist.strings; sourceTree = "<group>"; };
 		51F8A7792FDFD3B500B1C0D2 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = InfoPlist.strings; sourceTree = "<group>"; };
+		51F8A77C2FDFDB6A00B1C0D2 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = Localizable.strings; sourceTree = "<group>"; };
+		51F8A77E2FDFDB6A00B1C0D2 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = InfoPlist.strings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -181,8 +185,8 @@
 		51565CA92FDE93020096FB15 /* en.lproj */ = {
 			isa = PBXGroup;
 			children = (
-				51F8A7752FDFD3AD00B1C0D2 /* InfoPlist.strings */,
-				51565CA82FDE93020096FB15 /* Localizable.strings */,
+				51F8A77D2FDFDB6A00B1C0D2 /* InfoPlist.strings */,
+				51F8A77B2FDFDB6A00B1C0D2 /* Localizable.strings */,
 			);
 			path = en.lproj;
 			sourceTree = "<group>";
@@ -272,8 +276,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				51565CAA2FDE93020096FB15 /* Localizable.strings in Resources */,
+				51F8A7802FDFDB6A00B1C0D2 /* InfoPlist.strings in Resources */,
 				51F8A7772FDFD3AD00B1C0D2 /* InfoPlist.strings in Resources */,
 				51565C9C2FDDB0C70096FB15 /* GoogleService-Info.plist in Resources */,
+				51F8A77F2FDFDB6A00B1C0D2 /* Localizable.strings in Resources */,
 				514169BF2FDB2AB2007FE670 /* Assets.xcassets in Resources */,
 				514169C32FDB2AB2007FE670 /* Main.storyboard in Resources */,
 				514169C22FDB2AB2007FE670 /* LaunchScreen.storyboard in Resources */,
@@ -343,6 +349,22 @@
 			children = (
 				51F8A7762FDFD3AD00B1C0D2 /* en */,
 				51F8A7792FDFD3B500B1C0D2 /* zh-Hant */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		51F8A77B2FDFDB6A00B1C0D2 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				51F8A77C2FDFDB6A00B1C0D2 /* en */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+		51F8A77D2FDFDB6A00B1C0D2 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				51F8A77E2FDFDB6A00B1C0D2 /* en */,
 			);
 			name = InfoPlist.strings;
 			sourceTree = "<group>";

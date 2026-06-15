@@ -108,11 +108,11 @@ class LoginViewController: UIViewController {
 
         logoImageView.heightAnchor.constraint(equalToConstant: 120).isActive = true
         segmentedControl.heightAnchor.constraint(equalToConstant: 32).isActive = true
-        usernameField.heightAnchor.constraint(equalToConstant: 44).isActive = true
-        emailField.heightAnchor.constraint(equalToConstant: 44).isActive = true
-        passwordField.heightAnchor.constraint(equalToConstant: 44).isActive = true
-        confirmPasswordField.heightAnchor.constraint(equalToConstant: 44).isActive = true
-        loginButton.heightAnchor.constraint(equalToConstant: 44).isActive = true
+        usernameField.heightAnchor.constraint(equalToConstant: 36).isActive = true
+        emailField.heightAnchor.constraint(equalToConstant: 36).isActive = true
+        passwordField.heightAnchor.constraint(equalToConstant: 36).isActive = true
+        confirmPasswordField.heightAnchor.constraint(equalToConstant: 36).isActive = true
+        loginButton.heightAnchor.constraint(equalToConstant: 36).isActive = true
     }
 
     private func applyBrandStyling() {
