@@ -20,8 +20,10 @@ class LoginViewController: UIViewController {
     private let passwordField = UITextField()
     private let confirmPasswordField = UITextField()
     private let loginButton = UIButton(type: .system)
-    private var loginButtonBottomConstraint: NSLayoutConstraint!
     private var autoLoginTimer: Timer?
+
+    // Gap kept between the login button and the top of the keyboard
+    private let buttonKeyboardGap: CGFloat = 12
 
     // MARK: - Lifecycle
 
@@ -83,17 +85,10 @@ class LoginViewController: UIViewController {
         formStack.addArrangedSubview(emailField)
         formStack.addArrangedSubview(passwordField)
         formStack.addArrangedSubview(confirmPasswordField)
-
-        loginButton.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(loginButton)
+        formStack.addArrangedSubview(loginButton)
     }
 
     private func setupConstraints() {
-        loginButtonBottomConstraint = loginButton.bottomAnchor.constraint(
-            equalTo: view.safeAreaLayoutGuide.bottomAnchor,
-            constant: -16
-        )
-
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -108,17 +103,12 @@ class LoginViewController: UIViewController {
             contentView.widthAnchor.constraint(equalTo: scrollView.frameLayoutGuide.widthAnchor),
             contentView.heightAnchor.constraint(equalTo: scrollView.frameLayoutGuide.heightAnchor),
 
-            // formStack centered vertically; bottom guard clears the floating loginButton
+            // formStack centered vertically; guards prevent clipping on small devices
             formStack.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
             formStack.topAnchor.constraint(greaterThanOrEqualTo: contentView.topAnchor, constant: 40),
-            formStack.bottomAnchor.constraint(lessThanOrEqualTo: contentView.bottomAnchor, constant: -80),
+            formStack.bottomAnchor.constraint(lessThanOrEqualTo: contentView.bottomAnchor, constant: -40),
             formStack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 40),
             formStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -40),
-
-            loginButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 40),
-            loginButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40),
-            loginButton.heightAnchor.constraint(equalToConstant: 36),
-            loginButtonBottomConstraint,
         ])
 
         logoImageView.heightAnchor.constraint(equalToConstant: 120).isActive = true
@@ -127,6 +117,7 @@ class LoginViewController: UIViewController {
         emailField.heightAnchor.constraint(equalToConstant: 36).isActive = true
         passwordField.heightAnchor.constraint(equalToConstant: 36).isActive = true
         confirmPasswordField.heightAnchor.constraint(equalToConstant: 36).isActive = true
+        loginButton.heightAnchor.constraint(equalToConstant: 36).isActive = true
     }
 
     private func applyBrandStyling() {
@@ -329,22 +320,28 @@ class LoginViewController: UIViewController {
               let duration = info[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double,
               let curveRaw = info[UIResponder.keyboardAnimationCurveUserInfoKey] as? UInt else { return }
 
-        // Extra clearance so scrollRectToVisible won't slide the active field behind the button
-        let buttonClearance: CGFloat = 36 + 8 + 8
-        let insets = UIEdgeInsets(top: 0, left: 0, bottom: keyboardFrame.height + buttonClearance, right: 0)
-        // Mirror the system's own curve so the button tracks the keyboard animation exactly
+        // Make sure frames are current before measuring the button position
+        view.layoutIfNeeded()
+
+        // Distance from the button's bottom edge down to the bottom of the scrollable content.
+        // The scroll range only needs to lift the button (plus a small gap) above the keyboard —
+        // not the whole keyboard height — so the very bottom of the scroll lands on the button.
+        let buttonMaxY = loginButton.convert(loginButton.bounds, to: contentView).maxY
+        let spaceBelowButton = contentView.bounds.height - buttonMaxY
+        let bottomInset = max(keyboardFrame.height - spaceBelowButton + buttonKeyboardGap, 0)
+
+        // Mirror the system's own curve so the scroll tracks the keyboard animation exactly
         UIView.animate(withDuration: duration, delay: 0,
                        options: UIView.AnimationOptions(rawValue: curveRaw << 16)) {
-            self.loginButtonBottomConstraint.constant = self.view.safeAreaInsets.bottom - keyboardFrame.height - 8
-            self.scrollView.contentInset = insets
-            self.scrollView.scrollIndicatorInsets = UIEdgeInsets(top: 0, left: 0, bottom: keyboardFrame.height, right: 0)
-            self.view.layoutIfNeeded()
-            if let activeField = [self.usernameField, self.emailField,
-                                  self.passwordField, self.confirmPasswordField]
-                .first(where: { $0.isFirstResponder }) {
-                let rect = activeField.convert(activeField.bounds, to: self.scrollView)
-                self.scrollView.scrollRectToVisible(rect.insetBy(dx: 0, dy: -16), animated: false)
-            }
+            self.scrollView.contentInset.bottom = bottomInset
+            self.scrollView.scrollIndicatorInsets.bottom = keyboardFrame.height
+            // Rest at the bottom of the scroll range: button sits just above the keyboard.
+            // Over-scrolling past this bounces straight back here.
+            let restingOffsetY = max(
+                self.scrollView.contentSize.height + bottomInset - self.scrollView.bounds.height,
+                0
+            )
+            self.scrollView.contentOffset = CGPoint(x: 0, y: restingOffsetY)
         }
     }
 
@@ -353,10 +350,9 @@ class LoginViewController: UIViewController {
               let curveRaw = notification.userInfo?[UIResponder.keyboardAnimationCurveUserInfoKey] as? UInt else { return }
         UIView.animate(withDuration: duration, delay: 0,
                        options: UIView.AnimationOptions(rawValue: curveRaw << 16)) {
-            self.loginButtonBottomConstraint.constant = -16
-            self.scrollView.contentInset = .zero
-            self.scrollView.scrollIndicatorInsets = .zero
-            self.view.layoutIfNeeded()
+            self.scrollView.contentInset.bottom = 0
+            self.scrollView.scrollIndicatorInsets.bottom = 0
+            self.scrollView.contentOffset = .zero
         }
     }
 
@@ -368,7 +364,8 @@ class LoginViewController: UIViewController {
             return
         }
         autoLoginTimer?.invalidate()
-        // Debounce: wait for autofill to finish filling both fields before submitting
+        // Debounce: iCloud Password fills email then password as two separate change events,
+        // so wait briefly for both to settle before submitting.
         autoLoginTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: false) { [weak self] _ in
             self?.loginButtonTapped()
         }
