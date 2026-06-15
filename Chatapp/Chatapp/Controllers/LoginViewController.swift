@@ -188,7 +188,10 @@ class LoginViewController: UIViewController {
         signUpEmailField.keyboardType = .emailAddress
         signUpEmailField.autocapitalizationType = .none
         signUpEmailField.autocorrectionType = .no
-        signUpEmailField.textContentType = .emailAddress
+        // .username (not .emailAddress) to match the Sign-in email field: it keeps
+        // the keyboard on a Latin/English layout and still lets iOS save the new
+        // credential (account identifier + .newPassword) on sign-up.
+        signUpEmailField.textContentType = .username
         signUpEmailField.returnKeyType = .next
 
         // Sign-up password: .newPassword triggers the "Use Strong Password" flow
@@ -504,7 +507,7 @@ extension LoginViewController: UITextFieldDelegate {
 // MARK: - UIGestureRecognizerDelegate
 
 extension LoginViewController: UIGestureRecognizerDelegate {
-    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceiveTouch touch: UITouch) -> Bool {
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
         // Don't let the dismiss-on-tap gesture fire when tapping the segmented
         // control, otherwise switching mode would dismiss the keyboard.
         if let touched = touch.view, touched.isDescendant(of: segmentedControl) {
