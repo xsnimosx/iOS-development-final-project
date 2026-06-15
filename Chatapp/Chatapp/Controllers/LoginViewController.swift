@@ -63,16 +63,6 @@ class LoginViewController: UIViewController {
     // is known. Run by keyboardWillShow (accurate height) or a next-runloop fallback.
     private var pendingModeSwitchSpring: ((CGFloat) -> Void)?
 
-    // The button's resting clearance is driven by the *tallest* keyboard seen this
-    // editing session, never shrunk mid-session. A shorter keyboard (the secure
-    // password field drops the AutoFill bar, or the bar flickers during a focus
-    // move) must not drag the button down — only a genuine dismissal resets this to 0.
-    private var keyboardSessionHeight: CGFloat = 0
-
-    // A keyboardWillHide schedules this; a keyboardWillShow that arrives first (the
-    // flicker/focus-move recovery) cancels it, so only a real dismissal collapses.
-    private var pendingHide: DispatchWorkItem?
-
     // Gap kept between the login button and the top of the keyboard
     private let buttonKeyboardGap: CGFloat = 12
 
@@ -484,30 +474,18 @@ class LoginViewController: UIViewController {
 
         lastKeyboardHeight = keyboardFrame.height
 
-        // This show cancels any pending collapse: the keyboard is (still) up. Covers
-        // both the suggestion-bar flicker and a focus move to another field.
-        pendingHide?.cancel()
-        pendingHide = nil
-
         // A mode switch deferred its coordinated spring until the new keyboard
         // height was known — run it now, with this accurate height, so the button
         // scroll and the field entrance move together.
         if let spring = pendingModeSwitchSpring {
             pendingModeSwitchSpring = nil
-            keyboardSessionHeight = keyboardFrame.height
             spring(keyboardFrame.height)
             return
         }
 
-        // Only ever grow the clearance, never shrink it mid-session. A taller keyboard
-        // lifts the button; a shorter one (flicker, or the secure password field
-        // without the AutoFill bar) leaves it where it is — so the form never dips.
-        let target = max(keyboardSessionHeight, keyboardFrame.height)
-        guard target != keyboardSessionHeight else { return }
-        keyboardSessionHeight = target
         UIView.animate(withDuration: duration, delay: 0,
                        options: UIView.AnimationOptions(rawValue: curveRaw << 16)) {
-            self.applyScrollInset(for: target)
+            self.applyScrollInset(for: keyboardFrame.height)
         }
     }
 
@@ -544,26 +522,22 @@ class LoginViewController: UIViewController {
         let duration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double ?? 0.25
         let curveRaw = notification.userInfo?[UIResponder.keyboardAnimationCurveUserInfoKey] as? UInt ?? 0
 
-        // Defer the collapse. A flicker or focus move fires hide→show; the show
-        // cancels this work item before it runs. The delay (not just one runloop)
-        // is what bridges the "no field is first responder yet" gap that the secure
-        // password field's AutoFill opens up — by the time this fires, focus has
-        // settled, so the FR check reliably distinguishes a real dismissal from a
-        // transition. Only then do we drop the clearance to 0.
-        pendingHide?.cancel()
-        let work = DispatchWorkItem { [weak self] in
-            guard let self = self else { return }
-            self.pendingHide = nil
-            guard self.currentFirstResponderField() == nil else { return }
-            self.keyboardSessionHeight = 0
+        // Switching focus between two fields whose keyboards differ in height (the
+        // sign-in email field carries an AutoFill suggestion bar, the secure password
+        // field doesn't) fires a transient hide→show. Don't act on the hide until the
+        // next runloop: by then either the new field is first responder (focus moved,
+        // not a real dismissal — skip) or it isn't (genuine dismissal — collapse).
+        // A synchronous check isn't enough because the password field's AutoFill makes
+        // it first responder a beat late, so the hide would otherwise zero the scroll
+        // and bounce the form down before keyboardWillShow lifts it back.
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self, self.currentFirstResponderField() == nil else { return }
             self.lastKeyboardHeight = 0
             UIView.animate(withDuration: duration, delay: 0,
                            options: UIView.AnimationOptions(rawValue: curveRaw << 16)) {
                 self.applyScrollInset(for: 0)
             }
         }
-        pendingHide = work
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: work)
     }
 
     @objc private func credentialFieldChanged(_ note: Notification) {
