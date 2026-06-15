@@ -518,18 +518,25 @@ class LoginViewController: UIViewController {
         // ignore that transient hide so the cached height (used by the deferred
         // spring's fallback) isn't zeroed out.
         guard !isSwitchingMode else { return }
-        // Moving focus between fields (tapping another field, or switching segment)
-        // fires a transient hide before the next field's show. If any field is still
-        // first responder the keyboard isn't actually dismissing, so skip — otherwise
-        // we'd slam the scroll to 0 (the form bounces down) only for keyboardWillShow
-        // to lift it back up a frame later.
-        guard currentFirstResponderField() == nil else { return }
-        lastKeyboardHeight = 0
-        guard let duration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double,
-              let curveRaw = notification.userInfo?[UIResponder.keyboardAnimationCurveUserInfoKey] as? UInt else { return }
-        UIView.animate(withDuration: duration, delay: 0,
-                       options: UIView.AnimationOptions(rawValue: curveRaw << 16)) {
-            self.applyScrollInset(for: 0)
+
+        let duration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double ?? 0.25
+        let curveRaw = notification.userInfo?[UIResponder.keyboardAnimationCurveUserInfoKey] as? UInt ?? 0
+
+        // Switching focus between two fields whose keyboards differ in height (the
+        // sign-in email field carries an AutoFill suggestion bar, the secure password
+        // field doesn't) fires a transient hide→show. Don't act on the hide until the
+        // next runloop: by then either the new field is first responder (focus moved,
+        // not a real dismissal — skip) or it isn't (genuine dismissal — collapse).
+        // A synchronous check isn't enough because the password field's AutoFill makes
+        // it first responder a beat late, so the hide would otherwise zero the scroll
+        // and bounce the form down before keyboardWillShow lifts it back.
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self, self.currentFirstResponderField() == nil else { return }
+            self.lastKeyboardHeight = 0
+            UIView.animate(withDuration: duration, delay: 0,
+                           options: UIView.AnimationOptions(rawValue: curveRaw << 16)) {
+                self.applyScrollInset(for: 0)
+            }
         }
     }
 
