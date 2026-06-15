@@ -508,6 +508,12 @@ class LoginViewController: UIViewController {
         // ignore that transient hide so the cached height (used by the deferred
         // spring's fallback) isn't zeroed out.
         guard !isSwitchingMode else { return }
+        // Moving focus between fields (tapping another field, or switching segment)
+        // fires a transient hide before the next field's show. If any field is still
+        // first responder the keyboard isn't actually dismissing, so skip — otherwise
+        // we'd slam the scroll to 0 (the form bounces down) only for keyboardWillShow
+        // to lift it back up a frame later.
+        guard currentFirstResponderField() == nil else { return }
         lastKeyboardHeight = 0
         guard let duration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double,
               let curveRaw = notification.userInfo?[UIResponder.keyboardAnimationCurveUserInfoKey] as? UInt else { return }
