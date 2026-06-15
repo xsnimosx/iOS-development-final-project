@@ -183,6 +183,7 @@ class LoginViewController: UIViewController {
         }
 
         updateButtonTitle()
+        updateEmailFieldContentType()
         updatePasswordFieldContentType()
         updateReturnKeyTypes()
     }
@@ -191,7 +192,10 @@ class LoginViewController: UIViewController {
         let isSignIn = segmentedControl.selectedSegmentIndex == 0
         let key = isSignIn ? "login.button.signIn" : "login.button.signUp"
         loginButton.setTitle(NSLocalizedString(key, comment: ""), for: .normal)
-        passwordField.textContentType = isSignIn ? .password : .newPassword
+    }
+
+    private func updateEmailFieldContentType() {
+        emailField.textContentType = segmentedControl.selectedSegmentIndex == 0 ? .username : .emailAddress
     }
 
     private func updatePasswordFieldContentType() {
