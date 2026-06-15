@@ -42,6 +42,9 @@ class LoginViewController: UIViewController {
     private let signUpConfirmPasswordField = LatinTextField()
 
     private let loginButton = UIButton(type: .system)
+    // Inline error feedback (replaces UIAlertController popups): red text that the
+    // stack auto-collapses while hidden, paired with a left-right shake of the form.
+    private let errorLabel = UILabel()
     private var autoLoginTimer: Timer?
 
     // Last seen lengths of the sign-in credential fields, used to tell an AutoFill
@@ -138,6 +141,8 @@ class LoginViewController: UIViewController {
         formStack.addArrangedSubview(signInPasswordField)
         formStack.addArrangedSubview(signUpPasswordField)
         formStack.addArrangedSubview(signUpConfirmPasswordField)
+        // Sits directly above the button; hidden (and collapsed) until an error shows.
+        formStack.addArrangedSubview(errorLabel)
         formStack.addArrangedSubview(loginButton)
     }
 
@@ -193,6 +198,12 @@ class LoginViewController: UIViewController {
         loginButton.layer.masksToBounds = true
         loginButton.setTitleColor(.white, for: .normal)
         loginButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: 17)
+
+        errorLabel.textColor = .systemRed
+        errorLabel.font = UIFont.systemFont(ofSize: 13, weight: .medium)
+        errorLabel.numberOfLines = 0
+        errorLabel.textAlignment = .center
+        errorLabel.isHidden = true
     }
 
     /// Each field's AutoFill traits are fixed here and never change afterward.
@@ -368,6 +379,7 @@ class LoginViewController: UIViewController {
     // MARK: - Actions
 
     @objc private func segmentChanged() {
+        hideInlineError()
         updateModeUI(animated: true, keepKeyboard: true)
     }
 
@@ -378,7 +390,7 @@ class LoginViewController: UIViewController {
             let email = signInEmailField.text?.trimmingCharacters(in: .whitespaces) ?? ""
             let password = signInPasswordField.text ?? ""
             guard !email.isEmpty, !password.isEmpty else {
-                showAlert(NSLocalizedString("login.error.emptyFields", comment: ""))
+                showInlineError(NSLocalizedString("login.error.emptyFields", comment: ""))
                 return
             }
             signIn(email: email, password: password)
@@ -389,11 +401,11 @@ class LoginViewController: UIViewController {
             let confirm = signUpConfirmPasswordField.text ?? ""
 
             guard !email.isEmpty, !password.isEmpty, !confirm.isEmpty else {
-                showAlert(NSLocalizedString("login.error.emptyFields", comment: ""))
+                showInlineError(NSLocalizedString("login.error.emptyFields", comment: ""))
                 return
             }
             guard password == confirm else {
-                showAlert(NSLocalizedString("login.error.passwordMismatch", comment: ""))
+                showInlineError(NSLocalizedString("login.error.passwordMismatch", comment: ""))
                 return
             }
             let displayName = username.isEmpty ? email : username
@@ -406,7 +418,7 @@ class LoginViewController: UIViewController {
     private func signIn(email: String, password: String) {
         Auth.auth().signIn(withEmail: email, password: password) { [weak self] _, error in
             if let error = error {
-                self?.showAlert(String(format: NSLocalizedString("login.error.signInFailed", comment: ""), error.localizedDescription))
+                self?.showInlineError(self?.authErrorMessage(error) ?? "")
                 return
             }
             self?.navigateToMainApp()
@@ -416,7 +428,7 @@ class LoginViewController: UIViewController {
     private func register(email: String, password: String, displayName: String) {
         Auth.auth().createUser(withEmail: email, password: password) { [weak self] result, error in
             if let error = error {
-                self?.showAlert(String(format: NSLocalizedString("login.error.registerFailed", comment: ""), error.localizedDescription))
+                self?.showInlineError(self?.authErrorMessage(error) ?? "")
                 return
             }
             guard let uid = result?.user.uid else { return }
@@ -581,11 +593,67 @@ class LoginViewController: UIViewController {
         }
     }
 
-    private func showAlert(_ message: String) {
+    // MARK: - Error Presentation
+
+    /// Show an error inline (red text below the fields) with a left-right shake of
+    /// the form, instead of a modal alert. Dismisses the keyboard first so the
+    /// centered form and the red text are fully visible and unobstructed.
+    private func showInlineError(_ message: String) {
         DispatchQueue.main.async {
-            let alert = UIAlertController(title: nil, message: message, preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: NSLocalizedString("login.alert.ok", comment: ""), style: .default))
-            self.present(alert, animated: true)
+            self.view.endEditing(true)
+            self.errorLabel.text = message
+            // Animate the stack expanding the now-visible label into place.
+            UIView.animate(withDuration: 0.2) {
+                self.errorLabel.isHidden = false
+                self.formStack.layoutIfNeeded()
+            }
+            self.shake(self.formStack)
+        }
+    }
+
+    private func hideInlineError() {
+        errorLabel.isHidden = true
+        errorLabel.text = nil
+    }
+
+    /// A quick horizontal wobble. Uses a layer keyframe on transform.translation.x
+    /// so it's a self-resetting relative offset — it never mutates the Auto Layout
+    /// frame the stack/scroll constraints depend on.
+    private func shake(_ view: UIView) {
+        let animation = CAKeyframeAnimation(keyPath: "transform.translation.x")
+        animation.values = [-12, 12, -10, 10, -6, 6, -3, 3, 0]
+        animation.duration = 0.5
+        animation.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+        view.layer.add(animation, forKey: "shake")
+    }
+
+    /// Map a Firebase Auth error to one of the app's own localized messages, rather
+    /// than surfacing Firebase's raw English `localizedDescription`. wrongPassword /
+    /// userNotFound / invalidCredential are merged into one "incorrect" message so
+    /// the screen never reveals whether an account exists (anti-enumeration).
+    private func authErrorMessage(_ error: Error) -> String {
+        let ns = error as NSError
+        guard ns.domain == AuthErrorDomain,
+              let code = AuthErrorCode.Code(rawValue: ns.code) else {
+            return NSLocalizedString("login.error.auth.generic", comment: "")
+        }
+        switch code {
+        case .wrongPassword, .userNotFound, .invalidCredential:
+            return NSLocalizedString("login.error.auth.invalidCredential", comment: "")
+        case .invalidEmail:
+            return NSLocalizedString("login.error.auth.invalidEmail", comment: "")
+        case .userDisabled:
+            return NSLocalizedString("login.error.auth.userDisabled", comment: "")
+        case .emailAlreadyInUse:
+            return NSLocalizedString("login.error.auth.emailInUse", comment: "")
+        case .weakPassword:
+            return NSLocalizedString("login.error.auth.weakPassword", comment: "")
+        case .networkError:
+            return NSLocalizedString("login.error.auth.network", comment: "")
+        case .tooManyRequests:
+            return NSLocalizedString("login.error.auth.tooManyRequests", comment: "")
+        default:
+            return NSLocalizedString("login.error.auth.generic", comment: "")
         }
     }
 }
@@ -593,6 +661,11 @@ class LoginViewController: UIViewController {
 // MARK: - UITextFieldDelegate
 
 extension LoginViewController: UITextFieldDelegate {
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        // Focusing any field to correct the input clears the standing error.
+        hideInlineError()
+    }
+
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         switch textField {
         case signInEmailField:

@@ -40,6 +40,14 @@
 "login.error.passwordMismatch" = "Passwords do not match";
 "login.error.signInFailed" = "Sign in failed: %@";
 "login.error.registerFailed" = "Registration failed: %@";
+"login.error.auth.invalidCredential" = "Email or password is incorrect";
+"login.error.auth.invalidEmail" = "That email address looks invalid";
+"login.error.auth.userDisabled" = "This account has been disabled";
+"login.error.auth.emailInUse" = "That email is already registered";
+"login.error.auth.weakPassword" = "Password must be at least 6 characters";
+"login.error.auth.network" = "Network error — please check your connection";
+"login.error.auth.tooManyRequests" = "Too many attempts. Please try again later";
+"login.error.auth.generic" = "Something went wrong. Please try again";
 "login.alert.ok" = "OK";
 
 /* ChatViewController */

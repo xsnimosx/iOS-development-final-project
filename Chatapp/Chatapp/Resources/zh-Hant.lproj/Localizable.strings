@@ -39,6 +39,14 @@
 "login.error.passwordMismatch" = "兩次輸入的密碼不相符";
 "login.error.signInFailed" = "登入失敗：%@";
 "login.error.registerFailed" = "註冊失敗：%@";
+"login.error.auth.invalidCredential" = "帳號或密碼錯誤";
+"login.error.auth.invalidEmail" = "Email 格式不正確";
+"login.error.auth.userDisabled" = "此帳號已被停用";
+"login.error.auth.emailInUse" = "此 Email 已被註冊";
+"login.error.auth.weakPassword" = "密碼至少需 6 個字元";
+"login.error.auth.network" = "網路連線異常，請檢查網路後再試";
+"login.error.auth.tooManyRequests" = "嘗試次數過多，請稍後再試";
+"login.error.auth.generic" = "發生錯誤，請稍後再試";
 "login.alert.ok" = "確定";
 
 /* ChatViewController */
