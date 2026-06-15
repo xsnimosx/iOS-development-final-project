@@ -279,7 +279,7 @@ class LoginViewController: UIViewController {
         focusTarget?.becomeFirstResponder()
 
         UIView.animate(withDuration: 0.5, delay: 0,
-                       usingSpringWithDamping: 0.72, initialSpringVelocity: 0.7,
+                       usingSpringWithDamping: 0.9, initialSpringVelocity: 0.75,
                        options: [.curveEaseOut, .allowUserInteraction]) {
             for field in shownFields {
                 field.alpha = 1
