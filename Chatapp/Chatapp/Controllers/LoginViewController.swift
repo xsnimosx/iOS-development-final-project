@@ -213,6 +213,17 @@ class LoginViewController: UIViewController {
             passwordField.textContentType = .newPassword
             passwordField.passwordRules = UITextInputPasswordRules(descriptor: "minlength: 6;")
         }
+        // The same passwordField instance is reused across Sign-in/Sign-up.
+        // iOS caches a field's AutoFill context (notably the .newPassword
+        // "Strong Password" session) when it first becomes first responder and
+        // ignores a later textContentType change — so the Sign-up strong-password
+        // context bleeds into Sign-in if Sign-up was last left from a credential
+        // field. Toggling isSecureTextEntry tears down and rebuilds the secure
+        // input session, forcing iOS to re-read textContentType on next focus.
+        let preservedText = passwordField.text
+        passwordField.isSecureTextEntry = false
+        passwordField.isSecureTextEntry = true
+        if passwordField.text != preservedText { passwordField.text = preservedText }
     }
 
     private func updateReturnKeyTypes() {
