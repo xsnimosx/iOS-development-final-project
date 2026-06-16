@@ -3,3 +3,6 @@
 GoogleService-Info.plist
 .claude/
 .DS_Store
+
+# Per-user Xcode state (scheme ordering, breakpoints, etc.)
+**/xcuserdata/

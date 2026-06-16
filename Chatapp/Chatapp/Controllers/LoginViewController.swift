@@ -88,7 +88,7 @@ class LoginViewController: UIViewController {
         localizeUI()
         segmentedControl.selectedSegmentIndex = 0
         updateModeUI(animated: false)
-        setupKeyboardDismissOnTapExcludingSegment()
+        setupKeyboardDismissOnBackgroundTap()
         setupKeyboardObservers()
         if Auth.auth().currentUser != nil {
             navigateToMainApp()
@@ -104,7 +104,7 @@ class LoginViewController: UIViewController {
     // MARK: - Layout
 
     private func setupViews() {
-        view.backgroundColor = UIColor(named: "AccentColor")
+        view.backgroundColor = UIColor(named: "AppAccentColor")
 
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.showsVerticalScrollIndicator = false
@@ -468,16 +468,6 @@ class LoginViewController: UIViewController {
 
     // MARK: - Keyboard
 
-    private func setupKeyboardDismissOnTapExcludingSegment() {
-        // A tap anywhere dismisses the keyboard — except on the segmented control,
-        // so switching mode can keep the keyboard up. (Reuses dismissKeyboard from
-        // the shared UIViewController+Keyboard extension.)
-        let tap = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
-        tap.cancelsTouchesInView = false
-        tap.delegate = self
-        view.addGestureRecognizer(tap)
-    }
-
     private func setupKeyboardObservers() {
         NotificationCenter.default.addObserver(
             self,
@@ -757,34 +747,5 @@ extension LoginViewController: UITextFieldDelegate {
             textField.resignFirstResponder()
         }
         return true
-    }
-}
-
-// MARK: - UIGestureRecognizerDelegate
-
-extension LoginViewController: UIGestureRecognizerDelegate {
-    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
-        // Only dismiss the keyboard on a genuine background tap. Taps on any
-        // interactive control must NOT run endEditing: the segment switches mode
-        // (keeps the keyboard), a text field hands first-responder to itself, and
-        // the button submits. A spurious endEditing fires a transient keyboard
-        // hide that bounces the scroll down — and the keyboardWillHide guard can't
-        // always catch it, because sign-in's password AutoFill delays the tapped
-        // field from becoming first responder. Cutting the tap off here avoids the
-        // hide entirely, regardless of that timing.
-        guard let touched = touch.view else { return true }
-        return !isInteractiveTouch(touched)
-    }
-
-    /// True if `view` is, or lives inside, any UIControl (text field, segment,
-    /// button). Walks up the superview chain because the hit view is often an
-    /// internal subview of the control rather than the control itself.
-    private func isInteractiveTouch(_ view: UIView) -> Bool {
-        var node: UIView? = view
-        while let current = node {
-            if current is UIControl { return true }
-            node = current.superview
-        }
-        return false
     }
 }

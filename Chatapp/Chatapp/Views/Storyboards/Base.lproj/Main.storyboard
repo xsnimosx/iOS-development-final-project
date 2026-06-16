@@ -18,7 +18,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <viewLayoutGuide key="safeArea" id="j6f-Gs-wRK"/>
-                        <color key="backgroundColor" name="AccentColor"/>
+                        <color key="backgroundColor" name="AppAccentColor"/>
                     </view>
                     <connections>
                         <segue destination="L1w-dd-cnv" kind="presentation" identifier="toMainApp" modalPresentationStyle="fullScreen" id="AAB-C1-004"/>
@@ -136,7 +136,7 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="gV5-dv-tNJ">
                                 <rect key="frame" x="0.0" y="836" width="414" height="60"/>
                                 <subviews>
-                                    <stackView opaque="NO" contentMode="scaleToFill" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="dZf-fz-YgH">
+                                    <stackView opaque="NO" contentMode="scaleToFill" alignment="bottom" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="dZf-fz-YgH">
                                         <rect key="frame" x="10" y="8" width="394" height="44"/>
                                         <subviews>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="bbN-Fd-Nri">
@@ -151,14 +151,15 @@
                                                     <action selector="imageButtonTapped:" destination="JbB-mY-1xm" eventType="touchUpInside" id="AAB-C3-005"/>
                                                 </connections>
                                             </button>
-                                            <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Type a message..." textAlignment="natural" minimumFontSize="14" translatesAutoresizingMaskIntoConstraints="NO" id="aZp-F6-hPC">
-                                                <rect key="frame" x="54" y="0.0" width="286" height="44"/>
+                                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="aZp-F6-hPC">
+                                                <rect key="frame" x="54" y="8" width="286" height="36"/>
+                                                <color key="backgroundColor" systemColor="secondarySystemBackgroundColor"/>
                                                 <constraints>
-                                                    <constraint firstAttribute="height" constant="44" id="TF-ht-001"/>
+                                                    <constraint firstAttribute="height" constant="36" id="TV-ht-001"/>
                                                 </constraints>
-                                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                                <textInputTraits key="textInputTraits"/>
-                                            </textField>
+                                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                                            </textView>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="x85-Yd-fPN">
                                                 <rect key="frame" x="350" y="0.0" width="44" height="44"/>
                                                 <constraints>
@@ -175,9 +176,10 @@
                                     </stackView>
                                 </subviews>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="60" id="CH-input-h"/>
-                                    <constraint firstItem="dZf-fz-YgH" firstAttribute="centerY" secondItem="gV5-dv-tNJ" secondAttribute="centerY" id="CH-stack-cy"/>
+                                    <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="60" id="CH-input-h"/>
+                                    <constraint firstAttribute="bottom" secondItem="dZf-fz-YgH" secondAttribute="bottom" constant="8" id="CH-stack-bot"/>
                                     <constraint firstItem="dZf-fz-YgH" firstAttribute="leading" secondItem="gV5-dv-tNJ" secondAttribute="leading" constant="10" id="CH-stack-lead"/>
+                                    <constraint firstItem="dZf-fz-YgH" firstAttribute="top" secondItem="gV5-dv-tNJ" secondAttribute="top" constant="8" id="CH-stack-top"/>
                                     <constraint firstAttribute="trailing" secondItem="dZf-fz-YgH" secondAttribute="trailing" constant="10" id="CH-stack-trail"/>
                                 </constraints>
                             </view>
@@ -197,7 +199,7 @@
                     <navigationItem key="navigationItem" id="rUj-RB-Ouc"/>
                     <connections>
                         <outlet property="inputBottomConstraint" destination="CH-input-bot" id="AAB-C3-006"/>
-                        <outlet property="messageTextField" destination="aZp-F6-hPC" id="AAB-C3-002"/>
+                        <outlet property="messageTextView" destination="aZp-F6-hPC" id="AAB-C3-002"/>
                         <outlet property="tableView" destination="O74-jh-p1K" id="AAB-C3-001"/>
                     </connections>
                 </viewController>
@@ -547,7 +549,7 @@
             <point key="canvasLocation" x="3342" y="-1577"/>
         </scene>
     </scenes>
-    <color key="tintColor" name="AccentColor"/>
+    <color key="tintColor" name="AppAccentColor"/>
     <resources>
         <image name="gearshape" catalog="system" width="128" height="123"/>
         <image name="gearshape.fill" catalog="system" width="128" height="123"/>
@@ -559,11 +561,14 @@
         <image name="person.crop.circle" catalog="system" width="128" height="123"/>
         <image name="person.crop.circle.fill" catalog="system" width="128" height="123"/>
         <image name="photo" catalog="system" width="128" height="93"/>
-        <namedColor name="AccentColor">
+        <namedColor name="AppAccentColor">
             <color red="0.95300000905990601" green="0.86299997568130493" blue="0.74900001287460327" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <systemColor name="secondaryLabelColor">
             <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
+        <systemColor name="secondarySystemBackgroundColor">
+            <color red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>

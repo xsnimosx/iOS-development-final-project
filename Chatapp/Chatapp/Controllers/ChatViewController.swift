@@ -6,11 +6,14 @@ import UIKit
 import FirebaseAuth
 import FirebaseFirestore
 
-class ChatViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+class ChatViewController: UIViewController,
+    UIImagePickerControllerDelegate,
+    UINavigationControllerDelegate,
+    UITextViewDelegate {
 
     // MARK: - IBOutlets
     @IBOutlet weak var tableView: UITableView!
-    @IBOutlet weak var messageTextField: UITextField!
+    @IBOutlet weak var messageTextView: UITextView!
     @IBOutlet weak var inputBottomConstraint: NSLayoutConstraint!
 
     // MARK: - IBActions
@@ -25,22 +28,38 @@ class ChatViewController: UIViewController, UIImagePickerControllerDelegate, UIN
     private var listener: ListenerRegistration?
     private var currentUserName: String = ""
     private var visibleTimestampRow: Int? = nil
+    private var textViewHeightConstraint: NSLayoutConstraint!
+    private var isShowingPlaceholder = true
+    private static let placeholderText = NSLocalizedString("chat.message.placeholder", comment: "")
 
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.dataSource = self
         tableView.delegate = self
-        tableView.register(MessageCell.self, forCellReuseIdentifier: MessageCell.reuseId)
+        tableView.register(TextMessageCell.self, forCellReuseIdentifier: TextMessageCell.reuseId)
+        tableView.register(ImageMessageCell.self, forCellReuseIdentifier: ImageMessageCell.reuseId)
         tableView.separatorStyle = .none
-        messageTextField.placeholder = NSLocalizedString("chat.message.placeholder", comment: "")
+        // 往下拖訊息列就收鍵盤(通訊軟體慣例)。一開始拖即觸發 keyboardWillHide,
+        // 沿用既有動畫平順收起,避免互動式追蹤在 14.2 上的輸入列追不上而閃動。
+        tableView.keyboardDismissMode = .onDrag
         fetchCurrentUserName()
         startListening()
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
-        setupKeyboardDismissOnTap()
-        messageTextField.autocapitalizationType = .sentences
-        messageTextField.returnKeyType = .send
-        messageTextField.textContentType = .none
+        setupKeyboardDismissOnBackgroundTap()
+        messageTextView.delegate = self
+        // Carried over from develop's input field. Return inserts a newline in this
+        // multi-line text view (no returnKeyType = .send), so sending is via the button.
+        messageTextView.autocapitalizationType = .sentences
+        messageTextView.textContentType = .none
+        messageTextView.font = UIFont.systemFont(ofSize: 17)
+        messageTextView.layer.cornerRadius = 10
+        messageTextView.layer.borderColor = UIColor.separator.cgColor
+        messageTextView.layer.borderWidth = 0.5
+        messageTextView.textContainerInset = UIEdgeInsets(top: 8, left: 4, bottom: 8, right: 4)
+        messageTextView.isScrollEnabled = false
+        textViewHeightConstraint = messageTextView.constraints.first { $0.firstAttribute == .height }
+        showPlaceholder()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -48,6 +67,13 @@ class ChatViewController: UIViewController, UIImagePickerControllerDelegate, UIN
         guard let uid = Auth.auth().currentUser?.uid, !conversationId.isEmpty else { return }
         db.collection("conversations").document(conversationId)
             .updateData(["unreadCounts.\(uid)": 0])
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        // Now that the thread is actually on screen, flag the messages we received
+        // as read so the sender sees "已讀". Guarded by view.window inside the method.
+        markIncomingAsReadIfVisible()
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -77,6 +103,8 @@ class ChatViewController: UIViewController, UIImagePickerControllerDelegate, UIN
                 DispatchQueue.main.async {
                     self.tableView.reloadData()
                     self.scrollToBottom()
+                    // New message arrived while we're looking: flag any received ones read.
+                    self.markIncomingAsReadIfVisible()
                 }
             }
     }
@@ -86,10 +114,29 @@ class ChatViewController: UIViewController, UIImagePickerControllerDelegate, UIN
         tableView.scrollToRow(at: IndexPath(row: messages.count - 1, section: 0), at: .bottom, animated: true)
     }
 
+    /// Marks the messages we received from the other party as read, in one batch.
+    /// Only fires while the thread is actually on screen (view.window != nil), so we
+    /// never flag messages the user hasn't seen. Self-terminating: the resulting write
+    /// re-triggers the listener, but the second pass finds no unread and bails.
+    private func markIncomingAsReadIfVisible() {
+        guard isViewLoaded, view.window != nil, !otherUID.isEmpty else { return }
+        let unread = messages.filter { $0.senderId == otherUID && !$0.isRead }
+        guard !unread.isEmpty else { return }
+        let batch = db.batch()
+        let base = db.collection("conversations").document(conversationId).collection("messages")
+        for m in unread {
+            if let id = m.id { batch.updateData(["isRead": true], forDocument: base.document(id)) }
+        }
+        batch.commit()
+    }
+
     // MARK: - Actions
     private func sendTapped() {
-        guard let content = messageTextField.text, !content.isEmpty,
+        guard !isShowingPlaceholder,
+              let raw = messageTextView.text,
               let uid = Auth.auth().currentUser?.uid else { return }
+        let content = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !content.isEmpty else { return }
         let data: [String: Any] = [
             "senderId": uid,
             "senderName": currentUserName,
@@ -101,7 +148,9 @@ class ChatViewController: UIViewController, UIImagePickerControllerDelegate, UIN
         db.collection("conversations").document(conversationId)
             .collection("messages").addDocument(data: data) { [weak self] error in
                 guard let self = self, error == nil else { return }
-                DispatchQueue.main.async { self.messageTextField.text = "" }
+                DispatchQueue.main.async {
+                    self.resetInputAfterSend()
+                }
                 self.updateConversationMetadata(lastMessage: content)
             }
     }
@@ -135,6 +184,10 @@ class ChatViewController: UIViewController, UIImagePickerControllerDelegate, UIN
                 "content": "",
                 "type": "image",
                 "imageURL": urlString,
+                // Persist dimensions so the receiver's bubble reserves correct space
+                // before the image downloads — no layout jump.
+                "imageWidth": Int(image.size.width),
+                "imageHeight": Int(image.size.height),
                 "timestamp": Timestamp(date: Date()),
                 "isRead": false
             ]
@@ -143,6 +196,71 @@ class ChatViewController: UIViewController, UIImagePickerControllerDelegate, UIN
                     if error == nil { self?.updateConversationMetadata(lastMessage: "[圖片]") }
                 }
         }
+    }
+
+    // MARK: - Placeholder
+    private func showPlaceholder() {
+        isShowingPlaceholder = true
+        messageTextView.text = Self.placeholderText
+        messageTextView.textColor = .placeholderText
+    }
+
+    private func clearPlaceholderIfNeeded() {
+        guard isShowingPlaceholder else { return }
+        isShowingPlaceholder = false
+        messageTextView.text = ""
+        messageTextView.textColor = .label
+    }
+
+    /// Resets the input bar after a message is sent. The text view almost always still
+    /// holds first responder here, so we must NOT call showPlaceholder(): textViewDidBeginEditing
+    /// fired only when editing first began and won't fire again, so the gray placeholder would
+    /// never get cleared — the next keystrokes would append to it and the send guard would block
+    /// them. While focused, reset to a clean empty editing state instead; only fall back to the
+    /// placeholder if focus was lost in the async gap (the normal resign is handled by
+    /// textViewDidEndEditing).
+    private func resetInputAfterSend() {
+        if messageTextView.isFirstResponder {
+            isShowingPlaceholder = false
+            messageTextView.text = ""
+            messageTextView.textColor = .label
+        } else {
+            showPlaceholder()
+        }
+        resetTextViewHeight()
+    }
+
+    // MARK: - UITextViewDelegate
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        clearPlaceholderIfNeeded()
+    }
+
+    func textViewDidEndEditing(_ textView: UITextView) {
+        if textView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            showPlaceholder()
+            resetTextViewHeight()
+        }
+    }
+
+    func textViewDidChange(_ textView: UITextView) {
+        guard !isShowingPlaceholder else { return }
+        let font = textView.font ?? UIFont.systemFont(ofSize: 17)
+        let insets = textView.textContainerInset
+        let maxH = font.lineHeight * 6 + insets.top + insets.bottom
+        let fittingH = textView.sizeThatFits(CGSize(width: textView.bounds.width, height: .infinity)).height
+        let newH = min(fittingH, maxH)
+        textView.isScrollEnabled = fittingH > maxH
+        guard abs(newH - textViewHeightConstraint.constant) > 0.5 else { return }
+        textViewHeightConstraint.constant = newH
+        UIView.animate(withDuration: 0.15) { self.view.layoutIfNeeded() }
+    }
+
+    private func resetTextViewHeight() {
+        let font = messageTextView.font ?? UIFont.systemFont(ofSize: 17)
+        let insets = messageTextView.textContainerInset
+        textViewHeightConstraint.constant = font.lineHeight + insets.top + insets.bottom
+        messageTextView.isScrollEnabled = false
+        UIView.animate(withDuration: 0.15) { self.view.layoutIfNeeded() }
     }
 
     // MARK: - Keyboard
@@ -174,9 +292,29 @@ extension ChatViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int { messages.count }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: MessageCell.reuseId, for: indexPath) as! MessageCell
         let message = messages[indexPath.row]
-        cell.configure(with: message, isOwn: message.senderId == Auth.auth().currentUser?.uid, showTimestamp: indexPath.row == visibleTimestampRow)
+        let isOwn = message.senderId == Auth.auth().currentUser?.uid
+
+        if message.type == "image" {
+            let cell = tableView.dequeueReusableCell(withIdentifier: ImageMessageCell.reuseId, for: indexPath) as! ImageMessageCell
+            // Only legacy image messages (no stored dimensions) need a height refresh once
+            // the image downloads; messages with stored dims size correctly up front.
+            cell.onImageLoaded = { [weak tableView] in
+                tableView?.performBatchUpdates(nil)
+            }
+            cell.configure(with: message, isOwn: isOwn, showTimestamp: indexPath.row == visibleTimestampRow)
+            return cell
+        }
+
+        let cell = tableView.dequeueReusableCell(withIdentifier: TextMessageCell.reuseId, for: indexPath) as! TextMessageCell
+        // Messenger-style grouping: head a run with the sender's name, then hide it on the
+        // following messages from the same sender. Comparing senderName too means a nickname
+        // change mid-run starts a fresh group (and re-shows the new name).
+        let prev = indexPath.row > 0 ? messages[indexPath.row - 1] : nil
+        let showSenderName = prev == nil
+            || prev!.senderId != message.senderId
+            || prev!.senderName != message.senderName
+        cell.configure(with: message, isOwn: isOwn, showSenderName: showSenderName, showTimestamp: indexPath.row == visibleTimestampRow)
         return cell
     }
 }
@@ -189,16 +327,31 @@ extension ChatViewController: UITableViewDelegate {
         guard message.type == "image", message.imageURL != nil else {
             let prev = visibleTimestampRow
             visibleTimestampRow = (prev == indexPath.row) ? nil : indexPath.row
-            var toReload = [indexPath]
-            if let p = prev, p != indexPath.row {
-                toReload.append(IndexPath(row: p, section: 0))
+
+            // Spring the timestamp reveal: keep the live cells, change their target
+            // state, then let performBatchUpdates(nil) re-measure the self-sizing rows.
+            // Wrapping it in a spring UIView.animate makes the row-height delta (and the
+            // label alpha) interpolate with the bounce. Off-screen rows have no cell to
+            // animate; visibleTimestampRow + cellForRowAt set them right when scrolled back.
+            UIView.animate(withDuration: 0.45, delay: 0,
+                           usingSpringWithDamping: 0.75, initialSpringVelocity: 0.6,
+                           options: [.curveEaseOut, .allowUserInteraction]) {
+                if let cell = tableView.cellForRow(at: indexPath) as? MessageBubbleCell {
+                    cell.setTimestampVisible(self.visibleTimestampRow == indexPath.row)
+                }
+                if let p = prev, p != indexPath.row,
+                   let prevCell = tableView.cellForRow(at: IndexPath(row: p, section: 0)) as? MessageBubbleCell {
+                    prevCell.setTimestampVisible(false)
+                }
+                tableView.performBatchUpdates(nil)
             }
-            tableView.reloadRows(at: toReload, with: .automatic)
             return
         }
         let preview = MediaPreviewViewController()
         preview.imageURL = message.imageURL
-        preview.modalPresentationStyle = .fullScreen
+        // overFullScreen(而非 fullScreen)讓底層聊天室在預覽期間仍保留在畫面下，
+        // 下滑關閉時背景漸透才看得到聊天室，而非一片黑。
+        preview.modalPresentationStyle = .overFullScreen
         present(preview, animated: true)
     }
 
