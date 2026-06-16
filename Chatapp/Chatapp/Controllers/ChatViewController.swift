@@ -30,7 +30,8 @@ class ChatViewController: UIViewController, UIImagePickerControllerDelegate, UIN
         super.viewDidLoad()
         tableView.dataSource = self
         tableView.delegate = self
-        tableView.register(MessageCell.self, forCellReuseIdentifier: MessageCell.reuseId)
+        tableView.register(TextMessageCell.self, forCellReuseIdentifier: TextMessageCell.reuseId)
+        tableView.register(ImageMessageCell.self, forCellReuseIdentifier: ImageMessageCell.reuseId)
         tableView.separatorStyle = .none
         // 往下拖訊息列就收鍵盤(通訊軟體慣例)。一開始拖即觸發 keyboardWillHide,
         // 沿用既有動畫平順收起,避免互動式追蹤在 14.2 上的輸入列追不上而閃動。
@@ -206,9 +207,21 @@ extension ChatViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int { messages.count }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: MessageCell.reuseId, for: indexPath) as! MessageCell
         let message = messages[indexPath.row]
         let isOwn = message.senderId == Auth.auth().currentUser?.uid
+
+        if message.type == "image" {
+            let cell = tableView.dequeueReusableCell(withIdentifier: ImageMessageCell.reuseId, for: indexPath) as! ImageMessageCell
+            // Only legacy image messages (no stored dimensions) need a height refresh once
+            // the image downloads; messages with stored dims size correctly up front.
+            cell.onImageLoaded = { [weak tableView] in
+                tableView?.performBatchUpdates(nil)
+            }
+            cell.configure(with: message, isOwn: isOwn, showTimestamp: indexPath.row == visibleTimestampRow)
+            return cell
+        }
+
+        let cell = tableView.dequeueReusableCell(withIdentifier: TextMessageCell.reuseId, for: indexPath) as! TextMessageCell
         // Messenger-style grouping: head a run with the sender's name, then hide it on the
         // following messages from the same sender. Comparing senderName too means a nickname
         // change mid-run starts a fresh group (and re-shows the new name).
@@ -216,11 +229,6 @@ extension ChatViewController: UITableViewDataSource {
         let showSenderName = prev == nil
             || prev!.senderId != message.senderId
             || prev!.senderName != message.senderName
-        // Only legacy image messages (no stored dimensions) need a height refresh once
-        // the image downloads; messages with stored dims size correctly up front.
-        cell.onImageLoaded = { [weak tableView] in
-            tableView?.performBatchUpdates(nil)
-        }
         cell.configure(with: message, isOwn: isOwn, showSenderName: showSenderName, showTimestamp: indexPath.row == visibleTimestampRow)
         return cell
     }
@@ -243,11 +251,11 @@ extension ChatViewController: UITableViewDelegate {
             UIView.animate(withDuration: 0.45, delay: 0,
                            usingSpringWithDamping: 0.75, initialSpringVelocity: 0.6,
                            options: [.curveEaseOut, .allowUserInteraction]) {
-                if let cell = tableView.cellForRow(at: indexPath) as? MessageCell {
+                if let cell = tableView.cellForRow(at: indexPath) as? MessageBubbleCell {
                     cell.setTimestampVisible(self.visibleTimestampRow == indexPath.row)
                 }
                 if let p = prev, p != indexPath.row,
-                   let prevCell = tableView.cellForRow(at: IndexPath(row: p, section: 0)) as? MessageCell {
+                   let prevCell = tableView.cellForRow(at: IndexPath(row: p, section: 0)) as? MessageBubbleCell {
                     prevCell.setTimestampVisible(false)
                 }
                 tableView.performBatchUpdates(nil)
