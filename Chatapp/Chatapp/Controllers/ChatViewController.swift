@@ -32,12 +32,15 @@ class ChatViewController: UIViewController, UIImagePickerControllerDelegate, UIN
         tableView.delegate = self
         tableView.register(MessageCell.self, forCellReuseIdentifier: MessageCell.reuseId)
         tableView.separatorStyle = .none
+        // 往下拖訊息列就收鍵盤(通訊軟體慣例)。一開始拖即觸發 keyboardWillHide,
+        // 沿用既有動畫平順收起,避免互動式追蹤在 14.2 上的輸入列追不上而閃動。
+        tableView.keyboardDismissMode = .onDrag
         messageTextField.placeholder = NSLocalizedString("chat.message.placeholder", comment: "")
         fetchCurrentUserName()
         startListening()
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
-        setupKeyboardDismissOnTap()
+        setupKeyboardDismissOnBackgroundTap()
         messageTextField.autocapitalizationType = .sentences
         messageTextField.returnKeyType = .send
         messageTextField.textContentType = .none
