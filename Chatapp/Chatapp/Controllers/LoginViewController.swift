@@ -104,7 +104,7 @@ class LoginViewController: UIViewController {
     // MARK: - Layout
 
     private func setupViews() {
-        view.backgroundColor = UIColor(named: "AccentColor")
+        view.backgroundColor = UIColor(named: "AppAccentColor")
 
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.showsVerticalScrollIndicator = false
