@@ -189,11 +189,24 @@ extension ChatViewController: UITableViewDelegate {
         guard message.type == "image", message.imageURL != nil else {
             let prev = visibleTimestampRow
             visibleTimestampRow = (prev == indexPath.row) ? nil : indexPath.row
-            var toReload = [indexPath]
-            if let p = prev, p != indexPath.row {
-                toReload.append(IndexPath(row: p, section: 0))
+
+            // Spring the timestamp reveal: keep the live cells, change their target
+            // state, then let performBatchUpdates(nil) re-measure the self-sizing rows.
+            // Wrapping it in a spring UIView.animate makes the row-height delta (and the
+            // label alpha) interpolate with the bounce. Off-screen rows have no cell to
+            // animate; visibleTimestampRow + cellForRowAt set them right when scrolled back.
+            UIView.animate(withDuration: 0.45, delay: 0,
+                           usingSpringWithDamping: 0.75, initialSpringVelocity: 0.6,
+                           options: [.curveEaseOut, .allowUserInteraction]) {
+                if let cell = tableView.cellForRow(at: indexPath) as? MessageCell {
+                    cell.setTimestampVisible(self.visibleTimestampRow == indexPath.row)
+                }
+                if let p = prev, p != indexPath.row,
+                   let prevCell = tableView.cellForRow(at: IndexPath(row: p, section: 0)) as? MessageCell {
+                    prevCell.setTimestampVisible(false)
+                }
+                tableView.performBatchUpdates(nil)
             }
-            tableView.reloadRows(at: toReload, with: .automatic)
             return
         }
         let preview = MediaPreviewViewController()

@@ -6,8 +6,17 @@ class MessageCell: UITableViewCell {
 
     var onImageLoaded: (() -> Void)?
 
+    private static let timeFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateStyle = .none
+        f.timeStyle = .short
+        return f
+    }()
+
     private let timestampLabel = UILabel()
     private var timestampHeightConstraint: NSLayoutConstraint!
+    // Formatted once in configure() so the tap-driven toggle never rebuilds a DateFormatter.
+    private var timestampText: String?
 
     private let bubbleView = UIView()
     private let nameLabel = UILabel()
@@ -110,17 +119,18 @@ class MessageCell: UITableViewCell {
         bubbleLeading?.isActive = !isOwn
         bubbleTrailing?.isActive = isOwn
 
-        setTimestampVisible(showTimestamp, timestamp: message.timestamp)
+        timestampText = MessageCell.timeFormatter.string(from: message.timestamp)
+        setTimestampVisible(showTimestamp)
     }
 
-    private func setTimestampVisible(_ visible: Bool, timestamp: Date?) {
-        if visible, let ts = timestamp {
-            let f = DateFormatter()
-            f.dateStyle = .none
-            f.timeStyle = .short
-            timestampLabel.text = f.string(from: ts)
-        }
+    /// Sets the timestamp row's *target* state only — no animation here.
+    /// The spring lives in ChatViewController, which calls this inside a
+    /// UIView.animate(usingSpringWithDamping:) block wrapping performBatchUpdates(nil),
+    /// so the height (via the constraint) and the alpha both animate with the spring.
+    func setTimestampVisible(_ visible: Bool) {
+        timestampLabel.text = timestampText
         timestampHeightConstraint.constant = visible ? 18 : 0
+        timestampLabel.alpha = visible ? 1 : 0
     }
 
     private func loadImage(urlString: String?, displayWidth: CGFloat) {
