@@ -41,9 +41,9 @@
 "login.error.signInFailed" = "Sign in failed: %@";
 "login.error.registerFailed" = "Registration failed: %@";
 "login.error.auth.invalidCredential" = "Email or password is incorrect";
-"login.error.auth.invalidEmail" = "That email address looks invalid";
-"login.error.auth.userDisabled" = "This account has been disabled";
-"login.error.auth.emailInUse" = "That email is already registered";
+"login.error.auth.invalidEmail" = "The email address looks invalid";
+"login.error.auth.userDisabled" = "Your account has been disabled";
+"login.error.auth.emailInUse" = "The email is already registered";
 "login.error.auth.weakPassword" = "Password must be at least 6 characters";
 "login.error.auth.network" = "Network error — please check your connection";
 "login.error.auth.tooManyRequests" = "Too many attempts. Please try again later";

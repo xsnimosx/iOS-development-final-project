@@ -141,7 +141,8 @@ class LoginViewController: UIViewController {
         formStack.addArrangedSubview(signInPasswordField)
         formStack.addArrangedSubview(signUpPasswordField)
         formStack.addArrangedSubview(signUpConfirmPasswordField)
-        // Sits directly above the button; hidden (and collapsed) until an error shows.
+        // Hidden (and collapsed) until an error shows; showInlineError repositions it
+        // just above the offending field, or above the button for form-level errors.
         formStack.addArrangedSubview(errorLabel)
         formStack.addArrangedSubview(loginButton)
     }
@@ -202,7 +203,8 @@ class LoginViewController: UIViewController {
         errorLabel.textColor = .systemRed
         errorLabel.font = UIFont.systemFont(ofSize: 13, weight: .medium)
         errorLabel.numberOfLines = 0
-        errorLabel.textAlignment = .center
+        // Leading-aligned so it reads as attached to the field it sits above.
+        errorLabel.textAlignment = .natural
         errorLabel.isHidden = true
     }
 
@@ -390,7 +392,8 @@ class LoginViewController: UIViewController {
             let email = signInEmailField.text?.trimmingCharacters(in: .whitespaces) ?? ""
             let password = signInPasswordField.text ?? ""
             guard !email.isEmpty, !password.isEmpty else {
-                showInlineError(NSLocalizedString("login.error.emptyFields", comment: ""))
+                showInlineError(NSLocalizedString("login.error.emptyFields", comment: ""),
+                                on: email.isEmpty ? signInEmailField : signInPasswordField)
                 return
             }
             signIn(email: email, password: password)
@@ -401,11 +404,15 @@ class LoginViewController: UIViewController {
             let confirm = signUpConfirmPasswordField.text ?? ""
 
             guard !email.isEmpty, !password.isEmpty, !confirm.isEmpty else {
-                showInlineError(NSLocalizedString("login.error.emptyFields", comment: ""))
+                // Point at the first empty required field (username is optional).
+                let target = email.isEmpty ? signUpEmailField
+                    : (password.isEmpty ? signUpPasswordField : signUpConfirmPasswordField)
+                showInlineError(NSLocalizedString("login.error.emptyFields", comment: ""), on: target)
                 return
             }
             guard password == confirm else {
-                showInlineError(NSLocalizedString("login.error.passwordMismatch", comment: ""))
+                showInlineError(NSLocalizedString("login.error.passwordMismatch", comment: ""),
+                                on: signUpConfirmPasswordField)
                 return
             }
             let displayName = username.isEmpty ? email : username
@@ -417,18 +424,22 @@ class LoginViewController: UIViewController {
 
     private func signIn(email: String, password: String) {
         Auth.auth().signIn(withEmail: email, password: password) { [weak self] _, error in
+            guard let self = self else { return }
             if let error = error {
-                self?.showInlineError(self?.authErrorMessage(error) ?? "")
+                let mapped = self.authError(error)
+                self.showInlineError(mapped.message, on: mapped.field)
                 return
             }
-            self?.navigateToMainApp()
+            self.navigateToMainApp()
         }
     }
 
     private func register(email: String, password: String, displayName: String) {
         Auth.auth().createUser(withEmail: email, password: password) { [weak self] result, error in
+            guard let self = self else { return }
             if let error = error {
-                self?.showInlineError(self?.authErrorMessage(error) ?? "")
+                let mapped = self.authError(error)
+                self.showInlineError(mapped.message, on: mapped.field)
                 return
             }
             guard let uid = result?.user.uid else { return }
@@ -595,19 +606,43 @@ class LoginViewController: UIViewController {
 
     // MARK: - Error Presentation
 
-    /// Show an error inline (red text below the fields) with a left-right shake of
-    /// the form, instead of a modal alert. Dismisses the keyboard first so the
-    /// centered form and the red text are fully visible and unobstructed.
-    private func showInlineError(_ message: String) {
+    /// Show an error inline instead of a modal alert. The red label springs up just
+    /// above the offending `field` (and that field shakes); pass `field == nil` for
+    /// errors not tied to one field (network, too-many-requests, "email or password
+    /// incorrect") — those appear above the login button and don't shake.
+    ///
+    /// The keyboard is dismissed first: the form re-centers so the label and field
+    /// are fully visible, and it sidesteps recomputing the scroll inset while the
+    /// keyboard is up after the stack grows by the label's height (the fragile path
+    /// behind the keyboard-jump debt).
+    private func showInlineError(_ message: String, on field: UITextField?) {
         DispatchQueue.main.async {
             self.view.endEditing(true)
+
+            // Reposition the single label: remove it first so the index math reflects
+            // the stack without it, then insert it just above the target (or the button).
+            self.formStack.removeArrangedSubview(self.errorLabel)
+            self.errorLabel.removeFromSuperview()
+            let anchor = field ?? self.loginButton
+            let insertIndex = self.formStack.arrangedSubviews.firstIndex(of: anchor)
+                ?? self.formStack.arrangedSubviews.count
+            self.formStack.insertArrangedSubview(self.errorLabel, at: insertIndex)
+
+            // Start just below its slot and transparent, then spring up into place.
             self.errorLabel.text = message
-            // Animate the stack expanding the now-visible label into place.
-            UIView.animate(withDuration: 0.2) {
+            self.errorLabel.alpha = 0
+            self.errorLabel.transform = CGAffineTransform(translationX: 0, y: 10)
+            UIView.animate(withDuration: 0.4, delay: 0,
+                           usingSpringWithDamping: 0.7, initialSpringVelocity: 0.8,
+                           options: [.curveEaseOut]) {
                 self.errorLabel.isHidden = false
+                self.errorLabel.alpha = 1
+                self.errorLabel.transform = .identity
                 self.formStack.layoutIfNeeded()
             }
-            self.shake(self.formStack)
+
+            // Only field-level errors shake, and only the offending field.
+            if let field = field { self.shake(field) }
         }
     }
 
@@ -627,33 +662,37 @@ class LoginViewController: UIViewController {
         view.layer.add(animation, forKey: "shake")
     }
 
-    /// Map a Firebase Auth error to one of the app's own localized messages, rather
-    /// than surfacing Firebase's raw English `localizedDescription`. wrongPassword /
-    /// userNotFound / invalidCredential are merged into one "incorrect" message so
-    /// the screen never reveals whether an account exists (anti-enumeration).
-    private func authErrorMessage(_ error: Error) -> String {
+    /// Map a Firebase Auth error to one of the app's own localized messages (rather
+    /// than Firebase's raw English `localizedDescription`) plus the field it should
+    /// point at. wrongPassword / userNotFound / invalidCredential are merged into one
+    /// "incorrect" message with no field, so the screen never reveals whether an
+    /// account exists (anti-enumeration); network/too-many/disabled are likewise
+    /// form-level (nil field).
+    private func authError(_ error: Error) -> (message: String, field: UITextField?) {
+        let isSignIn = segmentedControl.selectedSegmentIndex == 0
         let ns = error as NSError
         guard ns.domain == AuthErrorDomain,
               let code = AuthErrorCode.Code(rawValue: ns.code) else {
-            return NSLocalizedString("login.error.auth.generic", comment: "")
+            return (NSLocalizedString("login.error.auth.generic", comment: ""), nil)
         }
         switch code {
         case .wrongPassword, .userNotFound, .invalidCredential:
-            return NSLocalizedString("login.error.auth.invalidCredential", comment: "")
+            return (NSLocalizedString("login.error.auth.invalidCredential", comment: ""), nil)
         case .invalidEmail:
-            return NSLocalizedString("login.error.auth.invalidEmail", comment: "")
-        case .userDisabled:
-            return NSLocalizedString("login.error.auth.userDisabled", comment: "")
+            return (NSLocalizedString("login.error.auth.invalidEmail", comment: ""),
+                    isSignIn ? signInEmailField : signUpEmailField)
         case .emailAlreadyInUse:
-            return NSLocalizedString("login.error.auth.emailInUse", comment: "")
+            return (NSLocalizedString("login.error.auth.emailInUse", comment: ""), signUpEmailField)
         case .weakPassword:
-            return NSLocalizedString("login.error.auth.weakPassword", comment: "")
+            return (NSLocalizedString("login.error.auth.weakPassword", comment: ""), signUpPasswordField)
+        case .userDisabled:
+            return (NSLocalizedString("login.error.auth.userDisabled", comment: ""), nil)
         case .networkError:
-            return NSLocalizedString("login.error.auth.network", comment: "")
+            return (NSLocalizedString("login.error.auth.network", comment: ""), nil)
         case .tooManyRequests:
-            return NSLocalizedString("login.error.auth.tooManyRequests", comment: "")
+            return (NSLocalizedString("login.error.auth.tooManyRequests", comment: ""), nil)
         default:
-            return NSLocalizedString("login.error.auth.generic", comment: "")
+            return (NSLocalizedString("login.error.auth.generic", comment: ""), nil)
         }
     }
 }
