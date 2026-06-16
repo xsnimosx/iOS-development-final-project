@@ -101,9 +101,10 @@ class ChatViewController: UIViewController,
     // MARK: - Actions
     private func sendTapped() {
         guard !isShowingPlaceholder,
-              let content = messageTextView.text,
-              !content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+              let raw = messageTextView.text,
               let uid = Auth.auth().currentUser?.uid else { return }
+        let content = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !content.isEmpty else { return }
         let data: [String: Any] = [
             "senderId": uid,
             "senderName": currentUserName,
