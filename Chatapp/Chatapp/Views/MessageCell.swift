@@ -29,6 +29,9 @@ class MessageCell: UITableViewCell {
     private var textBottomConstraint: NSLayoutConstraint?
     private var bubbleLeading: NSLayoutConstraint?
     private var bubbleTrailing: NSLayoutConstraint?
+    // Collapses the bubble-external name row to zero height for grouped / own messages,
+    // mirroring the timestampHeightConstraint toggle pattern.
+    private var nameHeightConstraint: NSLayoutConstraint?
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -51,6 +54,7 @@ class MessageCell: UITableViewCell {
 
         nameLabel.font = .systemFont(ofSize: 11, weight: .medium)
         nameLabel.textColor = .secondaryLabel
+        nameLabel.clipsToBounds = true
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
 
         contentLabel.numberOfLines = 0
@@ -60,44 +64,52 @@ class MessageCell: UITableViewCell {
         msgImageView.contentMode = .scaleAspectFill
         msgImageView.translatesAutoresizingMaskIntoConstraints = false
 
-        bubbleView.addSubview(nameLabel)
         bubbleView.addSubview(contentLabel)
         bubbleView.addSubview(msgImageView)
         contentView.addSubview(timestampLabel)
+        contentView.addSubview(nameLabel)
         contentView.addSubview(bubbleView)
 
         bubbleLeading = bubbleView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12)
         bubbleTrailing = bubbleView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12)
         textBottomConstraint = contentLabel.bottomAnchor.constraint(equalTo: bubbleView.bottomAnchor, constant: -6)
         timestampHeightConstraint = timestampLabel.heightAnchor.constraint(equalToConstant: 0)
+        nameHeightConstraint = nameLabel.heightAnchor.constraint(equalToConstant: 0)
 
         NSLayoutConstraint.activate([
             timestampLabel.topAnchor.constraint(equalTo: contentView.topAnchor),
             timestampLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             timestampLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             timestampHeightConstraint,
-            nameLabel.topAnchor.constraint(equalTo: bubbleView.topAnchor, constant: 6),
-            nameLabel.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor, constant: 10),
-            nameLabel.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant: -10),
-            contentLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 2),
+            // Name now sits *above* the bubble, left-aligned to it — a Messenger-style
+            // group header. Its height collapses to 0 (nameHeightConstraint) for grouped
+            // and own messages, pulling the next bubble up tight.
+            nameLabel.topAnchor.constraint(equalTo: timestampLabel.bottomAnchor, constant: 2),
+            nameLabel.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor, constant: 4),
+            nameLabel.trailingAnchor.constraint(lessThanOrEqualTo: contentView.trailingAnchor, constant: -12),
+            contentLabel.topAnchor.constraint(equalTo: bubbleView.topAnchor, constant: 6),
             contentLabel.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor, constant: 10),
             contentLabel.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant: -10),
             msgImageView.topAnchor.constraint(equalTo: bubbleView.topAnchor),
             msgImageView.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor),
             msgImageView.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor),
             msgImageView.bottomAnchor.constraint(equalTo: bubbleView.bottomAnchor),
-            bubbleView.topAnchor.constraint(equalTo: timestampLabel.bottomAnchor, constant: 4),
+            bubbleView.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 2),
             bubbleView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -4),
             bubbleView.widthAnchor.constraint(lessThanOrEqualTo: contentView.widthAnchor, multiplier: 0.72),
             bubbleLeading!
         ])
     }
 
-    func configure(with message: Message, isOwn: Bool, showTimestamp: Bool = false) {
+    func configure(with message: Message, isOwn: Bool, showSenderName: Bool = false, showTimestamp: Bool = false) {
         let isImage = message.type == "image"
 
-        nameLabel.isHidden = isOwn || isImage
-        nameLabel.text = isOwn ? nil : message.senderName
+        // Name heads a group: shown only for the first received message of a same-sender
+        // run (grouping decided in ChatViewController). Own and image messages never show it.
+        let shouldShowName = showSenderName && !isOwn && !isImage
+        nameLabel.isHidden = !shouldShowName
+        nameLabel.text = shouldShowName ? message.senderName : nil
+        nameHeightConstraint?.isActive = !shouldShowName
         contentLabel.isHidden = isImage
         contentLabel.text = isImage ? nil : message.content
         msgImageView.isHidden = !isImage
@@ -117,7 +129,6 @@ class MessageCell: UITableViewCell {
         }
         
         contentLabel.textColor = isOwn ? .white : .label
-        nameLabel.textColor = isOwn ? .white : .secondaryLabel
         bubbleLeading?.isActive = !isOwn
         bubbleTrailing?.isActive = isOwn
 
