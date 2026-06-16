@@ -35,17 +35,7 @@ A real-time iOS messaging application built as a university final project. Suppo
    cd iOS-development-final-project
    ```
 
-2. **Add Firebase configuration**
-
-   Obtain `GoogleService-Info.plist` from your Firebase project console and place it at:
-
-   ```
-   Chatapp/Resources/GoogleService-Info.plist
-   ```
-
-   > This file is excluded from version control. The app will not build or run without it.
-
-3. **Resolve Swift Package dependencies**
+2. **Resolve Swift Package dependencies**
 
    Open `Chatapp.xcodeproj` in Xcode. SPM resolves Firebase packages automatically on first open (File → Packages → Resolve Package Versions if needed).
 
@@ -81,7 +71,7 @@ Chatapp/
 │   ├── ImageUploadManager.swift
 │   └── LocalCacheManager.swift
 └── Resources/
-    ├── GoogleService-Info.plist   # Firebase config (not tracked in git)
+    ├── GoogleService-Info.plist   # Firebase config
     ├── Assets.xcassets
     ├── en.lproj/
     └── zh-Hant.lproj/
