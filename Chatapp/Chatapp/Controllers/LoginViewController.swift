@@ -45,6 +45,9 @@ class LoginViewController: UIViewController {
     // Inline error feedback (replaces UIAlertController popups): red text that the
     // stack auto-collapses while hidden and springs up just above the offending field.
     private let errorLabel = UILabel()
+    // The arranged subview above errorLabel whose trailing spacing we tightened, kept
+    // so we can restore its default spacing when the label moves or hides.
+    private weak var errorTopSpacingAnchor: UIView?
     private var autoLoginTimer: Timer?
 
     // Last seen lengths of the sign-in credential fields, used to tell an AutoFill
@@ -391,9 +394,12 @@ class LoginViewController: UIViewController {
         if isSignIn {
             let email = signInEmailField.text?.trimmingCharacters(in: .whitespaces) ?? ""
             let password = signInPasswordField.text ?? ""
-            guard !email.isEmpty, !password.isEmpty else {
-                showInlineError(NSLocalizedString("login.error.emptyFields", comment: ""),
-                                on: email.isEmpty ? signInEmailField : signInPasswordField)
+            if email.isEmpty {
+                showInlineError(NSLocalizedString("login.error.emptyEmail", comment: ""), on: signInEmailField)
+                return
+            }
+            if password.isEmpty {
+                showInlineError(NSLocalizedString("login.error.emptyPassword", comment: ""), on: signInPasswordField)
                 return
             }
             signIn(email: email, password: password)
@@ -403,11 +409,18 @@ class LoginViewController: UIViewController {
             let username = signUpUsernameField.text?.trimmingCharacters(in: .whitespaces) ?? ""
             let confirm = signUpConfirmPasswordField.text ?? ""
 
-            guard !email.isEmpty, !password.isEmpty, !confirm.isEmpty else {
-                // Point at the first empty required field (username is optional).
-                let target = email.isEmpty ? signUpEmailField
-                    : (password.isEmpty ? signUpPasswordField : signUpConfirmPasswordField)
-                showInlineError(NSLocalizedString("login.error.emptyFields", comment: ""), on: target)
+            // Check each required field in order (username is optional).
+            if email.isEmpty {
+                showInlineError(NSLocalizedString("login.error.emptyEmail", comment: ""), on: signUpEmailField)
+                return
+            }
+            if password.isEmpty {
+                showInlineError(NSLocalizedString("login.error.emptyPassword", comment: ""), on: signUpPasswordField)
+                return
+            }
+            if confirm.isEmpty {
+                showInlineError(NSLocalizedString("login.error.emptyConfirmPassword", comment: ""),
+                                on: signUpConfirmPasswordField)
                 return
             }
             guard password == confirm else {
@@ -627,10 +640,24 @@ class LoginViewController: UIViewController {
             let insertIndex = self.formStack.arrangedSubviews.firstIndex(of: anchor)
                 ?? self.formStack.arrangedSubviews.count
             self.formStack.insertArrangedSubview(self.errorLabel, at: insertIndex)
-            // Hug the field below it (tight 4pt) instead of the stack's default 16pt,
-            // so the message reads as attached to that field. Keyed to errorLabel, so
-            // it follows wherever the label is re-inserted.
+
+            // Tighten the gap on BOTH sides of the label (4pt instead of the stack's
+            // default 16pt) so the red text sits snug between the fields.
+            // Below the label is keyed to errorLabel itself, so it follows the label.
+            // Above the label is keyed to whatever now precedes it, so restore the
+            // previously-tightened anchor first, then re-tighten the new one.
+            if let prev = self.errorTopSpacingAnchor {
+                self.formStack.setCustomSpacing(UIStackView.spacingUseDefault, after: prev)
+            }
             self.formStack.setCustomSpacing(4, after: self.errorLabel)
+            if let labelIndex = self.formStack.arrangedSubviews.firstIndex(of: self.errorLabel),
+               labelIndex > 0 {
+                let preceding = self.formStack.arrangedSubviews[labelIndex - 1]
+                self.formStack.setCustomSpacing(4, after: preceding)
+                self.errorTopSpacingAnchor = preceding
+            } else {
+                self.errorTopSpacingAnchor = nil
+            }
 
             // Start just below its slot and transparent, then spring up into place.
             self.errorLabel.text = message
@@ -650,6 +677,12 @@ class LoginViewController: UIViewController {
     private func hideInlineError() {
         errorLabel.isHidden = true
         errorLabel.text = nil
+        // Restore the field above it to default spacing, else it would keep hugging
+        // whatever follows once the (now hidden) label collapses out of the stack.
+        if let prev = errorTopSpacingAnchor {
+            formStack.setCustomSpacing(UIStackView.spacingUseDefault, after: prev)
+            errorTopSpacingAnchor = nil
+        }
     }
 
     /// Map a Firebase Auth error to one of the app's own localized messages (rather

@@ -36,11 +36,14 @@
 "login.button.signIn" = "登入";
 "login.button.signUp" = "註冊";
 "login.error.emptyFields" = "請填寫 Email 和密碼";
+"login.error.emptyEmail" = "請輸入電子郵件";
+"login.error.emptyPassword" = "請輸入密碼";
+"login.error.emptyConfirmPassword" = "請再次輸入密碼";
 "login.error.passwordMismatch" = "兩次輸入的密碼不相符";
 "login.error.signInFailed" = "登入失敗：%@";
 "login.error.registerFailed" = "註冊失敗：%@";
 "login.error.auth.invalidCredential" = "帳號或密碼錯誤";
-"login.error.auth.invalidEmail" = "Email 格式不正確";
+"login.error.auth.invalidEmail" = "請輸入有效的電子郵件";
 "login.error.auth.userDisabled" = "此帳號已被停用";
 "login.error.auth.emailInUse" = "此 Email 已被註冊";
 "login.error.auth.weakPassword" = "密碼至少需 6 個字元";
