@@ -640,6 +640,13 @@ class LoginViewController: UIViewController {
             let insertIndex = self.formStack.arrangedSubviews.firstIndex(of: anchor)
                 ?? self.formStack.arrangedSubviews.count
             self.formStack.insertArrangedSubview(self.errorLabel, at: insertIndex)
+            // Keep the label behind the fields so it appears to slide out from BEHIND
+            // the input area as it springs up. insertArrangedSubview's resulting
+            // z-order varies with the hidden counterpart fields in the current mode,
+            // which made the sign-in email case slide in front instead; sending it to
+            // the back makes the emerge-from-behind consistent. (z-order only — it does
+            // not affect the arrangedSubviews layout order.)
+            self.formStack.sendSubviewToBack(self.errorLabel)
 
             // Tighten the gap on BOTH sides of the label (4pt instead of the stack's
             // default 16pt) so the red text sits snug between the fields.
