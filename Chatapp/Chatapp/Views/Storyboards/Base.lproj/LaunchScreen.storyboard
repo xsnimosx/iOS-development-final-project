@@ -19,13 +19,10 @@
                         <subviews>
                             <imageView contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Logo" translatesAutoresizingMaskIntoConstraints="NO" id="Kl3-mN-pQr">
                                 <rect key="frame" x="136.66666666666666" y="366" width="119.99999999999997" height="120"/>
-                                <string key="highlightedImage" base64-UTF8="YES">
-CQ
-</string>
                             </imageView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
-                        <color key="backgroundColor" name="AccentColor"/>
+                        <color key="backgroundColor" name="AppAccentColor"/>
                         <constraints>
                             <constraint firstItem="Kl3-mN-pQr" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="Cx1-aB-cDe"/>
                             <constraint firstItem="Kl3-mN-pQr" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="Cy2-fG-hIj"/>
@@ -40,13 +37,8 @@ CQ
         </scene>
     </scenes>
     <resources>
-        <image width="128" height="128">
-            <string key="name" base64-UTF8="YES">
-CQ
-</string>
-        </image>
         <image name="Logo" width="573.33331298828125" height="599"/>
-        <namedColor name="AccentColor">
+        <namedColor name="AppAccentColor">
             <color red="0.95300000905990601" green="0.86299997568130493" blue="0.74900001287460327" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
     </resources>

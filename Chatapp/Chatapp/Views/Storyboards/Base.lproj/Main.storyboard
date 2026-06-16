@@ -152,7 +152,7 @@
                                                 </connections>
                                             </button>
                                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="aZp-F6-hPC">
-                                                <rect key="frame" x="54" y="0.0" width="286" height="36"/>
+                                                <rect key="frame" x="54" y="8" width="286" height="36"/>
                                                 <color key="backgroundColor" systemColor="secondarySystemBackgroundColor"/>
                                                 <constraints>
                                                     <constraint firstAttribute="height" constant="36" id="TV-ht-001"/>
@@ -177,9 +177,9 @@
                                 </subviews>
                                 <constraints>
                                     <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="60" id="CH-input-h"/>
-                                    <constraint firstItem="dZf-fz-YgH" firstAttribute="top" secondItem="gV5-dv-tNJ" secondAttribute="top" constant="8" id="CH-stack-top"/>
-                                    <constraint firstItem="gV5-dv-tNJ" firstAttribute="bottom" secondItem="dZf-fz-YgH" secondAttribute="bottom" constant="8" id="CH-stack-bot"/>
+                                    <constraint firstAttribute="bottom" secondItem="dZf-fz-YgH" secondAttribute="bottom" constant="8" id="CH-stack-bot"/>
                                     <constraint firstItem="dZf-fz-YgH" firstAttribute="leading" secondItem="gV5-dv-tNJ" secondAttribute="leading" constant="10" id="CH-stack-lead"/>
+                                    <constraint firstItem="dZf-fz-YgH" firstAttribute="top" secondItem="gV5-dv-tNJ" secondAttribute="top" constant="8" id="CH-stack-top"/>
                                     <constraint firstAttribute="trailing" secondItem="dZf-fz-YgH" secondAttribute="trailing" constant="10" id="CH-stack-trail"/>
                                 </constraints>
                             </view>
@@ -566,6 +566,9 @@
         </namedColor>
         <systemColor name="secondaryLabelColor">
             <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
+        <systemColor name="secondarySystemBackgroundColor">
+            <color red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
