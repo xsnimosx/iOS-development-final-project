@@ -37,9 +37,20 @@
 "login.button.signIn" = "Sign In";
 "login.button.signUp" = "Sign Up";
 "login.error.emptyFields" = "Please enter your email and password";
+"login.error.emptyEmail" = "Please enter your email";
+"login.error.emptyPassword" = "Please enter your password";
+"login.error.emptyConfirmPassword" = "Please confirm your password";
 "login.error.passwordMismatch" = "Passwords do not match";
 "login.error.signInFailed" = "Sign in failed: %@";
 "login.error.registerFailed" = "Registration failed: %@";
+"login.error.auth.invalidCredential" = "Email or password is incorrect";
+"login.error.auth.invalidEmail" = "Please enter a valid email address";
+"login.error.auth.userDisabled" = "Your account has been disabled";
+"login.error.auth.emailInUse" = "The email is already registered";
+"login.error.auth.weakPassword" = "Password must be at least 6 characters";
+"login.error.auth.network" = "Network error — please check your connection";
+"login.error.auth.tooManyRequests" = "Too many attempts. Please try again later";
+"login.error.auth.generic" = "Something went wrong. Please try again";
 "login.alert.ok" = "OK";
 
 /* ChatViewController */

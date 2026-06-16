@@ -138,9 +138,8 @@ class AddFriendViewController: UIViewController {
                             self.statusMap[toUID] = .friends
                             self.filteredUsers = self.nonFriendUsers
                             self.tableView.reloadData()
-                            NotificationCenter.default.post(name: .friendRequestAccepted,
-                                                           object: nil,
-                                                           userInfo: ["friend": user])
+                            // The Friends tab observes this acceptance through its
+                            // own Firestore listeners — no manual notification needed.
                         } else {
                             // Request may have been withdrawn; reload status
                             self.loadRelationships { self.tableView.reloadData() }
