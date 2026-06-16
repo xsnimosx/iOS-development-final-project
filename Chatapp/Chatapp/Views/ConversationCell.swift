@@ -85,7 +85,7 @@ class ConversationCell: UITableViewCell {
         } else {
             unreadBadgeLabel.isHidden = true
             messageTrailingToBadge.isActive = false
-            nameLabel.font = .systemFont(ofSize: 17)
+            nameLabel.font = .boldSystemFont(ofSize: 17)
             // 已讀:還原 storyboard 原本的灰字、一般字重(cell 會被重用,務必還原)
             messageLabel.textColor = .secondaryLabel
             messageLabel.font = .systemFont(ofSize: 14, weight: .regular)
