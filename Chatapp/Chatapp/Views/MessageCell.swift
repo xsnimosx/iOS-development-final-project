@@ -150,6 +150,10 @@ final class TextMessageCell: MessageBubbleCell {
         contentLabel.numberOfLines = 0
         contentLabel.font = .systemFont(ofSize: 16)
         contentLabel.translatesAutoresizingMaskIntoConstraints = false
+        // Hug horizontally so the bubble shrinks to the text. Must out-prioritise the
+        // losing-side alignment equality (250), which otherwise stretches the bubble
+        // toward the 72% cap. Stays below the required cap, so long text still wraps.
+        contentLabel.setContentHuggingPriority(.defaultHigh, for: .horizontal)
 
         contentView.addSubview(nameLabel)
         bubbleView.addSubview(contentLabel)
