@@ -149,8 +149,7 @@ class ChatViewController: UIViewController,
             .collection("messages").addDocument(data: data) { [weak self] error in
                 guard let self = self, error == nil else { return }
                 DispatchQueue.main.async {
-                    self.showPlaceholder()
-                    self.resetTextViewHeight()
+                    self.resetInputAfterSend()
                 }
                 self.updateConversationMetadata(lastMessage: content)
             }
@@ -211,6 +210,24 @@ class ChatViewController: UIViewController,
         isShowingPlaceholder = false
         messageTextView.text = ""
         messageTextView.textColor = .label
+    }
+
+    /// Resets the input bar after a message is sent. The text view almost always still
+    /// holds first responder here, so we must NOT call showPlaceholder(): textViewDidBeginEditing
+    /// fired only when editing first began and won't fire again, so the gray placeholder would
+    /// never get cleared — the next keystrokes would append to it and the send guard would block
+    /// them. While focused, reset to a clean empty editing state instead; only fall back to the
+    /// placeholder if focus was lost in the async gap (the normal resign is handled by
+    /// textViewDidEndEditing).
+    private func resetInputAfterSend() {
+        if messageTextView.isFirstResponder {
+            isShowingPlaceholder = false
+            messageTextView.text = ""
+            messageTextView.textColor = .label
+        } else {
+            showPlaceholder()
+        }
+        resetTextViewHeight()
     }
 
     // MARK: - UITextViewDelegate
