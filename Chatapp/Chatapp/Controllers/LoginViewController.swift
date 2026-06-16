@@ -43,7 +43,7 @@ class LoginViewController: UIViewController {
 
     private let loginButton = UIButton(type: .system)
     // Inline error feedback (replaces UIAlertController popups): red text that the
-    // stack auto-collapses while hidden, paired with a left-right shake of the form.
+    // stack auto-collapses while hidden and springs up just above the offending field.
     private let errorLabel = UILabel()
     private var autoLoginTimer: Timer?
 
@@ -448,7 +448,7 @@ class LoginViewController: UIViewController {
                 "displayName": displayName
             ]) { _ in
                 // Navigate only after Firestore confirms the write to avoid empty profile on first load
-                self?.navigateToMainApp()
+                self.navigateToMainApp()
             }
         }
     }
@@ -607,9 +607,9 @@ class LoginViewController: UIViewController {
     // MARK: - Error Presentation
 
     /// Show an error inline instead of a modal alert. The red label springs up just
-    /// above the offending `field` (and that field shakes); pass `field == nil` for
-    /// errors not tied to one field (network, too-many-requests, "email or password
-    /// incorrect") — those appear above the login button and don't shake.
+    /// above the offending `field`; pass `field == nil` for errors not tied to one
+    /// field (network, too-many-requests, "email or password incorrect") — those
+    /// appear above the login button.
     ///
     /// The keyboard is dismissed first: the form re-centers so the label and field
     /// are fully visible, and it sidesteps recomputing the scroll inset while the
@@ -627,6 +627,10 @@ class LoginViewController: UIViewController {
             let insertIndex = self.formStack.arrangedSubviews.firstIndex(of: anchor)
                 ?? self.formStack.arrangedSubviews.count
             self.formStack.insertArrangedSubview(self.errorLabel, at: insertIndex)
+            // Hug the field below it (tight 4pt) instead of the stack's default 16pt,
+            // so the message reads as attached to that field. Keyed to errorLabel, so
+            // it follows wherever the label is re-inserted.
+            self.formStack.setCustomSpacing(4, after: self.errorLabel)
 
             // Start just below its slot and transparent, then spring up into place.
             self.errorLabel.text = message
@@ -640,26 +644,12 @@ class LoginViewController: UIViewController {
                 self.errorLabel.transform = .identity
                 self.formStack.layoutIfNeeded()
             }
-
-            // Only field-level errors shake, and only the offending field.
-            if let field = field { self.shake(field) }
         }
     }
 
     private func hideInlineError() {
         errorLabel.isHidden = true
         errorLabel.text = nil
-    }
-
-    /// A quick horizontal wobble. Uses a layer keyframe on transform.translation.x
-    /// so it's a self-resetting relative offset — it never mutates the Auto Layout
-    /// frame the stack/scroll constraints depend on.
-    private func shake(_ view: UIView) {
-        let animation = CAKeyframeAnimation(keyPath: "transform.translation.x")
-        animation.values = [-12, 12, -10, 10, -6, 6, -3, 3, 0]
-        animation.duration = 0.5
-        animation.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
-        view.layer.add(animation, forKey: "shake")
     }
 
     /// Map a Firebase Auth error to one of the app's own localized messages (rather
