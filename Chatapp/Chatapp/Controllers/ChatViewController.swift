@@ -6,11 +6,14 @@ import UIKit
 import FirebaseAuth
 import FirebaseFirestore
 
-class ChatViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+class ChatViewController: UIViewController,
+    UIImagePickerControllerDelegate,
+    UINavigationControllerDelegate,
+    UITextViewDelegate {
 
     // MARK: - IBOutlets
     @IBOutlet weak var tableView: UITableView!
-    @IBOutlet weak var messageTextField: UITextField!
+    @IBOutlet weak var messageTextView: UITextView!
     @IBOutlet weak var inputBottomConstraint: NSLayoutConstraint!
 
     // MARK: - IBActions
@@ -25,6 +28,9 @@ class ChatViewController: UIViewController, UIImagePickerControllerDelegate, UIN
     private var listener: ListenerRegistration?
     private var currentUserName: String = ""
     private var visibleTimestampRow: Int? = nil
+    private var textViewHeightConstraint: NSLayoutConstraint!
+    private var isShowingPlaceholder = true
+    private static let placeholderText = NSLocalizedString("chat.message.placeholder", comment: "")
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -36,15 +42,24 @@ class ChatViewController: UIViewController, UIImagePickerControllerDelegate, UIN
         // 往下拖訊息列就收鍵盤(通訊軟體慣例)。一開始拖即觸發 keyboardWillHide,
         // 沿用既有動畫平順收起,避免互動式追蹤在 14.2 上的輸入列追不上而閃動。
         tableView.keyboardDismissMode = .onDrag
-        messageTextField.placeholder = NSLocalizedString("chat.message.placeholder", comment: "")
         fetchCurrentUserName()
         startListening()
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
         setupKeyboardDismissOnBackgroundTap()
-        messageTextField.autocapitalizationType = .sentences
-        messageTextField.returnKeyType = .send
-        messageTextField.textContentType = .none
+        messageTextView.delegate = self
+        // Carried over from develop's input field. Return inserts a newline in this
+        // multi-line text view (no returnKeyType = .send), so sending is via the button.
+        messageTextView.autocapitalizationType = .sentences
+        messageTextView.textContentType = .none
+        messageTextView.font = UIFont.systemFont(ofSize: 17)
+        messageTextView.layer.cornerRadius = 10
+        messageTextView.layer.borderColor = UIColor.separator.cgColor
+        messageTextView.layer.borderWidth = 0.5
+        messageTextView.textContainerInset = UIEdgeInsets(top: 8, left: 4, bottom: 8, right: 4)
+        messageTextView.isScrollEnabled = false
+        textViewHeightConstraint = messageTextView.constraints.first { $0.firstAttribute == .height }
+        showPlaceholder()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -117,8 +132,11 @@ class ChatViewController: UIViewController, UIImagePickerControllerDelegate, UIN
 
     // MARK: - Actions
     private func sendTapped() {
-        guard let content = messageTextField.text, !content.isEmpty,
+        guard !isShowingPlaceholder,
+              let raw = messageTextView.text,
               let uid = Auth.auth().currentUser?.uid else { return }
+        let content = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !content.isEmpty else { return }
         let data: [String: Any] = [
             "senderId": uid,
             "senderName": currentUserName,
@@ -130,7 +148,10 @@ class ChatViewController: UIViewController, UIImagePickerControllerDelegate, UIN
         db.collection("conversations").document(conversationId)
             .collection("messages").addDocument(data: data) { [weak self] error in
                 guard let self = self, error == nil else { return }
-                DispatchQueue.main.async { self.messageTextField.text = "" }
+                DispatchQueue.main.async {
+                    self.showPlaceholder()
+                    self.resetTextViewHeight()
+                }
                 self.updateConversationMetadata(lastMessage: content)
             }
     }
@@ -176,6 +197,53 @@ class ChatViewController: UIViewController, UIImagePickerControllerDelegate, UIN
                     if error == nil { self?.updateConversationMetadata(lastMessage: "[圖片]") }
                 }
         }
+    }
+
+    // MARK: - Placeholder
+    private func showPlaceholder() {
+        isShowingPlaceholder = true
+        messageTextView.text = Self.placeholderText
+        messageTextView.textColor = .placeholderText
+    }
+
+    private func clearPlaceholderIfNeeded() {
+        guard isShowingPlaceholder else { return }
+        isShowingPlaceholder = false
+        messageTextView.text = ""
+        messageTextView.textColor = .label
+    }
+
+    // MARK: - UITextViewDelegate
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        clearPlaceholderIfNeeded()
+    }
+
+    func textViewDidEndEditing(_ textView: UITextView) {
+        if textView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            showPlaceholder()
+            resetTextViewHeight()
+        }
+    }
+
+    func textViewDidChange(_ textView: UITextView) {
+        guard !isShowingPlaceholder else { return }
+        let font = textView.font ?? UIFont.systemFont(ofSize: 17)
+        let insets = textView.textContainerInset
+        let maxH = font.lineHeight * 6 + insets.top + insets.bottom
+        let fittingH = textView.sizeThatFits(CGSize(width: textView.bounds.width, height: .infinity)).height
+        let newH = min(fittingH, maxH)
+        textView.isScrollEnabled = fittingH > maxH
+        guard abs(newH - textViewHeightConstraint.constant) > 0.5 else { return }
+        textViewHeightConstraint.constant = newH
+        UIView.animate(withDuration: 0.15) { self.view.layoutIfNeeded() }
+    }
+
+    private func resetTextViewHeight() {
+        let font = messageTextView.font ?? UIFont.systemFont(ofSize: 17)
+        let insets = messageTextView.textContainerInset
+        textViewHeightConstraint.constant = font.lineHeight + insets.top + insets.bottom
+        messageTextView.isScrollEnabled = false
+        UIView.animate(withDuration: 0.15) { self.view.layoutIfNeeded() }
     }
 
     // MARK: - Keyboard
