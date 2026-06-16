@@ -32,7 +32,6 @@ A real-time iOS messaging application built as a university final project. Suppo
 
    ```bash
    git clone "https://github.com/xsnimosx/iOS-development-final-project"
-   cd iOS-development-final-project
    ```
 
 2. **Resolve Swift Package dependencies**
