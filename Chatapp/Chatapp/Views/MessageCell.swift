@@ -45,7 +45,7 @@ class MessageCell: UITableViewCell {
         timestampLabel.clipsToBounds = true
         timestampLabel.translatesAutoresizingMaskIntoConstraints = false
 
-        bubbleView.layer.cornerRadius = 12
+        bubbleView.layer.cornerRadius = 16
         bubbleView.clipsToBounds = true
         bubbleView.translatesAutoresizingMaskIntoConstraints = false
 
@@ -54,7 +54,7 @@ class MessageCell: UITableViewCell {
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
 
         contentLabel.numberOfLines = 0
-        contentLabel.font = .systemFont(ofSize: 15)
+        contentLabel.font = .systemFont(ofSize: 16)
         contentLabel.translatesAutoresizingMaskIntoConstraints = false
 
         msgImageView.contentMode = .scaleAspectFill
@@ -111,9 +111,11 @@ class MessageCell: UITableViewCell {
             imageHeightConstraint = msgImageView.heightAnchor.constraint(equalToConstant: 160)
             imageHeightConstraint?.isActive = true
             loadImage(urlString: message.imageURL, displayWidth: maxWidth)
+            bubbleView.backgroundColor = .systemBackground
+        } else {
+            bubbleView.backgroundColor = isOwn ? .systemBlue : .secondarySystemFill
         }
-
-        bubbleView.backgroundColor = isOwn ? .systemBlue : .secondarySystemFill
+        
         contentLabel.textColor = isOwn ? .white : .label
         nameLabel.textColor = isOwn ? .white : .secondaryLabel
         bubbleLeading?.isActive = !isOwn
