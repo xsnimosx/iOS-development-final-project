@@ -121,7 +121,16 @@ class MessageCell: UITableViewCell {
         bubbleLeading?.isActive = !isOwn
         bubbleTrailing?.isActive = isOwn
 
-        timestampText = MessageCell.timeFormatter.string(from: message.timestamp)
+        let time = MessageCell.timeFormatter.string(from: message.timestamp)
+        if isOwn {
+            // Own messages reveal delivery state alongside the time: read once the
+            // other party has seen them, "sent" until then. Received messages show
+            // only the time — your own read state there is meaningless.
+            let key = message.isRead ? "chat.receipt.read" : "chat.receipt.sent"
+            timestampText = "\(NSLocalizedString(key, comment: "")) · \(time)"
+        } else {
+            timestampText = time
+        }
         setTimestampVisible(showTimestamp)
     }
 

@@ -50,6 +50,13 @@ class ChatViewController: UIViewController, UIImagePickerControllerDelegate, UIN
             .updateData(["unreadCounts.\(uid)": 0])
     }
 
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        // Now that the thread is actually on screen, flag the messages we received
+        // as read so the sender sees "已讀". Guarded by view.window inside the method.
+        markIncomingAsReadIfVisible()
+    }
+
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         listener?.remove()
@@ -77,6 +84,8 @@ class ChatViewController: UIViewController, UIImagePickerControllerDelegate, UIN
                 DispatchQueue.main.async {
                     self.tableView.reloadData()
                     self.scrollToBottom()
+                    // New message arrived while we're looking: flag any received ones read.
+                    self.markIncomingAsReadIfVisible()
                 }
             }
     }
@@ -84,6 +93,22 @@ class ChatViewController: UIViewController, UIImagePickerControllerDelegate, UIN
     private func scrollToBottom() {
         guard !messages.isEmpty else { return }
         tableView.scrollToRow(at: IndexPath(row: messages.count - 1, section: 0), at: .bottom, animated: true)
+    }
+
+    /// Marks the messages we received from the other party as read, in one batch.
+    /// Only fires while the thread is actually on screen (view.window != nil), so we
+    /// never flag messages the user hasn't seen. Self-terminating: the resulting write
+    /// re-triggers the listener, but the second pass finds no unread and bails.
+    private func markIncomingAsReadIfVisible() {
+        guard isViewLoaded, view.window != nil, !otherUID.isEmpty else { return }
+        let unread = messages.filter { $0.senderId == otherUID && !$0.isRead }
+        guard !unread.isEmpty else { return }
+        let batch = db.batch()
+        let base = db.collection("conversations").document(conversationId).collection("messages")
+        for m in unread {
+            if let id = m.id { batch.updateData(["isRead": true], forDocument: base.document(id)) }
+        }
+        batch.commit()
     }
 
     // MARK: - Actions
