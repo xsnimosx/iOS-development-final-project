@@ -18,7 +18,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <viewLayoutGuide key="safeArea" id="j6f-Gs-wRK"/>
-                        <color key="backgroundColor" name="AccentColor"/>
+                        <color key="backgroundColor" name="AppAccentColor"/>
                     </view>
                     <connections>
                         <segue destination="L1w-dd-cnv" kind="presentation" identifier="toMainApp" modalPresentationStyle="fullScreen" id="AAB-C1-004"/>
@@ -549,7 +549,7 @@
             <point key="canvasLocation" x="3342" y="-1577"/>
         </scene>
     </scenes>
-    <color key="tintColor" name="AccentColor"/>
+    <color key="tintColor" name="AppAccentColor"/>
     <resources>
         <image name="gearshape" catalog="system" width="128" height="123"/>
         <image name="gearshape.fill" catalog="system" width="128" height="123"/>
@@ -561,7 +561,7 @@
         <image name="person.crop.circle" catalog="system" width="128" height="123"/>
         <image name="person.crop.circle.fill" catalog="system" width="128" height="123"/>
         <image name="photo" catalog="system" width="128" height="93"/>
-        <namedColor name="AccentColor">
+        <namedColor name="AppAccentColor">
             <color red="0.95300000905990601" green="0.86299997568130493" blue="0.74900001287460327" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <systemColor name="secondaryLabelColor">

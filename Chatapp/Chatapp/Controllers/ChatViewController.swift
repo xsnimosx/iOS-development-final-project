@@ -36,14 +36,21 @@ class ChatViewController: UIViewController,
         super.viewDidLoad()
         tableView.dataSource = self
         tableView.delegate = self
-        tableView.register(MessageCell.self, forCellReuseIdentifier: MessageCell.reuseId)
+        tableView.register(TextMessageCell.self, forCellReuseIdentifier: TextMessageCell.reuseId)
+        tableView.register(ImageMessageCell.self, forCellReuseIdentifier: ImageMessageCell.reuseId)
         tableView.separatorStyle = .none
+        // 往下拖訊息列就收鍵盤(通訊軟體慣例)。一開始拖即觸發 keyboardWillHide,
+        // 沿用既有動畫平順收起,避免互動式追蹤在 14.2 上的輸入列追不上而閃動。
+        tableView.keyboardDismissMode = .onDrag
         fetchCurrentUserName()
         startListening()
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
-        setupKeyboardDismissOnTap()
+        setupKeyboardDismissOnBackgroundTap()
         messageTextView.delegate = self
+        // Carried over from develop's input field. Return inserts a newline in this
+        // multi-line text view (no returnKeyType = .send), so sending is via the button.
+        messageTextView.autocapitalizationType = .sentences
         messageTextView.textContentType = .none
         messageTextView.font = UIFont.systemFont(ofSize: 17)
         messageTextView.layer.cornerRadius = 10
@@ -60,6 +67,13 @@ class ChatViewController: UIViewController,
         guard let uid = Auth.auth().currentUser?.uid, !conversationId.isEmpty else { return }
         db.collection("conversations").document(conversationId)
             .updateData(["unreadCounts.\(uid)": 0])
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        // Now that the thread is actually on screen, flag the messages we received
+        // as read so the sender sees "已讀". Guarded by view.window inside the method.
+        markIncomingAsReadIfVisible()
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -89,6 +103,8 @@ class ChatViewController: UIViewController,
                 DispatchQueue.main.async {
                     self.tableView.reloadData()
                     self.scrollToBottom()
+                    // New message arrived while we're looking: flag any received ones read.
+                    self.markIncomingAsReadIfVisible()
                 }
             }
     }
@@ -96,6 +112,22 @@ class ChatViewController: UIViewController,
     private func scrollToBottom() {
         guard !messages.isEmpty else { return }
         tableView.scrollToRow(at: IndexPath(row: messages.count - 1, section: 0), at: .bottom, animated: true)
+    }
+
+    /// Marks the messages we received from the other party as read, in one batch.
+    /// Only fires while the thread is actually on screen (view.window != nil), so we
+    /// never flag messages the user hasn't seen. Self-terminating: the resulting write
+    /// re-triggers the listener, but the second pass finds no unread and bails.
+    private func markIncomingAsReadIfVisible() {
+        guard isViewLoaded, view.window != nil, !otherUID.isEmpty else { return }
+        let unread = messages.filter { $0.senderId == otherUID && !$0.isRead }
+        guard !unread.isEmpty else { return }
+        let batch = db.batch()
+        let base = db.collection("conversations").document(conversationId).collection("messages")
+        for m in unread {
+            if let id = m.id { batch.updateData(["isRead": true], forDocument: base.document(id)) }
+        }
+        batch.commit()
     }
 
     // MARK: - Actions
@@ -153,6 +185,10 @@ class ChatViewController: UIViewController,
                 "content": "",
                 "type": "image",
                 "imageURL": urlString,
+                // Persist dimensions so the receiver's bubble reserves correct space
+                // before the image downloads — no layout jump.
+                "imageWidth": Int(image.size.width),
+                "imageHeight": Int(image.size.height),
                 "timestamp": Timestamp(date: Date()),
                 "isRead": false
             ]
@@ -239,9 +275,29 @@ extension ChatViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int { messages.count }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: MessageCell.reuseId, for: indexPath) as! MessageCell
         let message = messages[indexPath.row]
-        cell.configure(with: message, isOwn: message.senderId == Auth.auth().currentUser?.uid, showTimestamp: indexPath.row == visibleTimestampRow)
+        let isOwn = message.senderId == Auth.auth().currentUser?.uid
+
+        if message.type == "image" {
+            let cell = tableView.dequeueReusableCell(withIdentifier: ImageMessageCell.reuseId, for: indexPath) as! ImageMessageCell
+            // Only legacy image messages (no stored dimensions) need a height refresh once
+            // the image downloads; messages with stored dims size correctly up front.
+            cell.onImageLoaded = { [weak tableView] in
+                tableView?.performBatchUpdates(nil)
+            }
+            cell.configure(with: message, isOwn: isOwn, showTimestamp: indexPath.row == visibleTimestampRow)
+            return cell
+        }
+
+        let cell = tableView.dequeueReusableCell(withIdentifier: TextMessageCell.reuseId, for: indexPath) as! TextMessageCell
+        // Messenger-style grouping: head a run with the sender's name, then hide it on the
+        // following messages from the same sender. Comparing senderName too means a nickname
+        // change mid-run starts a fresh group (and re-shows the new name).
+        let prev = indexPath.row > 0 ? messages[indexPath.row - 1] : nil
+        let showSenderName = prev == nil
+            || prev!.senderId != message.senderId
+            || prev!.senderName != message.senderName
+        cell.configure(with: message, isOwn: isOwn, showSenderName: showSenderName, showTimestamp: indexPath.row == visibleTimestampRow)
         return cell
     }
 }
@@ -254,11 +310,24 @@ extension ChatViewController: UITableViewDelegate {
         guard message.type == "image", message.imageURL != nil else {
             let prev = visibleTimestampRow
             visibleTimestampRow = (prev == indexPath.row) ? nil : indexPath.row
-            var toReload = [indexPath]
-            if let p = prev, p != indexPath.row {
-                toReload.append(IndexPath(row: p, section: 0))
+
+            // Spring the timestamp reveal: keep the live cells, change their target
+            // state, then let performBatchUpdates(nil) re-measure the self-sizing rows.
+            // Wrapping it in a spring UIView.animate makes the row-height delta (and the
+            // label alpha) interpolate with the bounce. Off-screen rows have no cell to
+            // animate; visibleTimestampRow + cellForRowAt set them right when scrolled back.
+            UIView.animate(withDuration: 0.45, delay: 0,
+                           usingSpringWithDamping: 0.75, initialSpringVelocity: 0.6,
+                           options: [.curveEaseOut, .allowUserInteraction]) {
+                if let cell = tableView.cellForRow(at: indexPath) as? MessageBubbleCell {
+                    cell.setTimestampVisible(self.visibleTimestampRow == indexPath.row)
+                }
+                if let p = prev, p != indexPath.row,
+                   let prevCell = tableView.cellForRow(at: IndexPath(row: p, section: 0)) as? MessageBubbleCell {
+                    prevCell.setTimestampVisible(false)
+                }
+                tableView.performBatchUpdates(nil)
             }
-            tableView.reloadRows(at: toReload, with: .automatic)
             return
         }
         let preview = MediaPreviewViewController()
