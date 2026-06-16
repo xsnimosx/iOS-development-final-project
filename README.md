@@ -7,7 +7,7 @@ A real-time iOS messaging application built as a university final project. Suppo
 ## Features
 
 - **Authentication** — Email/password sign-up and sign-in via Firebase Auth, with persistent sessions
-- **Real-time messaging** — One-on-one text and image messages with read receipts ("已讀") and live updates
+- **Real-time messaging** — One-on-one text and image messages with read receipts and live updates
 - **Friend system** — Send, accept, decline, or remove friend requests; search by email or username
 - **Unread badges** — Tab bar badges update in real time as messages arrive
 - **Media preview** — Full-screen image viewer with swipe-to-dismiss
@@ -31,7 +31,7 @@ A real-time iOS messaging application built as a university final project. Suppo
 1. **Clone the repository**
 
    ```bash
-   git clone <repo-url>
+   git clone "https://github.com/xsnimosx/iOS-development-final-project"
    cd iOS-development-final-project
    ```
 
