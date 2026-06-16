@@ -644,15 +644,17 @@ class LoginViewController: UIViewController {
             // Tighten the gap on BOTH sides of the label (4pt instead of the stack's
             // default 16pt) so the red text sits snug between the fields.
             // Below the label is keyed to errorLabel itself, so it follows the label.
-            // Above the label is keyed to whatever now precedes it, so restore the
-            // previously-tightened anchor first, then re-tighten the new one.
+            // Above the label is keyed to the nearest VISIBLE preceding field: the
+            // immediate array neighbour is often a hidden counterpart field (e.g. the
+            // sign-up email field while in sign-in mode), and custom spacing after a
+            // hidden view is ignored — the gap is governed by the last visible view
+            // before it. Restore the previously-tightened anchor first.
             if let prev = self.errorTopSpacingAnchor {
                 self.formStack.setCustomSpacing(UIStackView.spacingUseDefault, after: prev)
             }
             self.formStack.setCustomSpacing(4, after: self.errorLabel)
             if let labelIndex = self.formStack.arrangedSubviews.firstIndex(of: self.errorLabel),
-               labelIndex > 0 {
-                let preceding = self.formStack.arrangedSubviews[labelIndex - 1]
+               let preceding = self.formStack.arrangedSubviews[..<labelIndex].last(where: { !$0.isHidden }) {
                 self.formStack.setCustomSpacing(4, after: preceding)
                 self.errorTopSpacingAnchor = preceding
             } else {
