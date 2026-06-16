@@ -201,7 +201,15 @@ extension ChatViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: MessageCell.reuseId, for: indexPath) as! MessageCell
         let message = messages[indexPath.row]
-        cell.configure(with: message, isOwn: message.senderId == Auth.auth().currentUser?.uid, showTimestamp: indexPath.row == visibleTimestampRow)
+        let isOwn = message.senderId == Auth.auth().currentUser?.uid
+        // Messenger-style grouping: head a run with the sender's name, then hide it on the
+        // following messages from the same sender. Comparing senderName too means a nickname
+        // change mid-run starts a fresh group (and re-shows the new name).
+        let prev = indexPath.row > 0 ? messages[indexPath.row - 1] : nil
+        let showSenderName = prev == nil
+            || prev!.senderId != message.senderId
+            || prev!.senderName != message.senderName
+        cell.configure(with: message, isOwn: isOwn, showSenderName: showSenderName, showTimestamp: indexPath.row == visibleTimestampRow)
         return cell
     }
 }

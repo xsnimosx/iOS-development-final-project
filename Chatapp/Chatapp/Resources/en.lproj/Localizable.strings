@@ -57,7 +57,7 @@
 "chat.action.delete" = "Delete";
 "chat.message.placeholder" = "Type a message...";
 "chat.receipt.read" = "Read";
-"chat.receipt.sent" = "Sent";
+"chat.receipt.sent" = "Unread";
 
 /* AddFriendViewController — Search Placeholder */
 "addfriend.search.placeholder" = "Search by name or email...";
