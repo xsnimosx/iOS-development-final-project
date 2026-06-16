@@ -88,6 +88,12 @@ class MessageCell: UITableViewCell {
         textBottomConstraint = contentLabel.bottomAnchor.constraint(equalTo: bubbleView.bottomAnchor, constant: -6)
         timestampHeightConstraint = timestampLabel.heightAnchor.constraint(equalToConstant: 0)
         nameHeightConstraint = nameLabel.heightAnchor.constraint(equalToConstant: 0)
+        // The bubble's bottom pin closes a fully-required vertical chain that must equal the
+        // cell height. UITableView pixel-aligns its injected UIView-Encapsulated-Layout-Height
+        // (e.g. 218.6 → 218.667 at @3x), so a required chain is always a hair off and conflicts
+        // on every cell. Below required, the table's rounded height wins and this yields silently.
+        let bubbleBottom = bubbleView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -4)
+        bubbleBottom.priority = UILayoutPriority(999)
 
         NSLayoutConstraint.activate([
             timestampLabel.topAnchor.constraint(equalTo: contentView.topAnchor),
@@ -108,7 +114,7 @@ class MessageCell: UITableViewCell {
             msgImageView.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor),
             msgImageView.bottomAnchor.constraint(equalTo: bubbleView.bottomAnchor),
             bubbleView.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 2),
-            bubbleView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -4),
+            bubbleBottom,
             bubbleView.widthAnchor.constraint(lessThanOrEqualTo: contentView.widthAnchor, multiplier: 0.72),
             bubbleLeading!
         ])
