@@ -349,7 +349,9 @@ extension ChatViewController: UITableViewDelegate {
         }
         let preview = MediaPreviewViewController()
         preview.imageURL = message.imageURL
-        preview.modalPresentationStyle = .fullScreen
+        // overFullScreen(而非 fullScreen)讓底層聊天室在預覽期間仍保留在畫面下，
+        // 下滑關閉時背景漸透才看得到聊天室，而非一片黑。
+        preview.modalPresentationStyle = .overFullScreen
         present(preview, animated: true)
     }
 
