@@ -38,7 +38,7 @@ A real-time iOS messaging application built as a university final project. Suppo
 
    Open `Chatapp.xcodeproj` in Xcode. SPM resolves Firebase packages automatically on first open (File → Packages → Resolve Package Versions if needed).
 
-4. **Select a simulator or device and run** (`Cmd+R`)
+4. **Create a new scheme, select a simulator or device and run** (`Cmd+R`)
 
 ---
 
