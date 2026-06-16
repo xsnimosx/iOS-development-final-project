@@ -160,6 +160,10 @@ class ChatViewController: UIViewController, UIImagePickerControllerDelegate, UIN
                 "content": "",
                 "type": "image",
                 "imageURL": urlString,
+                // Persist dimensions so the receiver's bubble reserves correct space
+                // before the image downloads — no layout jump.
+                "imageWidth": Int(image.size.width),
+                "imageHeight": Int(image.size.height),
                 "timestamp": Timestamp(date: Date()),
                 "isRead": false
             ]
@@ -209,6 +213,11 @@ extension ChatViewController: UITableViewDataSource {
         let showSenderName = prev == nil
             || prev!.senderId != message.senderId
             || prev!.senderName != message.senderName
+        // Only legacy image messages (no stored dimensions) need a height refresh once
+        // the image downloads; messages with stored dims size correctly up front.
+        cell.onImageLoaded = { [weak tableView] in
+            tableView?.performBatchUpdates(nil)
+        }
         cell.configure(with: message, isOwn: isOwn, showSenderName: showSenderName, showTimestamp: indexPath.row == visibleTimestampRow)
         return cell
     }

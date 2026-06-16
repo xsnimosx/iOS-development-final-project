@@ -15,6 +15,10 @@ struct Message: Codable {
     let content: String
     let type: String
     var imageURL: String?
+    // Stored at upload so the bubble can reserve correct space before the image
+    // downloads (no layout jump). Optional: legacy image messages decode as nil.
+    var imageWidth: Int?
+    var imageHeight: Int?
     let timestamp: Date
     var isRead: Bool
 }

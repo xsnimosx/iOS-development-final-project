@@ -23,6 +23,12 @@ class MessageCell: UITableViewCell {
     private let contentLabel = UILabel()
     private let msgImageView = UIImageView()
 
+    // Image bubble: fixed 72% width + a NUMERIC constant height computed from the image's
+    // aspect (clamped). A constant — not a multiplier-aspect constraint — so self-sizing
+    // never fights UIView-Encapsulated-Layout-Height (the cause of the earlier crash storm).
+    private static let minImageRatio: CGFloat = 9.0 / 20.0   // widest: landscape 20:9
+    private static let maxImageRatio: CGFloat = 20.0 / 9.0   // tallest: portrait 9:20
+    private var bubbleImageWidth: NSLayoutConstraint?
     private var imageHeightConstraint: NSLayoutConstraint?
     // Stored separately so it can be toggled off for image messages,
     // avoiding a Required-priority conflict with msgImageView.bottom = bubbleView.bottom.
@@ -72,6 +78,13 @@ class MessageCell: UITableViewCell {
 
         bubbleLeading = bubbleView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12)
         bubbleTrailing = bubbleView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12)
+        // configure() leaves exactly one side pin active, but a cell-reuse/self-sizing race
+        // can momentarily catch both active, over-constraining width against the 72% cap
+        // (the "bubble jumps wide" flake). Below required, the cap always wins silently.
+        bubbleLeading?.priority = UILayoutPriority(999)
+        bubbleTrailing?.priority = UILayoutPriority(999)
+        bubbleImageWidth = bubbleView.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.72)
+        imageHeightConstraint = bubbleView.heightAnchor.constraint(equalToConstant: 0)
         textBottomConstraint = contentLabel.bottomAnchor.constraint(equalTo: bubbleView.bottomAnchor, constant: -6)
         timestampHeightConstraint = timestampLabel.heightAnchor.constraint(equalToConstant: 0)
         nameHeightConstraint = nameLabel.heightAnchor.constraint(equalToConstant: 0)
@@ -116,13 +129,20 @@ class MessageCell: UITableViewCell {
         msgImageView.image = nil
 
         textBottomConstraint?.isActive = !isImage
-        imageHeightConstraint?.isActive = false
+        bubbleImageWidth?.isActive = isImage
+        imageHeightConstraint?.isActive = isImage
 
         if isImage {
-            let maxWidth = max(contentView.bounds.width * 0.72 - 24, 160)
-            imageHeightConstraint = msgImageView.heightAnchor.constraint(equalToConstant: 160)
-            imageHeightConstraint?.isActive = true
-            loadImage(urlString: message.imageURL, displayWidth: maxWidth)
+            // Reserve the correct box up front from the stored dimensions. Legacy messages
+            // (no dims) use a 4:3 placeholder, settled in applyImage once the image lands.
+            let aspect: CGFloat
+            if let w = message.imageWidth, let h = message.imageHeight, w > 0 {
+                aspect = CGFloat(h) / CGFloat(w)
+            } else {
+                aspect = 0.75
+            }
+            imageHeightConstraint?.constant = MessageCell.clampedImageHeight(aspect: aspect)
+            loadImage(urlString: message.imageURL)
             bubbleView.backgroundColor = .systemBackground
         } else {
             bubbleView.backgroundColor = isOwn ? .systemBlue : .secondarySystemFill
@@ -155,12 +175,20 @@ class MessageCell: UITableViewCell {
         timestampLabel.alpha = visible ? 1 : 0
     }
 
-    private func loadImage(urlString: String?, displayWidth: CGFloat) {
+    /// Height (points) of a 72%-width image bubble for a given aspect (height/width),
+    /// clamped to the allowed range. A plain number — recomputed per configure, never a
+    /// multiplier-aspect constraint, so it can't fight the table's self-sizing height.
+    private static func clampedImageHeight(aspect: CGFloat) -> CGFloat {
+        let maxW = UIScreen.main.bounds.width * 0.72
+        return maxW * min(max(aspect, minImageRatio), maxImageRatio)
+    }
+
+    private func loadImage(urlString: String?) {
         guard let urlString = urlString, let url = URL(string: urlString) else { return }
         let key = urlString as NSString
 
         if let cached = MessageCell.imageCache.object(forKey: key) {
-            applyImage(cached, displayWidth: displayWidth)
+            applyImage(cached)            // sync: cell is sized correctly before it returns
             return
         }
 
@@ -168,15 +196,19 @@ class MessageCell: UITableViewCell {
             guard let data = data, let img = UIImage(data: data) else { return }
             MessageCell.imageCache.setObject(img, forKey: key)
             DispatchQueue.main.async {
-                self?.applyImage(img, displayWidth: displayWidth)
-                self?.onImageLoaded?()
+                // Only refresh the row height if the real aspect differs from what we
+                // reserved up front — i.e. legacy messages that had no stored dimensions.
+                if self?.applyImage(img) == true { self?.onImageLoaded?() }
             }
         }.resume()
     }
 
-    private func applyImage(_ image: UIImage, displayWidth: CGFloat) {
+    @discardableResult
+    private func applyImage(_ image: UIImage) -> Bool {
         msgImageView.image = image
-        let ratio = image.size.height / image.size.width
-        imageHeightConstraint?.constant = min(displayWidth * ratio, 280)
+        let newH = MessageCell.clampedImageHeight(aspect: image.size.height / image.size.width)
+        guard let c = imageHeightConstraint, abs(c.constant - newH) > 0.5 else { return false }
+        c.constant = newH
+        return true
     }
 }
