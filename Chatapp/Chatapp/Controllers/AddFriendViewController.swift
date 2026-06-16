@@ -48,7 +48,16 @@ class AddFriendViewController: UIViewController {
         tableView.register(AddFriendUserCell.self, forCellReuseIdentifier: AddFriendUserCell.reuseId)
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 68
+        // 點背景(表格空白處)收鍵盤;點搜尋框或結果列不收。與其他畫面共用同一邏輯。
+        setupKeyboardDismissOnBackgroundTap()
         fetchUsers()
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        // 進入「加好友」頁就自動聚焦搜尋框、彈出鍵盤。要等畫面實際上螢幕(viewDidAppear)
+        // 呼叫才可靠;太早呼叫不一定會喚起鍵盤。
+        searchBar.becomeFirstResponder()
     }
 
     // MARK: - IBAction
